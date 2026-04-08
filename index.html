@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>离门团队视频 - 注册登录修复版</title>
+<title>离门团队视频 - 举报+封禁修复版</title>
 <style>
 * {margin:0;padding:0;box-sizing:border-box}
 body {background:#000;color:#fff;font-family:"Microsoft YaHei",sans-serif;overflow:hidden}
@@ -78,16 +78,19 @@ input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3p
 
 .modal {position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999999;display:none;align-items:center;justify-content:center;padding:20px}
 .modal-card {
-  width:100%;max-width:380px;background:#111;padding:24px;border-radius:16px;border:2px solid #0f0;color:#fff
+  width:100%;max-width:420px;background:#111;padding:24px;border-radius:16px;border:2px solid #0f0;color:#fff;
+  max-height:80vh;overflow:auto
 }
 
 .refresh-tip{position:fixed;top:8px;left:50%;transform:translateX(-50%);background:#0f0;color:#000;padding:5px 10px;border-radius:20px;font-size:12px;z-index:99999;display:none}
 
+/* 举报弹窗 */
 #reportModal .modal-card h4 {font-size:24px;margin-bottom:16px}
 #reportTarget {background:#333;cursor:not-allowed;}
 #reportType {appearance:none;background:#222 url('data:image/svg+xml;utf8,<svg fill="%230f0" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 12px center;background-size:20px}
 #reportMsg {min-height:100px;resize:none}
 
+/* 消息页 */
 .msg-page {background:#f5f5f5;padding-top:50px}
 .msg-list {padding:10px}
 .msg-item {
@@ -101,6 +104,7 @@ input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3p
 .msg-name {font-size:16px;font-weight:bold}
 .msg-last {font-size:13px;color:#666;margin-top:2px}
 
+/* 聊天页 */
 .chat-page {background:#f5f5f5;padding-top:50px;padding-bottom:70px}
 .chat-header {
   position:fixed;top:0;left:0;width:100%;height:50px;background:#fff;display:flex;align-items:center;padding:0 14px;
@@ -126,6 +130,17 @@ input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3p
   width:80px;background:#070;color:#fff;border:none;border-radius:24px;font-size:16px;font-weight:bold;
   cursor:pointer
 }
+
+/* 封禁弹窗 */
+#banModal .modal-card h4 {font-size:20px;margin-bottom:12px}
+.ban-item {
+  border:1px solid #333;padding:10px;margin:8px;border-radius:8px
+}
+.ban-btn {
+  padding:6px 12px;border:none;border-radius:6px;font-weight:bold;cursor:pointer;margin-left:8px
+}
+.ban-btn.ban {background:#f00;color:#fff}
+.ban-btn.unban {background:#070;color:#fff}
 </style>
 </head>
 <body>
@@ -166,7 +181,6 @@ input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3p
 <button class="upload-btn" onclick="document.getElementById('uploadVideo').click()">📤 上传视频</button>
 <div class="upload-progress" id="uploadProgress"><div class="upload-bar" id="uploadBar"></div></div>
 
-<!-- 登录注册面板 -->
 <div class="auth-page" id="authPage">
   <div class="auth-card">
     <h3 style="text-align:center;margin-bottom:16px;font-size:22px">登录 / 注册</h3>
@@ -216,6 +230,7 @@ input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3p
   <div class="user-work" id="targetWork"></div>
 </div>
 
+<!-- 举报弹窗 -->
 <div class="modal" id="reportModal">
   <div class="modal-card">
     <h4>举报</h4>
@@ -232,11 +247,13 @@ input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3p
   </div>
 </div>
 
+<!-- 消息列表页 -->
 <div class="msg-page" id="msgPage">
   <div class="back-btn" onclick="closeMsgPage()">←</div>
   <div class="msg-list" id="msgList"></div>
 </div>
 
+<!-- 聊天页 -->
 <div class="chat-page" id="chatPage">
   <div class="chat-header">
     <div class="back-btn" onclick="closeChatPage()">←</div>
@@ -249,6 +266,7 @@ input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3p
   </div>
 </div>
 
+<!-- 管理员登录弹窗 -->
 <div class="modal" id="adminLoginModal">
   <div class="modal-card">
     <h4>管理员验证</h4>
@@ -258,14 +276,26 @@ input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3p
   </div>
 </div>
 
-<div class="modal" id="adminModal" style="align-items:flex-start;justify-content:center;padding-top:40px">
-  <div class="modal-card" style="max-width:420px;max-height:80vh;overflow:auto">
+<!-- 管理员后台弹窗 -->
+<div class="modal" id="adminModal">
+  <div class="modal-card">
     <h4>管理后台</h4>
     <button class="btn" onclick="showReports()">查看所有举报</button>
     <button class="btn" onclick="showWorks()">所有作品</button>
     <button class="btn" onclick="showChatLog()">私信记录</button>
+    <!-- 新增封禁功能按钮 -->
+    <button class="btn btn-danger" onclick="openBanManage()">封禁/解封账号</button>
     <button class="btn btn-secondary" onclick="closeAdmin()">关闭</button>
     <div id="adminContent" style="margin-top:10px"></div>
+  </div>
+</div>
+
+<!-- 封禁管理弹窗 -->
+<div class="modal" id="banModal">
+  <div class="modal-card">
+    <h4>账号封禁管理</h4>
+    <div id="banUserList"></div>
+    <button class="btn btn-secondary" onclick="closeBanModal()">返回</button>
   </div>
 </div>
 
@@ -284,11 +314,14 @@ input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3p
 // ======================
 const DB_KEY = "LIMEN_GLOBAL_DB";
 const USER_KEY = "LIMEN_LOGIN_USER";
+const ADMIN_PWD = "1234567890";
 
 function getDB() {
   try {
     let s = localStorage.getItem(DB_KEY);
-    return s ? JSON.parse(s) : { users: [], works: [], reports: [], likes: [], comments: [], chats: [], bans: [] };
+    return s ? JSON.parse(s) : { 
+      users: [], works: [], reports: [], likes: [], comments: [], chats: [], bans: [] 
+    };
   } catch (e) {
     return { users: [], works: [], reports: [], likes: [], comments: [], chats: [], bans: [] };
   }
@@ -328,8 +361,6 @@ let currentChatTarget = null;
 let currentUserName = "";
 let works = getWorks();
 let users = getUsers();
-
-const ADMIN_PWD = "1234567890";
 
 // ======================
 // 工具
@@ -406,10 +437,9 @@ function toggleLike() {
 }
 
 // ======================
-// ✅ 注册（稳定版）
+// 注册/登录（修复版）
 // ======================
 function doRegister() {
-  console.log("点击注册");
   let user = document.getElementById("regUser").value.trim();
   let pwd = document.getElementById("regPwd").value.trim();
 
@@ -425,16 +455,12 @@ function doRegister() {
     return;
   }
 
-  users.push({ user, pwd });
+  users.push({ user, pwd, isBanned: false, banExpire: 0 });
   saveUsers(users);
   alert("注册成功！请登录");
 }
 
-// ======================
-// ✅ 登录（稳定版）
-// ======================
 function doLogin() {
-  console.log("点击登录");
   let user = document.getElementById("regUser").value.trim();
   let pwd = document.getElementById("regPwd").value.trim();
 
@@ -450,6 +476,12 @@ function doLogin() {
     return;
   }
 
+  // 检查是否封禁
+  if (found.isBanned && found.banExpire > Date.now()) {
+    alert(`账号已封禁，解封时间：${new Date(found.banExpire).toLocaleString()}`);
+    return;
+  }
+
   currentUser = user;
   saveLoginUser(user);
   goHome();
@@ -458,33 +490,309 @@ function doLogin() {
 function goHome() {
   document.getElementById("authPage").style.display = "none";
   document.getElementById("videoPage").classList.remove("hidden");
-  document.getElementById("myName").innerText = currentUser;
+  document.getElementById("myName").textContent = currentUser;
   refreshAllData();
   if (works.length > 0) loadCurrent();
 }
 
 // ======================
-// 绑定按钮（DOM加载完再绑）
+// 举报功能（修复版，后台可见）
 // ======================
-document.addEventListener("DOMContentLoaded", function () {
-  console.log("DOM加载完成");
-  document.getElementById("btnRegister").onclick = doRegister;
-  document.getElementById("btnLogin").onclick = doLogin;
-
-  // 初始化页面
-  if (currentUser) {
-    goHome();
-  } else {
-    document.getElementById("authPage").style.display = "flex";
-  }
-});
-
-// ======================
-// 其他功能（不变）
-// ======================
-function openOtherUserPage() {
-  if (currentUserName) openUserPage(currentUserName);
+function openReport(user) {
+  if (!currentUser) { alert("请先登录才能举报"); return; }
+  document.getElementById("reportTarget").value = user;
+  document.getElementById("reportMsg").value = "";
+  document.getElementById("reportModal").style.display = "flex";
 }
+function closeReport() { document.getElementById("reportModal").style.display = "none"; }
+function submitReport() {
+  let target = document.getElementById("reportTarget").value.trim();
+  let type = document.getElementById("reportType").value;
+  let msg = document.getElementById("reportMsg").value.trim();
+  if (!target || !currentUser) { alert("举报异常，请重试"); return; }
+  
+  let reports = getReports();
+  reports.push({
+    from: currentUser,
+    target: target,
+    type: type,
+    msg: msg,
+    time: new Date().toLocaleString(),
+    status: "待处理"
+  });
+  saveReports(reports);
+  
+  alert("举报提交成功！管理员后台可查看");
+  closeReport();
+}
+
+// ======================
+// 管理员后台（修复版+封禁功能）
+// ======================
+function openAdmin() {
+  if (!currentUser) { alert("请先登录"); return; }
+  document.getElementById("adminPwd").value = "";
+  document.getElementById("adminLoginModal").style.display = "flex";
+}
+function closeAdminLogin() { document.getElementById("adminLoginModal").style.display = "none"; }
+function checkAdminPwd() {
+  let p = document.getElementById("adminPwd").value.trim();
+  if (p !== ADMIN_PWD) { alert("密码错误"); return; }
+  closeAdminLogin();
+  document.getElementById("adminModal").style.display = "flex";
+}
+function closeAdmin() { document.getElementById("adminModal").style.display = "none"; }
+
+// 查看所有举报（修复，显示完整数据）
+function showReports() {
+  let reports = getReports();
+  let html = "<h5>所有举报（全设备同步）</h5>";
+  if (reports.length === 0) {
+    html += "<p style='color:#999'>暂无举报</p>";
+  } else {
+    reports.forEach((it, i) => {
+      html += `
+        <div style='border:1px solid #333;padding:10px;margin:8px;border-radius:8px'>
+          <p><strong>举报人：</strong>${it.from}</p>
+          <p><strong>被举报：</strong>${it.target}</p>
+          <p><strong>类型：</strong>${it.type}</p>
+          <p><strong>说明：</strong>${it.msg || '无'}</p>
+          <p><strong>时间：</strong>${it.time}</p>
+          <p><strong>状态：</strong>${it.status}</p>
+          <button onclick="delReport(${i})" style="margin-top:8px;padding:6px 12px;background:#f00;color:#fff;border:none;border-radius:6px">删除举报</button>
+        </div>
+      `;
+    });
+  }
+  document.getElementById("adminContent").innerHTML = html;
+}
+
+function delReport(i) {
+  let reports = getReports();
+  reports.splice(i, 1);
+  saveReports(reports);
+  showReports();
+}
+
+// 所有作品
+function showWorks() {
+  let works = getWorks();
+  let html = "<h5>所有作品</h5>";
+  works.forEach((it, i) => {
+    html += `
+      <div style='border:1px solid #333;padding:10px;margin:8px;border-radius:8px'>
+        <p><strong>作者：</strong>${it.user}</p>
+        <p><strong>时间：</strong>${it.time}</p>
+        <button onclick="delWork(${i})" style="margin-top:8px;padding:6px 12px;background:#f00;color:#fff;border:none;border-radius:6px">删除作品</button>
+      </div>
+    `;
+  });
+  document.getElementById("adminContent").innerHTML = html || "<p style='color:#999'>暂无作品</p>";
+}
+
+function delWork(i) {
+  let works = getWorks();
+  works.splice(i, 1);
+  saveWorks(works);
+  showWorks();
+}
+
+// 私信记录
+function showChatLog() {
+  let chats = getChats();
+  let html = "<h5>全部私信记录</h5>";
+  chats.forEach(c => {
+    html += `
+      <div style='border:1px solid #333;padding:10px;margin:8px;border-radius:8px'>
+        <p><strong>${c.from} → ${c.to}</strong></p>
+        <p>${c.msg}</p>
+        <p style='font-size:12px;color:#999'>${c.time}</p>
+      </div>
+    `;
+  });
+  document.getElementById("adminContent").innerHTML = html || "<p style='color:#999'>暂无私信</p>";
+}
+
+// ======================
+// 新增：封禁/解封功能
+// ======================
+function openBanManage() {
+  closeAdmin();
+  let users = getUsers();
+  let html = "<h5>账号列表</h5>";
+  
+  users.forEach((u, i) => {
+    let banStatus = u.isBanned && u.banExpire > Date.now() 
+      ? `已封禁，解封时间：${new Date(u.banExpire).toLocaleString()}` 
+      : "正常";
+    let banBtn = u.isBanned && u.banExpire > Date.now() 
+      ? `<button class="ban-btn unban" onclick="unbanUser('${u.user}')">解封</button>` 
+      : `<button class="ban-btn ban" onclick="banUser('${u.user}')">封禁</button>`;
+    
+    html += `
+      <div class="ban-item">
+        <p><strong>账号：</strong>${u.user}</p>
+        <p><strong>状态：</strong>${banStatus}</p>
+        ${banBtn}
+      </div>
+    `;
+  });
+  
+  document.getElementById("banUserList").innerHTML = html;
+  document.getElementById("banModal").style.display = "flex";
+}
+
+function closeBanModal() {
+  document.getElementById("banModal").style.display = "none";
+  document.getElementById("adminModal").style.display = "flex";
+}
+
+// 封禁用户
+function banUser(username) {
+  let days = prompt("请输入封禁天数（1-365）：", "7");
+  if (!days || isNaN(days) || days < 1 || days > 365) {
+    alert("请输入有效天数");
+    return;
+  }
+  
+  let users = getUsers();
+  let user = users.find(u => u.user === username);
+  if (!user) return;
+  
+  user.isBanned = true;
+  user.banExpire = Date.now() + days * 24 * 60 * 60 * 1000;
+  saveUsers(users);
+  alert(`已封禁账号 ${username} ${days} 天`);
+  openBanManage(); // 刷新列表
+}
+
+// 解封用户
+function unbanUser(username) {
+  let users = getUsers();
+  let user = users.find(u => u.user === username);
+  if (!user) return;
+  
+  user.isBanned = false;
+  user.banExpire = 0;
+  saveUsers(users);
+  alert(`已解封账号 ${username}`);
+  openBanManage(); // 刷新列表
+}
+
+// ======================
+// 消息&聊天功能
+// ======================
+function openMsgPage() {
+  if (!currentUser) { alert("请先登录"); return; }
+  refreshAllData();
+  renderMsgList();
+  document.getElementById("msgPage").style.display = "block";
+}
+function closeMsgPage() { document.getElementById("msgPage").style.display = "none"; }
+
+function renderMsgList() {
+  let chats = getChats();
+  let chatUsers = new Set();
+  chats.forEach(c => {
+    if (c.from === currentUser) chatUsers.add(c.to);
+    if (c.to === currentUser) chatUsers.add(c.from);
+  });
+  getUsers().forEach(u => {
+    if (u.user !== currentUser) chatUsers.add(u.user);
+  });
+  let html = "";
+  chatUsers.forEach(u => {
+    let last = chats.filter(c =>
+      (c.from === currentUser && c.to === u) || (c.from === u && c.to === currentUser)
+    ).pop();
+    let text = last ? last.msg : "暂无消息";
+    html += `
+      <div class="msg-item" onclick="openChatPage('${u}')">
+        <div class="msg-avatar"><img src="https://via.placeholder.com/48"></div>
+        <div class="msg-info">
+          <div class="msg-name">${u}</div>
+          <div class="msg-last">${text}</div>
+        </div>
+      </div>
+    `;
+  });
+  document.getElementById("msgList").innerHTML = html || "<p style='text-align:center;color:#999;padding:20px'>暂无联系人</p>";
+}
+
+function openChatPage(target) {
+  currentChatTarget = target;
+  document.getElementById("chatTargetName").textContent = target;
+  renderChat();
+  document.getElementById("chatPage").style.display = "block";
+  closeMsgPage();
+}
+function closeChatPage() {
+  document.getElementById("chatPage").style.display = "none";
+  currentChatTarget = null;
+  openMsgPage();
+}
+
+function renderChat() {
+  if (!currentChatTarget) return;
+  let chats = getChats();
+  let list = chats.filter(c =>
+    (c.from === currentUser && c.to === currentChatTarget) ||
+    (c.from === currentChatTarget && c.to === currentUser)
+  );
+  let html = "";
+  list.forEach(c => {
+    let isMe = c.from === currentUser;
+    html += `
+      <div class="chat-item ${isMe ? 'me' : 'other'}">
+        <div class="chat-bubble">${c.msg}</div>
+      </div>
+    `;
+  });
+  document.getElementById("chatList").innerHTML = html;
+  setTimeout(() => {
+    document.getElementById("chatList").scrollTop = 99999;
+  }, 100);
+}
+
+function sendChatMsg() {
+  if (!currentUser || !currentChatTarget) return;
+  let txt = document.getElementById("chatInput").value.trim();
+  if (!txt) return;
+  let chats = getChats();
+  chats.push({ from: currentUser, to: currentChatTarget, msg: txt, time: new Date().toLocaleString() });
+  saveChats(chats);
+  document.getElementById("chatInput").value = "";
+  renderChat();
+  renderMsgList();
+}
+
+// ======================
+// 页面切换
+// ======================
+function switchTab(t) {
+  document.querySelectorAll(".tab-item").forEach(i => i.classList.remove("active"));
+  document.getElementById("videoPage").classList.add("hidden");
+  document.getElementById("myPage").style.display = "none";
+  document.getElementById("userPage").style.display = "none";
+  document.getElementById("msgPage").style.display = "none";
+  document.getElementById("chatPage").style.display = "none";
+
+  if (t === 'home') {
+    document.getElementById("tabHome").classList.add("active");
+    document.getElementById("videoPage").classList.remove("hidden");
+  } else if (t === 'my') {
+    document.getElementById("tabMy").classList.add("active");
+    document.getElementById("myPage").style.display = "block";
+  } else if (t === 'msg') {
+    document.getElementById("tabMsg").classList.add("active");
+    openMsgPage();
+  }
+}
+
+// ======================
+// 其他功能
+// ======================
+function openOtherUserPage() { if (currentUserName) openUserPage(currentUserName); }
 function openUserPage(name) {
   refreshAllData();
   document.getElementById("targetName").textContent = name;
@@ -524,181 +832,6 @@ function uploadVideo(e) {
   r.readAsDataURL(f);
 }
 
-function openReport(user) {
-  if (!currentUser) { alert("请先登录"); return; }
-  document.getElementById("reportTarget").value = user;
-  document.getElementById("reportMsg").value = "";
-  document.getElementById("reportModal").style.display = "flex";
-}
-function closeReport() { document.getElementById("reportModal").style.display = "none"; }
-function submitReport() {
-  let target = document.getElementById("reportTarget").value.trim();
-  let type = document.getElementById("reportType").value;
-  let msg = document.getElementById("reportMsg").value.trim();
-  if (!target || !currentUser) return;
-  let reports = getReports();
-  reports.push({ from: currentUser, target, type, msg, time: new Date().toLocaleString() });
-  saveReports(reports);
-  alert("举报提交成功");
-  closeReport();
-}
-
-function openAdmin() {
-  if (!currentUser) { alert("请先登录"); return; }
-  document.getElementById("adminPwd").value = "";
-  document.getElementById("adminLoginModal").style.display = "flex";
-}
-function closeAdminLogin() { document.getElementById("adminLoginModal").style.display = "none"; }
-function checkAdminPwd() {
-  let p = document.getElementById("adminPwd").value.trim();
-  if (p !== ADMIN_PWD) { alert("密码错误"); return; }
-  closeAdminLogin();
-  document.getElementById("adminModal").style.display = "flex";
-}
-function closeAdmin() { document.getElementById("adminModal").style.display = "none"; }
-function showReports() {
-  let reports = getReports();
-  let html = "<h5>所有举报</h5>";
-  reports.forEach((it, i) => {
-    html += `<div style='border:1px solid #333;padding:10px;margin:8px;border-radius:8px'>
-      举报人：${it.from}<br>被举报：${it.target}<br>类型：${it.type}<br>时间：${it.time}
-      <button onclick="delReport(${i})" style="margin-top:8px;padding:6px 12px;background:#f00;color:#fff;border:none;border-radius:6px">删除</button>
-    </div>`;
-  });
-  document.getElementById("adminContent").innerHTML = html || "<p>暂无举报</p>";
-}
-function delReport(i) {
-  let reports = getReports();
-  reports.splice(i, 1);
-  saveReports(reports);
-  showReports();
-}
-function showWorks() {
-  let works = getWorks();
-  let html = "<h5>所有作品</h5>";
-  works.forEach((it, i) => {
-    html += `<div style='border:1px solid #333;padding:10px;margin:8px;border-radius:8px'>
-      ${it.user} ${it.time}
-      <button onclick="delWork(${i})" style="margin-top:8px;padding:6px 12px;background:#f00;color:#fff;border:none;border-radius:6px">删除</button>
-    </div>`;
-  });
-  document.getElementById("adminContent").innerHTML = html;
-}
-function delWork(i) {
-  let works = getWorks();
-  works.splice(i, 1);
-  saveWorks(works);
-  showWorks();
-}
-function showChatLog() {
-  let chats = getChats();
-  let html = "<h5>私信记录</h5>";
-  chats.forEach(c => {
-    html += `<div style='border:1px solid #333;padding:10px;margin:8px;border-radius:8px'>${c.from}→${c.to}：${c.msg}</div>`;
-  });
-  document.getElementById("adminContent").innerHTML = html || "<p>暂无记录</p>";
-}
-
-function openMsgPage() {
-  if (!currentUser) { alert("请先登录"); return; }
-  refreshAllData();
-  renderMsgList();
-  document.getElementById("msgPage").style.display = "block";
-}
-function closeMsgPage() { document.getElementById("msgPage").style.display = "none"; }
-function renderMsgList() {
-  let chats = getChats();
-  let chatUsers = new Set();
-  chats.forEach(c => {
-    if (c.from === currentUser) chatUsers.add(c.to);
-    if (c.to === currentUser) chatUsers.add(c.from);
-  });
-  getUsers().forEach(u => {
-    if (u.user !== currentUser) chatUsers.add(u.user);
-  });
-  let html = "";
-  chatUsers.forEach(u => {
-    let last = chats.filter(c =>
-      (c.from === currentUser && c.to === u) || (c.from === u && c.to === currentUser)
-    ).pop();
-    let text = last ? last.msg : "暂无消息";
-    html += `
-      <div class="msg-item" onclick="openChatPage('${u}')">
-        <div class="msg-avatar"><img src="https://via.placeholder.com/48"></div>
-        <div class="msg-info">
-          <div class="msg-name">${u}</div>
-          <div class="msg-last">${text}</div>
-        </div>
-      </div>
-    `;
-  });
-  document.getElementById("msgList").innerHTML = html || "<p style='text-align:center'>暂无联系人</p>";
-}
-function openChatPage(target) {
-  currentChatTarget = target;
-  document.getElementById("chatTargetName").textContent = target;
-  renderChat();
-  document.getElementById("chatPage").style.display = "block";
-  closeMsgPage();
-}
-function closeChatPage() {
-  document.getElementById("chatPage").style.display = "none";
-  currentChatTarget = null;
-  openMsgPage();
-}
-function renderChat() {
-  if (!currentChatTarget) return;
-  let chats = getChats();
-  let list = chats.filter(c =>
-    (c.from === currentUser && c.to === currentChatTarget) ||
-    (c.from === currentChatTarget && c.to === currentUser)
-  );
-  let html = "";
-  list.forEach(c => {
-    let isMe = c.from === currentUser;
-    html += `
-      <div class="chat-item ${isMe ? 'me' : 'other'}">
-        <div class="chat-bubble">${c.msg}</div>
-      </div>
-    `;
-  });
-  document.getElementById("chatList").innerHTML = html;
-  setTimeout(() => {
-    document.getElementById("chatList").scrollTop = 99999;
-  }, 100);
-}
-function sendChatMsg() {
-  if (!currentUser || !currentChatTarget) return;
-  let txt = document.getElementById("chatInput").value.trim();
-  if (!txt) return;
-  let chats = getChats();
-  chats.push({ from: currentUser, to: currentChatTarget, msg: txt, time: new Date().toLocaleString() });
-  saveChats(chats);
-  document.getElementById("chatInput").value = "";
-  renderChat();
-  renderMsgList();
-}
-
-function switchTab(t) {
-  document.querySelectorAll(".tab-item").forEach(i => i.classList.remove("active"));
-  document.getElementById("videoPage").classList.add("hidden");
-  document.getElementById("myPage").style.display = "none";
-  document.getElementById("userPage").style.display = "none";
-  document.getElementById("msgPage").style.display = "none";
-  document.getElementById("chatPage").style.display = "none";
-
-  if (t === 'home') {
-    document.getElementById("tabHome").classList.add("active");
-    document.getElementById("videoPage").classList.remove("hidden");
-  } else if (t === 'my') {
-    document.getElementById("tabMy").classList.add("active");
-    document.getElementById("myPage").style.display = "block";
-  } else if (t === 'msg') {
-    document.getElementById("tabMsg").classList.add("active");
-    openMsgPage();
-  }
-}
-
 function openMyPage() { switchTab('my'); }
 function toggleFollow() {
   let b = document.getElementById("followBtn");
@@ -707,12 +840,27 @@ function toggleFollow() {
 }
 function toggleCollect() {
   let c = parseInt(document.getElementById("collectCount").textContent);
-  document.getElementById("collectCount").textContent = c + (document.getElementById("collectCount").textContent.endsWith("0") ? 1 : -1);
+  document.getElementById("collectCount").textContent = c + 1;
 }
-function openComment() { alert("评论开发中"); }
-function openShare() { alert("分享开发中"); }
-function openWorkPage() { alert("我的作品开发中"); }
+function openComment() { alert("评论功能开发中"); }
+function openShare() { alert("分享功能开发中"); }
+function openWorkPage() { alert("我的作品功能开发中"); }
+
+// ======================
+// 初始化（绑定按钮）
+// ======================
+document.addEventListener("DOMContentLoaded", function () {
+  document.getElementById("btnRegister").onclick = doRegister;
+  document.getElementById("btnLogin").onclick = doLogin;
+
+  if (currentUser) {
+    goHome();
+  } else {
+    document.getElementById("authPage").style.display = "flex";
+  }
+});
 </script>
 </body>
 </html>
+
 
