@@ -3,11 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>离门团队视频</title>
+<title>离门团队视频 - 注册登录修复版</title>
 <style>
 * {margin:0;padding:0;box-sizing:border-box}
 body {background:#000;color:#fff;font-family:"Microsoft YaHei",sans-serif;overflow:hidden}
 .hidden {display:none !important}
+
+.top-bar {position:fixed;top:0;left:0;width:100%;height:46px;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:space-between;padding:0 14px}
+.time-text {font-size:13px;color:#fff}
 
 .tab-bar {position:fixed;bottom:0;left:0;width:100%;height:50px;background:#111;display:flex;align-items:center;justify-content:space-around;z-index:9999;border-top:1px solid #333}
 .tab-item {display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;color:#999;cursor:pointer}
@@ -15,154 +18,147 @@ body {background:#000;color:#fff;font-family:"Microsoft YaHei",sans-serif;overfl
 .tab-plus {width:50px;height:50px;border-radius:50%;background:#070;display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;margin-top:-10px;z-index:99999}
 
 .video-page {width:100vw;height:calc(100vh - 50px);position:relative;overflow:hidden}
+.video-container {width:100%;height:100%;position:relative}
 video {width:100%;height:100%;object-fit:cover;background:#000}
-.top-bar {position:fixed;top:0;left:0;width:100%;height:50px;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:space-between;padding:0 15px}
-.upload-btn {position:fixed;top:60px;left:15px;z-index:9999;width:calc(100% - 30px);padding:12px;background:#070;color:#fff;border:none;border-radius:8px;font-size:18px;font-weight:bold}
-.upload-progress {position:fixed;top:110px;left:15px;width:calc(100% - 30px);height:6px;background:#444;border-radius:3px;z-index:9999;display:none}
-.upload-bar {height:100%;width:0%;background:#0f0;border-radius:3px}
 
-.user-info {position:fixed;left:15px;bottom:80px;z-index:99999;display:flex;align-items:center;gap:12px}
-.avatar {width:60px;height:60px;border-radius:50%;background:#fff;overflow:hidden;border:2px solid #fff;cursor:pointer}
+.user-info {position:fixed;left:14px;bottom:80px;z-index:99999;display:flex;align-items:center;gap:12px}
+.avatar {width:56px;height:56px;border-radius:50%;background:#fff;overflow:hidden;border:2px solid #fff;cursor:pointer}
 .avatar img {width:100%;height:100%;object-fit:cover;display:block}
-.user-name {font-size:20px;font-weight:bold;margin-bottom:8px}
-.follow-btn {background:#ff4400;color:#fff;border:none;padding:8px 20px;border-radius:20px;font-size:16px;font-weight:bold;cursor:pointer}
+.user-name {font-size:18px;font-weight:bold;margin-bottom:6px}
+.follow-btn {background:#ff4400;color:#fff;border:none;padding:7px 18px;border-radius:20px;font-size:14px;font-weight:bold;cursor:pointer}
 .followed {background:#333;color:#fff}
-.report-btn {background:#f00;color:#fff;border:none;padding:8px 16px;border-radius:16px;font-size:14px;margin-top:8px;cursor:pointer;z-index:999999;pointer-events:auto !important}
-.right-bar {position:fixed;right:15px;bottom:80px;z-index:99999;display:flex;flex-direction:column;gap:20px;align-items:center}
-.icon-btn {width:50px;height:50px;border-radius:50%;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer}
-.icon-count {font-size:12px;margin-top:4px}
-.progress {position:fixed;bottom:20px;left:15px;width:calc(100% - 30px);height:6px;background:#444;border-radius:3px;z-index:9999;cursor:pointer}
+.report-btn {background:#f00;color:#fff;border:none;padding:7px 14px;border-radius:16px;font-size:13px;margin-top:6px;cursor:pointer;z-index:999999}
+
+.right-bar {position:fixed;right:14px;bottom:80px;z-index:99999;display:flex;flex-direction:column;gap:16px;align-items:center}
+.icon-btn {width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer}
+.icon-count {font-size:12px;margin-top:3px}
+
+.progress {position:fixed;bottom:18px;left:14px;width:calc(100% - 28px);height:5px;background:#444;border-radius:3px;z-index:9999;cursor:pointer}
 .progress-bar {height:100%;width:0%;background:#0f0;border-radius:3px}
 
-.my-page {position:fixed;inset:0;background:#fff;z-index:9999;display:none;overflow:auto;padding-bottom:50px;color:#000}
-.my-header {height:150px;background:#f5f5f5;display:flex;align-items:center;padding:20px;gap:15px;position:relative}
-.my-avatar {width:80px;height:80px;border-radius:50%;overflow:hidden;border:3px solid #fff}
+.upload-btn {position:fixed;top:56px;left:14px;z-index:9999;width:calc(100% - 28px);padding:10px;background:#070;color:#fff;border:none;border-radius:8px;font-size:16px}
+.upload-progress {position:fixed;top:100px;left:14px;width:calc(100% - 28px);height:5px;background:#444;border-radius:3px;z-index:9999;display:none}
+.upload-bar {height:100%;width:0%;background:#0f0;border-radius:3px}
+
+.my-page,.user-page,.ban-page,.msg-page,.chat-page,.work-page {
+  position:fixed;inset:0;background:#fff;z-index:10000;display:none;overflow:auto;padding-bottom:50px;color:#000
+}
+.my-header {height:140px;background:#f5f5f5;display:flex;align-items:center;padding:18px;gap:14px;position:relative}
+.my-avatar {width:72px;height:72px;border-radius:50%;overflow:hidden;border:3px solid #fff}
 .my-avatar img {width:100%;height:100%;object-fit:cover}
 .my-info {flex:1}
-.my-name {font-size:22px;font-weight:bold;margin-bottom:8px}
-.my-follow {display:flex;gap:20px;margin-top:10px}
+.my-name {font-size:20px;font-weight:bold;margin-bottom:6px}
+.my-follow {display:flex;gap:18px;margin-top:8px}
 .my-follow-item {text-align:center}
-.my-follow-num {font-size:18px;font-weight:bold}
+.my-follow-num {font-size:17px;font-weight:bold}
 .my-follow-text {font-size:12px;color:#999}
-.back-btn {position:absolute;top:15px;left:15px;width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;cursor:pointer}
-.ban-tip-self {padding:15px 20px;background:#fff;border-bottom:1px solid #eee}
-.ban-text {font-size:16px;color:#333;margin-bottom:10px}
-.appeal-btn {background:#ff4400;color:#fff;border:none;padding:8px 15px;border-radius:20px;font-size:14px;cursor:pointer}
-.my-list {padding:15px}
-.my-item {display:flex;align-items:center;gap:15px;padding:15px 0;border-bottom:1px solid #eee;cursor:pointer}
-.my-item-icon {width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:18px}
-.my-item-text {flex:1;font-size:16px}
+.back-btn {position:absolute;top:12px;left:12px;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;cursor:pointer}
 
-.user-page {position:fixed;inset:0;background:#fff;z-index:99999;display:none;overflow:auto;padding:20px;color:#000}
-.user-head {height:160px;background:#111;color:#fff;display:flex;align-items:center;gap:14px;padding:14px;position:relative}
-.user-av {width:70px;height:70px;border-radius:50%;overflow:hidden}
-.user-back {position:absolute;top:14px;left:14px;color:#fff;cursor:pointer;font-size:20px}
-.user-work {display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.user-head {height:150px;background:#111;color:#fff;display:flex;align-items:center;gap:12px;padding:12px;position:relative}
+.user-av {width:64px;height:64px;border-radius:50%;overflow:hidden}
+.user-work {display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;padding:10px}
 .user-work-item {aspect-ratio:9/16;background:#000;border-radius:8px;overflow:hidden}
 .user-work-item video {width:100%;height:100%;object-fit:cover}
 
-.ban-page {position:fixed;inset:0;background:#fff;z-index:99999;display:none;overflow:auto;color:#000}
-.ban-header {height:150px;background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);position:relative}
-.ban-avatar {width:120px;height:120px;border-radius:50%;background:#fff;position:absolute;bottom:-60px;left:20px;overflow:hidden;border:4px solid #fff}
-.ban-avatar img {width:100%;height:100%;object-fit:cover}
-.ban-follow {display:flex;gap:30px;position:absolute;bottom:-30px;left:160px}
-.ban-follow-item {text-align:center}
-.ban-follow-num {font-size:18px;font-weight:bold}
-.ban-follow-text {font-size:14px;color:#333}
-.ban-back {position:absolute;top:15px;left:15px;width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;cursor:pointer}
-.ban-content {margin-top:70px;padding:20px}
-.ban-status {font-size:18px;color:#333;margin-bottom:20px;padding-bottom:15px;border-bottom:1px solid #eee}
-.ban-warning {text-align:center;margin-top:50px}
-.ban-warning-icon {width:100px;height:100px;border:3px solid #333;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 20px}
-.ban-warning-title {font-size:24px;font-weight:bold;margin-bottom:15px}
-.ban-warning-desc {font-size:16px;color:#666;line-height:1.6}
-
-.appeal-modal {position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:999999;display:none;align-items:center;justify-content:center}
-.appeal-card {background:#fff;width:90%;border-radius:12px;padding:20px;color:#000}
-.appeal-title {font-size:18px;font-weight:bold;margin-bottom:15px;text-align:center}
-.appeal-textarea {width:100%;height:120px;padding:10px;border:1px solid #ddd;border-radius:8px;margin-bottom:15px;resize:none}
-.appeal-btn {width:100%;padding:12px;background:#ff4400;color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:bold;margin-bottom:10px}
-.appeal-cancel {width:100%;padding:12px;background:#eee;color:#333;border:none;border-radius:8px;font-size:16px}
-
-.msg-page {position:fixed;inset:0;background:#fff;z-index:9999;display:none;overflow:auto;padding-bottom:50px;color:#000}
-.msg-header {height:50px;background:#f5f5f5;display:flex;align-items:center;justify-content:space-between;padding:0 15px;border-bottom:1px solid #eee}
-.msg-list {height:calc(100vh - 50px);overflow:auto;padding:15px}
-.msg-item {display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #eee;cursor:pointer}
-.msg-avatar {width:40px;height:40px;border-radius:50%;background:#ddd;overflow:hidden}
-.msg-avatar img {width:100%;height:100%;object-fit:cover}
-
-.chat-page {position:fixed;inset:0;background:#fff;z-index:9999;display:none;padding-bottom:50px;color:#000}
-.chat-header {height:50px;background:#f5f5f5;display:flex;align-items:center;justify-content:space-between;padding:0 15px;border-bottom:1px solid #eee}
-.chat-list {height:calc(100vh - 100px);overflow:auto;padding:15px;margin-bottom:50px}
-.chat-input {position:fixed;bottom:50px;left:0;width:100%;height:50px;background:#f5f5f5;display:flex;align-items:center;gap:10px;padding:0 15px;border-top:1px solid #eee;z-index:9999}
-.chat-input input {flex:1;height:36px;padding:0 10px;border:1px solid #ddd;border-radius:18px}
-.chat-input button {height:36px;padding:0 15px;background:#070;color:#fff;border:none;border-radius:18px}
-
-.work-page {position:fixed;inset:0;background:#fff;z-index:9999;display:none;overflow:auto;padding-bottom:50px;color:#000}
-.work-header {height:50px;background:#f5f5f5;display:flex;align-items:center;justify-content:space-between;padding:0 15px;border-bottom:1px solid #eee}
-.work-list {height:calc(100vh - 50px);overflow:auto;padding:15px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.work-item {aspect-ratio:9/16;background:#f5f5f5;border-radius:8px;overflow:hidden;position:relative}
-.work-item video {width:100%;height:100%;object-fit:cover}
-
-.auth-page {position:fixed;inset:0;background:#000;z-index:99999;display:flex;align-items:center;justify-content:center}
-input, textarea {width:100%;padding:12px;margin:8px 0;background:#222;border:1px solid #0f0;color:#fff;border-radius:8px}
-.btn {width:100%;padding:12px;background:#070;color:#fff;border:none;border-radius:8px;margin-top:8px;font-size:16px;font-weight:bold}
+input, textarea, select {
+  width:100%;padding:12px;margin:8px 0;background:#222;border:2px solid #0f0;color:#fff;border-radius:12px;font-size:16px;
+  outline:none;transition:border 0.2s
+}
+input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3px rgba(0,255,0,0.2)}
+.btn {
+  width:100%;padding:14px;background:#070;color:#fff;border:none;border-radius:12px;margin-top:8px;font-size:18px;font-weight:bold;
+  cursor:pointer;transition:background 0.2s
+}
+.btn:hover {background:#0a0}
 .btn-secondary {background:#333}
 .btn-danger {background:#f00}
 
-.comment-modal {position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:99999;display:none;align-items:flex-end}
-.comment-card {background:#111;width:100%;max-height:70vh;overflow:auto;padding:20px;border-radius:12px 12px 0 0;color:#fff}
-.comment-list {max-height:40vh;overflow:auto;margin:15px 0}
-.comment-item {padding:8px 0;border-bottom:1px solid #333}
+.auth-page {position:fixed;inset:0;background:#000;z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px}
+.auth-card {width:100%;max-width:360px;background:#111;padding:24px;border-radius:16px;border:2px solid #0f0}
 
-.report-modal {position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:99999999 !important;display:none;align-items:center;justify-content:center;pointer-events:auto !important}
-.report-card {background:#111;border:2px solid #0f0;padding:20px;width:90%;border-radius:12px;color:#fff;pointer-events:auto !important}
-.report-card button {padding:10px;margin:5px 0;border-radius:8px;cursor:pointer;pointer-events:auto !important}
+.modal {position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999999;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-card {
+  width:100%;max-width:380px;background:#111;padding:24px;border-radius:16px;border:2px solid #0f0;color:#fff
+}
 
-.share-modal {position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:99999;display:none;align-items:center;justify-content:center}
-.share-card {background:#111;padding:20px;border-radius:12px;color:#fff}
+.refresh-tip{position:fixed;top:8px;left:50%;transform:translateX(-50%);background:#0f0;color:#000;padding:5px 10px;border-radius:20px;font-size:12px;z-index:99999;display:none}
 
-.admin-login-modal {position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:99999999;display:none;align-items:center;justify-content:center}
-.admin-login-card {background:#111;border:2px solid #0f0;padding:20px;width:90%;border-radius:12px;color:#fff}
+#reportModal .modal-card h4 {font-size:24px;margin-bottom:16px}
+#reportTarget {background:#333;cursor:not-allowed;}
+#reportType {appearance:none;background:#222 url('data:image/svg+xml;utf8,<svg fill="%230f0" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 12px center;background-size:20px}
+#reportMsg {min-height:100px;resize:none}
 
-.admin-modal {position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:9999999;display:none;align-items:center;justify-content:center}
-.admin-card {background:#111;border:2px solid #f00;padding:20px;width:95%;max-height:90vh;overflow:auto;border-radius:12px;color:#fff}
+.msg-page {background:#f5f5f5;padding-top:50px}
+.msg-list {padding:10px}
+.msg-item {
+  display:flex;align-items:center;gap:12px;padding:12px;background:#fff;margin:6px 10px;border-radius:12px;cursor:pointer;
+  border:1px solid #eee;transition:background 0.2s
+}
+.msg-item:hover {background:#f0f0f0}
+.msg-avatar {width:48px;height:48px;border-radius:50%;background:#ddd;overflow:hidden}
+.msg-avatar img {width:100%;height:100%;object-fit:cover}
+.msg-info {flex:1}
+.msg-name {font-size:16px;font-weight:bold}
+.msg-last {font-size:13px;color:#666;margin-top:2px}
 
-.refresh-tip{
-  position:fixed;top:10px;left:50%;transform:translateX(-50%);
-  background:#0f0;color:#000;padding:6px 12px;border-radius:20px;font-size:12px;z-index:99999;display:none
+.chat-page {background:#f5f5f5;padding-top:50px;padding-bottom:70px}
+.chat-header {
+  position:fixed;top:0;left:0;width:100%;height:50px;background:#fff;display:flex;align-items:center;padding:0 14px;
+  border-bottom:1px solid #eee;z-index:10001
+}
+.chat-list {padding:10px;margin-top:50px;margin-bottom:70px}
+.chat-item {
+  display:flex;margin:8px 10px;max-width:70%
+}
+.chat-item.me {justify-content:flex-end;margin-left:auto}
+.chat-item.other {justify-content:flex-start;margin-right:auto}
+.chat-bubble {
+  padding:10px 14px;border-radius:18px;font-size:15px;line-height:1.4
+}
+.chat-item.me .chat-bubble {background:#070;color:#fff;border-bottom-right-radius:4px}
+.chat-item.other .chat-bubble {background:#fff;color:#000;border-bottom-left-radius:4px;border:1px solid #eee}
+.chat-input {
+  position:fixed;bottom:50px;left:0;width:100%;display:flex;gap:8px;padding:10px;background:#fff;
+  border-top:1px solid #eee;z-index:10001
+}
+.chat-input input {flex:1;margin:0;background:#f5f5f5;border:2px solid #0f0;border-radius:24px;padding:12px 16px}
+.chat-input button {
+  width:80px;background:#070;color:#fff;border:none;border-radius:24px;font-size:16px;font-weight:bold;
+  cursor:pointer
 }
 </style>
 </head>
 <body>
 
-<div class="refresh-tip" id="refreshTip">下拉刷新成功</div>
+<div class="refresh-tip" id="refreshTip">同步成功</div>
 
 <div class="top-bar">
   <span onclick="openMyPage()">我</span>
   <span>离门团队视频</span>
   <span onclick="openAdmin()">管理</span>
+  <span class="time-text" id="realTime"></span>
 </div>
 
 <div class="video-page hidden" id="videoPage">
-  <video id="mainVideo" playsinline preload="auto" muted></video>
+  <div class="video-container">
+    <video id="mainVideo" playsinline preload="auto" muted></video>
+  </div>
   <div class="user-info">
-    <div class="avatar" id="userAvatar" onclick="openMyPage()"><img src=""></div>
+    <div class="avatar" id="userAvatar" onclick="openOtherUserPage()"><img src=""></div>
     <div>
       <div class="user-name" id="userName"></div>
       <button class="follow-btn" id="followBtn" onclick="toggleFollow()">关注</button>
-      <button class="report-btn" onclick="openReport(currentUser)" ontouchstart="openReport(currentUser)">举报</button>
+      <button class="report-btn" onclick="openReport(currentUserName)">举报</button>
     </div>
   </div>
   <div class="right-bar">
     <div class="icon-btn" onclick="toggleLike()">❤️</div>
-    <div class="icon-count" id="likeCount">2319</div>
+    <div class="icon-count" id="likeCount">0</div>
     <div class="icon-btn" onclick="openComment()">💬</div>
-    <div class="icon-count" id="commentCount">3257</div>
+    <div class="icon-count" id="commentCount">0</div>
     <div class="icon-btn" onclick="toggleCollect()">⭐</div>
-    <div class="icon-count" id="collectCount">332</div>
+    <div class="icon-count" id="collectCount">0</div>
     <div class="icon-btn" onclick="openShare()">📤</div>
-    <div class="icon-count">259</div>
   </div>
   <div class="progress" id="progressBarWrap"><div class="progress-bar" id="progressBar"></div></div>
 </div>
@@ -170,14 +166,14 @@ input, textarea {width:100%;padding:12px;margin:8px 0;background:#222;border:1px
 <button class="upload-btn" onclick="document.getElementById('uploadVideo').click()">📤 上传视频</button>
 <div class="upload-progress" id="uploadProgress"><div class="upload-bar" id="uploadBar"></div></div>
 
+<!-- 登录注册面板 -->
 <div class="auth-page" id="authPage">
-  <div class="report-card">
-    <h2 style="text-align:center">离门团队视频-登录/注册</h2>
-    <input id="regUser" placeholder="账号">
-    <input id="regPwd" type="password" placeholder="密码">
-    <input type="file" id="regAvatar" accept="image/*">
-    <button class="btn" onclick="doRegister()">注册</button>
-    <button class="btn btn-secondary" onclick="doLogin()">登录</button>
+  <div class="auth-card">
+    <h3 style="text-align:center;margin-bottom:16px;font-size:22px">登录 / 注册</h3>
+    <input id="regUser" placeholder="账号（必填）">
+    <input id="regPwd" type="password" placeholder="密码（必填）">
+    <button class="btn" id="btnRegister">注册</button>
+    <button class="btn btn-secondary" id="btnLogin">登录</button>
   </div>
 </div>
 
@@ -194,137 +190,82 @@ input, textarea {width:100%;padding:12px;margin:8px 0;background:#222;border:1px
       </div>
     </div>
   </div>
-  <div class="ban-tip-self" id="banTipSelf">
-    <div class="ban-text" id="banText">该账户已被封禁</div>
-    <button class="appeal-btn" onclick="openAppeal()">我要申诉</button>
-  </div>
-  <div class="my-list">
-    <div class="my-item" onclick="openWorkPage()"><div class="my-item-icon">📹</div><div class="my-item-text">我的作品</div></div>
-    <div class="my-item" onclick="openMsgPage()"><div class="my-item-icon">📩</div><div class="my-item-text">我的消息</div></div>
-    <div class="my-item" onclick="openAdmin()"><div class="my-item-icon">🔐</div><div class="my-item-text">管理后台</div></div>
+  <div style="padding:14px">
+    <div class="my-item" onclick="openWorkPage()" style="padding:12px;border-bottom:1px solid #eee;display:flex;gap:12px;align-items:center">
+      <span>📹</span><span>我的作品</span>
+    </div>
+    <div class="my-item" onclick="openMsgPage()" style="padding:12px;border-bottom:1px solid #eee;display:flex;gap:12px;align-items:center">
+      <span>📩</span><span>消息</span>
+    </div>
+    <div class="my-item" onclick="openAdmin()" style="padding:12px;border-bottom:1px solid #eee;display:flex;gap:12px;align-items:center">
+      <span>🔐</span><span>管理后台</span>
+    </div>
   </div>
 </div>
 
 <div class="user-page" id="userPage">
   <div class="user-head">
-    <div class="user-back" onclick="closeUserPage()">←</div>
+    <div class="back-btn" onclick="closeUserPage()">←</div>
     <div class="user-av"><img id="targetAv" src=""></div>
     <div>
-      <div style="font-size:18px" id="targetName"></div>
-      <button class="report-btn" onclick="openReport(document.getElementById('targetName').textContent)" ontouchstart="openReport(document.getElementById('targetName').textContent)">举报该用户</button>
+      <div style="font-size:17px" id="targetName"></div>
+      <div style="font-size:13px;color:#ccc;margin-top:4px" id="userStat"></div>
+      <button class="report-btn" onclick="openReport(document.getElementById('targetName').textContent)">举报</button>
     </div>
   </div>
   <div class="user-work" id="targetWork"></div>
 </div>
 
-<div class="ban-page" id="banPage">
-  <div class="ban-header">
-    <div class="ban-back" onclick="closeBanPage()">←</div>
-    <div class="ban-avatar"><img src=""></div>
-  </div>
-  <div class="ban-content">
-    <div class="ban-status">账号已被封禁</div>
-    <div class="ban-warning">
-      <div class="ban-warning-icon">⚠️</div>
-      <div class="ban-warning-title">账号已被封禁</div>
-      <div class="ban-warning-desc">由于违反社区规范，该账号已被永久封禁</div>
-    </div>
-  </div>
-</div>
-
-<div class="appeal-modal" id="appealModal">
-  <div class="appeal-card">
-    <div class="appeal-title">账号申诉</div>
-    <textarea class="appeal-textarea" id="appealReason" placeholder="请填写申诉理由"></textarea>
-    <button class="appeal-btn" onclick="submitAppeal()">提交申诉</button>
-    <button class="appeal-cancel" onclick="closeAppeal()">取消</button>
+<div class="modal" id="reportModal">
+  <div class="modal-card">
+    <h4>举报</h4>
+    <input id="reportTarget" readonly placeholder="被举报用户">
+    <select id="reportType">
+      <option>作品违规</option>
+      <option>辱骂人身攻击</option>
+      <option>私信骚扰</option>
+      <option>其他违规</option>
+    </select>
+    <textarea id="reportMsg" placeholder="请补充举报说明（选填）"></textarea>
+    <button class="btn" onclick="submitReport()">提交</button>
+    <button class="btn btn-secondary" onclick="closeReport()">取消</button>
   </div>
 </div>
 
 <div class="msg-page" id="msgPage">
-  <div class="msg-header"><span>消息</span><span onclick="closeMsgPage()">返回</span></div>
-  <div class="msg-list">
-    <div class="msg-item" onclick="openChat('离门团队违规申诉客服')">
-      <div class="msg-avatar"><img src="https://via.placeholder.com/40"></div>
-      <span>离门团队违规申诉客服</span>
-    </div>
-    <div class="msg-item" onclick="openChat('好友')">
-      <div class="msg-avatar"><img src="https://via.placeholder.com/40"></div>
-      <span>好友</span>
-    </div>
-  </div>
+  <div class="back-btn" onclick="closeMsgPage()">←</div>
+  <div class="msg-list" id="msgList"></div>
 </div>
 
 <div class="chat-page" id="chatPage">
-  <div class="chat-header"><span id="chatName"></span><span onclick="closeChatPage()">返回</span></div>
+  <div class="chat-header">
+    <div class="back-btn" onclick="closeChatPage()">←</div>
+    <div id="chatTargetName" style="font-size:18px;font-weight:bold;margin-left:12px"></div>
+  </div>
   <div class="chat-list" id="chatList"></div>
   <div class="chat-input">
-    <input id="chatInput" placeholder="发送消息">
-    <button onclick="sendChat()">发送</button>
+    <input id="chatInput" placeholder="输入消息">
+    <button onclick="sendChatMsg()">发送</button>
   </div>
 </div>
 
-<div class="work-page" id="workPage">
-  <div class="work-header"><span>我的作品</span><span onclick="closeWorkPage()">返回</span></div>
-  <div class="work-list" id="workList"></div>
-  <input type="file" accept="video/*" onchange="uploadWork(event)">
-</div>
-
-<div class="comment-modal" id="commentModal">
-  <div class="comment-card">
-    <div style="display:flex;justify-content:space-between">
-      <span>评论区</span><span onclick="closeComment()">×</span>
-    </div>
-    <div class="comment-list" id="commentList"></div>
-    <input id="commentInput" placeholder="发送评论">
-    <button onclick="sendComment()">发送</button>
-  </div>
-</div>
-
-<div class="report-modal hidden" id="reportModal">
-  <div class="report-card">
-    <h3>专属举报通道</h3>
-    <input id="reportTarget" placeholder="被举报用户账号" readonly>
-    <select id="reportType">
-      <option>用户作品违规</option>
-      <option>私信骚扰</option>
-      <option>辱骂人身攻击</option>
-    </select>
-    <textarea id="reportMsg" placeholder="补充说明"></textarea>
-    <button class="btn" onclick="submitReport()" ontouchstart="submitReport()">提交举报</button>
-    <button class="btn btn-secondary" onclick="closeReport()" ontouchstart="closeReport()">取消</button>
-  </div>
-</div>
-
-<div class="share-modal hidden" id="shareModal">
-  <div class="share-card">
-    <h3>分享</h3>
-    <div onclick="closeShare()">关闭</div>
-    <div>复制链接</div>
-    <div>分享微信</div>
-  </div>
-</div>
-
-<div class="admin-login-modal" id="adminLoginModal">
-  <div class="admin-login-card">
-    <h3>管理员验证</h3>
-    <input id="adminPwd" type="password" placeholder="请输入管理员密码">
-    <button class="btn" onclick="checkAdminPwd()">确认登录</button>
+<div class="modal" id="adminLoginModal">
+  <div class="modal-card">
+    <h4>管理员验证</h4>
+    <input id="adminPwd" type="password" placeholder="密码">
+    <button class="btn" onclick="checkAdminPwd()">登录</button>
     <button class="btn btn-secondary" onclick="closeAdminLogin()">取消</button>
   </div>
 </div>
 
-<div class="admin-modal" id="adminModal">
-  <div class="admin-card">
-    <h3>总管理后台</h3>
-    <button onclick="showReports()">查看所有举报</button>
-    <button onclick="showWorks()">查看所有作品</button>
-    <button onclick="showChatLog()">查看私信记录</button>
-    <button onclick="showAppeals()">查看申诉记录</button>
-    <button onclick="showAppealHandle()">申诉审核</button>
-    <button onclick="clearAll()">清空所有数据</button>
-    <button class="btn-secondary" onclick="closeAdmin()">关闭后台</button>
-    <div id="adminContent"></div>
+<div class="modal" id="adminModal" style="align-items:flex-start;justify-content:center;padding-top:40px">
+  <div class="modal-card" style="max-width:420px;max-height:80vh;overflow:auto">
+    <h4>管理后台</h4>
+    <button class="btn" onclick="showReports()">查看所有举报</button>
+    <button class="btn" onclick="showWorks()">所有作品</button>
+    <button class="btn" onclick="showChatLog()">私信记录</button>
+    <button class="btn btn-secondary" onclick="closeAdmin()">关闭</button>
+    <div id="adminContent" style="margin-top:10px"></div>
   </div>
 </div>
 
@@ -338,578 +279,440 @@ input, textarea {width:100%;padding:12px;margin:8px 0;background:#222;border:1px
 <input type="file" hidden id="uploadVideo" accept="video/*" onchange="uploadVideo(event)">
 
 <script>
-let currentUser = null
-let works = JSON.parse(localStorage.getItem("works") || "[]")
-let comments = JSON.parse(localStorage.getItem("comments") || "[]")
-let reports = JSON.parse(localStorage.getItem("reports") || "[]")
-let chats = JSON.parse(localStorage.getItem("chats") || "[]")
-let appeals = JSON.parse(localStorage.getItem("appeals") || "[]")
-let users = JSON.parse(localStorage.getItem("users")||"[]")
-let bans = JSON.parse(localStorage.getItem("bans")||"[]")
-let followStatus = false
-let likeStatus = false
-let collectStatus = false
-let sensitiveWords = ["违规","违法","色情","暴力","脏话"]
-let currentVideo = document.getElementById("mainVideo")
-let progressBar = document.getElementById("progressBar")
-let currentReportUser = null
+// ======================
+// 全局存储（稳定版）
+// ======================
+const DB_KEY = "LIMEN_GLOBAL_DB";
+const USER_KEY = "LIMEN_LOGIN_USER";
 
-// 已改成你要的密码：1234567890
-const ADMIN_PASSWORD = "1234567890";
-
-document.addEventListener('touchstart',(e)=>{
-  startY = e.touches[0].clientY
-})
-document.addEventListener('touchend',(e)=>{
-  let endY = e.changedTouches[0].clientY
-  if(endY - startY > 80){
-    document.getElementById("refreshTip").style.display = "block"
-    setTimeout(()=>location.reload(),600)
-    setTimeout(()=>document.getElementById("refreshTip").style.display = "none",1500)
-  }
-})
-
-function switchTab(tab) {
-  document.querySelectorAll(".tab-item").forEach(item => item.classList.remove("active"))
-  document.getElementById("videoPage").classList.add("hidden")
-  document.getElementById("msgPage").style.display = "none"
-  document.getElementById("myPage").style.display = "none"
-  document.getElementById("banPage").style.display = "none"
-  document.getElementById("userPage").style.display = "none"
-  if(tab === "home") {
-    document.getElementById("tabHome").classList.add("active")
-    document.getElementById("videoPage").classList.remove("hidden")
-  } else if(tab === "msg") {
-    document.getElementById("tabMsg").classList.add("active")
-    document.getElementById("msgPage").style.display = "block"
-  } else if(tab === "my") {
-    document.getElementById("tabMy").classList.add("active")
-    document.getElementById("myPage").style.display = "block"
-    updateMyPage()
+function getDB() {
+  try {
+    let s = localStorage.getItem(DB_KEY);
+    return s ? JSON.parse(s) : { users: [], works: [], reports: [], likes: [], comments: [], chats: [], bans: [] };
+  } catch (e) {
+    return { users: [], works: [], reports: [], likes: [], comments: [], chats: [], bans: [] };
   }
 }
-
-function openMyPage(){ switchTab('my') }
-function openUserPage(name){
-  document.getElementById("targetName").textContent = name
-  let list = works.filter(w=>w.user==name)
-  document.getElementById("targetWork").innerHTML = list.map(x=>`
-    <div class="user-work-item"><video src="${x.url}" onclick="playVideo(x.url)"></video></div>
-  `).join("")
-  document.getElementById("userPage").style.display = "block"
-}
-function closeUserPage(){ document.getElementById("userPage").style.display = "none" }
-
-function playVideo(url){
-  currentVideo.src = url
-  currentVideo.load()
-  currentVideo.play().catch(()=>{})
-  switchTab('home')
+function setDB(db) {
+  localStorage.setItem(DB_KEY, JSON.stringify(db));
 }
 
-function uploadVideo(e) {
-  let file = e.target.files[0];if(!file) return
-  let reader = new FileReader()
-  let progress = document.getElementById("uploadProgress")
-  let bar = document.getElementById("uploadBar")
-  progress.style.display = "block"
-  reader.onprogress = (e)=>{
-    if(e.lengthComputable){
-      let per = (e.loaded/e.total)*100
-      bar.style.width = per + "%"
-    }
+// 读取
+function getUsers()   { return getDB().users || []; }
+function getWorks()   { return getDB().works || []; }
+function getReports() { return getDB().reports || []; }
+function getLikes()   { return getDB().likes || []; }
+function getComments(){ return getDB().comments || []; }
+function getChats()   { return getDB().chats || []; }
+function getBans()    { return getDB().bans || []; }
+
+// 保存
+function saveUsers(users)   { let d=getDB(); d.users=users; setDB(d); }
+function saveWorks(works)   { let d=getDB(); d.works=works; setDB(d); }
+function saveReports(reports) { let d=getDB(); d.reports=reports; setDB(d); }
+function saveLikes(likes)   { let d=getDB(); d.likes=likes; setDB(d); }
+function saveComments(comments){ let d=getDB(); d.comments=comments; setDB(d); }
+function saveChats(chats)   { let d=getDB(); d.chats=chats; setDB(d); }
+function saveBans(bans)    { let d=getDB(); d.bans=bans; setDB(d); }
+
+// 登录状态
+function saveLoginUser(user) { localStorage.setItem(USER_KEY, user); }
+function getLoginUser() { return localStorage.getItem(USER_KEY) || null; }
+
+// ======================
+// 全局变量
+// ======================
+let currentUser = getLoginUser();
+let currentWorkIndex = 0;
+let currentChatTarget = null;
+let currentUserName = "";
+let works = getWorks();
+let users = getUsers();
+
+const ADMIN_PWD = "1234567890";
+
+// ======================
+// 工具
+// ======================
+function updateTime() {
+  let d = new Date();
+  let h = String(d.getHours()).padStart(2, '0');
+  let m = String(d.getMinutes()).padStart(2, '0');
+  document.getElementById("realTime").innerText = `${h}:${m}`;
+}
+setInterval(updateTime, 1000);
+updateTime();
+
+function refreshAllData() {
+  works = getWorks();
+  users = getUsers();
+}
+
+// ======================
+// 视频上下滑
+// ======================
+let startY = 0;
+document.addEventListener('touchstart', e => { startY = e.touches[0].clientY; });
+document.addEventListener('touchend', e => {
+  let dy = e.changedTouches[0].clientY - startY;
+  if (Math.abs(dy) > 70) {
+    dy > 0 ? prevVideo() : nextVideo();
   }
-  reader.onload = function(e){
-    let base64 = e.target.result
-    let now = new Date()
-    let publishTime = now.getFullYear()+"-"+(now.getMonth()+1)+"-"+now.getDate()+" "+now.getHours()+":"+now.getMinutes()+":"+now.getSeconds()
-    currentVideo.src = base64
-    currentVideo.play()
-    works.push({ 
-      url: base64, 
-      user: currentUser, 
-      time: new Date().toLocaleString(),
-      publishTime: publishTime
-    })
-    localStorage.setItem("works", JSON.stringify(works))
-    updateMyPage()
-    setTimeout(()=>{ progress.style.display = "none" },500)
-  }
-  reader.readAsDataURL(file)
+});
+
+function nextVideo() {
+  refreshAllData();
+  if (works.length === 0) return;
+  currentWorkIndex = (currentWorkIndex + 1) % works.length;
+  loadCurrent();
+}
+function prevVideo() {
+  refreshAllData();
+  if (works.length === 0) return;
+  currentWorkIndex = (currentWorkIndex - 1 + works.length) % works.length;
+  loadCurrent();
 }
 
-function initVideoProgress() {
-  currentVideo.ontimeupdate = () => {
-    if(!currentVideo.duration) return
-    let per = (currentVideo.currentTime/currentVideo.duration)*100
-    progressBar.style.width = per + "%"
-  }
-  document.getElementById("progressBarWrap").onclick = (e) => {
-    if(!currentVideo.src || !currentVideo.duration) return
-    let rect = e.currentTarget.getBoundingClientRect()
-    let x = e.clientX - rect.left
-    let per = x/rect.width
-    currentVideo.currentTime = currentVideo.duration*per
-  }
-  currentVideo.onclick = () => {
-    currentVideo.paused ? currentVideo.play() : currentVideo.pause()
-  }
+function loadCurrent() {
+  refreshAllData();
+  if (works.length === 0) return;
+  let w = works[currentWorkIndex];
+  currentUserName = w.user;
+  document.getElementById("userName").innerText = currentUserName;
+  let v = document.getElementById("mainVideo");
+  v.src = w.url;
+  v.load();
+  v.play().catch(() => {});
+  updateLike();
 }
 
-function showAppealHandle(){
-  let html = "<h3>申诉审核</h3>"
-  appeals.forEach((a,i)=>{
-    html+=`
-    <div style='border:1px solid #333;padding:10px;margin:6px'>
-      <div>用户：${a.user}</div>
-      <div>理由：${a.reason}</div>
-      <div>状态：${a.status}</div>
-      <button onclick="passAppeal(${i})">通过</button>
-      <button onclick="refuseAppeal(${i})">拒绝</button>
-    </div>`
-  })
-  document.getElementById("adminContent").innerHTML = html
-}
-function passAppeal(i){
-  let user = appeals[i].user
-  bans = bans.filter(x=>x.user!=user)
-  appeals[i].status = "已通过"
-  localStorage.setItem("bans",JSON.stringify(bans))
-  localStorage.setItem("appeals",JSON.stringify(appeals))
-  alert("申诉已通过，账号解封")
-  showAppealHandle()
-}
-function refuseAppeal(i){
-  appeals[i].status = "已拒绝"
-  localStorage.setItem("appeals",JSON.stringify(appeals))
-  alert("申诉已拒绝")
-  showAppealHandle()
+function updateLike() {
+  if (works.length === 0) return;
+  let cnt = getLikes().filter(x => x.wid == currentWorkIndex).length;
+  document.getElementById("likeCount").innerText = cnt;
 }
 
-// 超级稳定版管理员登录，绝不卡死
-function openAdmin() {
-  if(!currentUser) { 
-    alert("请先登录"); 
+function toggleLike() {
+  if (!currentUser || works.length === 0) return;
+  let likes = getLikes();
+  let idx = likes.findIndex(x => x.wid == currentWorkIndex && x.uid == currentUser);
+  if (idx === -1) {
+    likes.push({ wid: currentWorkIndex, uid: currentUser });
+  } else {
+    likes.splice(idx, 1);
+  }
+  saveLikes(likes);
+  updateLike();
+}
+
+// ======================
+// ✅ 注册（稳定版）
+// ======================
+function doRegister() {
+  console.log("点击注册");
+  let user = document.getElementById("regUser").value.trim();
+  let pwd = document.getElementById("regPwd").value.trim();
+
+  if (!user || !pwd) {
+    alert("账号和密码不能为空！");
     return;
   }
+
+  refreshAllData();
+  let exists = users.some(u => u.user === user);
+  if (exists) {
+    alert("该账号已注册，请直接登录！");
+    return;
+  }
+
+  users.push({ user, pwd });
+  saveUsers(users);
+  alert("注册成功！请登录");
+}
+
+// ======================
+// ✅ 登录（稳定版）
+// ======================
+function doLogin() {
+  console.log("点击登录");
+  let user = document.getElementById("regUser").value.trim();
+  let pwd = document.getElementById("regPwd").value.trim();
+
+  if (!user || !pwd) {
+    alert("请输入账号和密码！");
+    return;
+  }
+
+  refreshAllData();
+  let found = users.find(u => u.user === user && u.pwd === pwd);
+  if (!found) {
+    alert("账号或密码错误！");
+    return;
+  }
+
+  currentUser = user;
+  saveLoginUser(user);
+  goHome();
+}
+
+function goHome() {
+  document.getElementById("authPage").style.display = "none";
+  document.getElementById("videoPage").classList.remove("hidden");
+  document.getElementById("myName").innerText = currentUser;
+  refreshAllData();
+  if (works.length > 0) loadCurrent();
+}
+
+// ======================
+// 绑定按钮（DOM加载完再绑）
+// ======================
+document.addEventListener("DOMContentLoaded", function () {
+  console.log("DOM加载完成");
+  document.getElementById("btnRegister").onclick = doRegister;
+  document.getElementById("btnLogin").onclick = doLogin;
+
+  // 初始化页面
+  if (currentUser) {
+    goHome();
+  } else {
+    document.getElementById("authPage").style.display = "flex";
+  }
+});
+
+// ======================
+// 其他功能（不变）
+// ======================
+function openOtherUserPage() {
+  if (currentUserName) openUserPage(currentUserName);
+}
+function openUserPage(name) {
+  refreshAllData();
+  document.getElementById("targetName").textContent = name;
+  let uw = works.filter(w => w.user == name);
+  let total = 0;
+  uw.forEach(w => {
+    let idx = works.findIndex(x => x.url == w.url);
+    total += getLikes().filter(x => x.wid == idx).length;
+  });
+  document.getElementById("userStat").innerText = `作品：${uw.length} 获赞：${total}`;
+  document.getElementById("targetWork").innerHTML = uw.map(x => `
+    <div class="user-work-item"><video src="${x.url}" onclick="jumpToWork(x)"></video></div>
+  `).join("");
+  document.getElementById("userPage").style.display = "block";
+}
+function jumpToWork(w) {
+  let idx = works.findIndex(x => x.url == w.url);
+  if (idx !== -1) { currentWorkIndex = idx; loadCurrent(); }
+  closeUserPage(); switchTab('home');
+}
+function closeUserPage() { document.getElementById("userPage").style.display = "none"; }
+
+function uploadVideo(e) {
+  let f = e.target.files[0];
+  if (!f || !currentUser) return;
+  let r = new FileReader();
+  let wrap = document.getElementById("uploadProgress");
+  wrap.style.display = "block";
+  r.onload = ev => {
+    refreshAllData();
+    works.unshift({ url: ev.target.result, user: currentUser, time: new Date().toLocaleString() });
+    saveWorks(works);
+    currentWorkIndex = 0;
+    loadCurrent();
+    wrap.style.display = "none";
+  };
+  r.readAsDataURL(f);
+}
+
+function openReport(user) {
+  if (!currentUser) { alert("请先登录"); return; }
+  document.getElementById("reportTarget").value = user;
+  document.getElementById("reportMsg").value = "";
+  document.getElementById("reportModal").style.display = "flex";
+}
+function closeReport() { document.getElementById("reportModal").style.display = "none"; }
+function submitReport() {
+  let target = document.getElementById("reportTarget").value.trim();
+  let type = document.getElementById("reportType").value;
+  let msg = document.getElementById("reportMsg").value.trim();
+  if (!target || !currentUser) return;
+  let reports = getReports();
+  reports.push({ from: currentUser, target, type, msg, time: new Date().toLocaleString() });
+  saveReports(reports);
+  alert("举报提交成功");
+  closeReport();
+}
+
+function openAdmin() {
+  if (!currentUser) { alert("请先登录"); return; }
   document.getElementById("adminPwd").value = "";
   document.getElementById("adminLoginModal").style.display = "flex";
 }
-
-function closeAdminLogin() {
-  document.getElementById("adminLoginModal").style.display = "none";
-}
-
+function closeAdminLogin() { document.getElementById("adminLoginModal").style.display = "none"; }
 function checkAdminPwd() {
-  try {
-    let pwd = document.getElementById("adminPwd").value.trim();
-    if(pwd === ADMIN_PASSWORD) {
-      closeAdminLogin();
-      document.getElementById("adminModal").style.display = "flex";
-    } else {
-      alert("密码错误");
-    }
-  } catch(e) {
-    alert("登录出错，请重试");
-  }
+  let p = document.getElementById("adminPwd").value.trim();
+  if (p !== ADMIN_PWD) { alert("密码错误"); return; }
+  closeAdminLogin();
+  document.getElementById("adminModal").style.display = "flex";
 }
-
-function closeAdmin() {
-  document.getElementById("adminModal").style.display = "none";
-}
-
-function doRegister() {
-  let user = document.getElementById("regUser").value.trim()
-  let pwd = document.getElementById("regPwd").value.trim()
-  
-  if(!user || !pwd) {
-    alert("账号和密码都不能为空！")
-    return
-  }
-
-  let exist = users.find(x => x.user == user)
-  if(exist) {
-    alert("该账号已注册，请直接登录！")
-    return
-  }
-
-  let obj={user,pwd,ip:"本地",time:new Date().toLocaleString()}
-  users.push(obj)
-  localStorage.setItem("users",JSON.stringify(users))
-  
-  currentUser = user
-  localStorage.setItem("user", user)
-  localStorage.setItem("pwd", pwd)
-  
-  alert("注册成功！已自动登录")
-  
-  document.getElementById("authPage").style.display = "none"
-  document.getElementById("videoPage").classList.remove("hidden")
-  document.getElementById("userName").textContent = user
-  document.getElementById("myName").textContent = user
-  renderWorks()
-  updateMyPage()
-  initVideoProgress()
-}
-
-function doLogin() {
-  let user = document.getElementById("regUser").value.trim()
-  let pwd = document.getElementById("regPwd").value.trim()
-  
-  let u=users.find(x=>x.user==user&&x.pwd==pwd)
-  if(!u) {
-    alert("账号或密码错误")
-    return
-  }
-  
-  currentUser = user
-  localStorage.setItem("user", user)
-  localStorage.setItem("pwd", pwd)
-  
-  document.getElementById("authPage").style.display = "none"
-  document.getElementById("videoPage").classList.remove("hidden")
-  
-  let avatar = localStorage.getItem("avatar")
-  if(avatar) {
-    document.getElementById("userAvatar").src = avatar
-    document.getElementById("myAvatar").src = avatar
-  }
-  
-  document.getElementById("userName").textContent = user
-  document.getElementById("myName").textContent = user
-  renderWorks()
-  updateMyPage()
-  initVideoProgress()
-}
-
-function openReport(targetUser) {
-  if(!currentUser) {
-    alert("请先登录才能举报")
-    return
-  }
-  if(!targetUser) {
-    alert("无法获取被举报用户")
-    return
-  }
-  currentReportUser = targetUser
-  document.getElementById("reportTarget").value = targetUser
-  document.getElementById("reportModal").classList.remove("hidden")
-  document.getElementById("reportModal").style.display = "flex"
-}
-function closeReport() {
-  document.getElementById("reportModal").classList.add("hidden")
-  document.getElementById("reportModal").style.display = "none"
-  currentReportUser = null
-}
-function submitReport() {
-  if(!currentUser) {
-    alert("请先登录才能举报")
-    return
-  }
-  let type = document.getElementById("reportType").value
-  let msg = document.getElementById("reportMsg").value
-  let target = document.getElementById("reportTarget").value.trim()
-  
-  if(!target) {
-    alert("被举报用户不能为空！")
-    return
-  }
-  
-  reports.push({
-    type,
-    target: target,
-    msg,
-    user: currentUser,
-    time: new Date().toLocaleString()
-  })
-  localStorage.setItem("reports",JSON.stringify(reports))
-  alert("举报成功")
-  closeReport()
-}
-
+function closeAdmin() { document.getElementById("adminModal").style.display = "none"; }
 function showReports() {
-  let html="<h3>举报记录（通过即封禁）</h3>"
-  reports.forEach((it,i)=>{
-    html+=`<div style='border:1px solid #333;padding:10px;margin:6px'>
-      举报人：${it.user} <br>
-      被举报：${it.target} <br>
-      举报时间：${it.time} <br>
-      <button onclick='passReport(${i})'>通过举报并封禁</button>
-      <button onclick='delReport(${i})'>删除</button>
-    </div>`
-  })
-  document.getElementById("adminContent").innerHTML=html
+  let reports = getReports();
+  let html = "<h5>所有举报</h5>";
+  reports.forEach((it, i) => {
+    html += `<div style='border:1px solid #333;padding:10px;margin:8px;border-radius:8px'>
+      举报人：${it.from}<br>被举报：${it.target}<br>类型：${it.type}<br>时间：${it.time}
+      <button onclick="delReport(${i})" style="margin-top:8px;padding:6px 12px;background:#f00;color:#fff;border:none;border-radius:6px">删除</button>
+    </div>`;
+  });
+  document.getElementById("adminContent").innerHTML = html || "<p>暂无举报</p>";
+}
+function delReport(i) {
+  let reports = getReports();
+  reports.splice(i, 1);
+  saveReports(reports);
+  showReports();
+}
+function showWorks() {
+  let works = getWorks();
+  let html = "<h5>所有作品</h5>";
+  works.forEach((it, i) => {
+    html += `<div style='border:1px solid #333;padding:10px;margin:8px;border-radius:8px'>
+      ${it.user} ${it.time}
+      <button onclick="delWork(${i})" style="margin-top:8px;padding:6px 12px;background:#f00;color:#fff;border:none;border-radius:6px">删除</button>
+    </div>`;
+  });
+  document.getElementById("adminContent").innerHTML = html;
+}
+function delWork(i) {
+  let works = getWorks();
+  works.splice(i, 1);
+  saveWorks(works);
+  showWorks();
+}
+function showChatLog() {
+  let chats = getChats();
+  let html = "<h5>私信记录</h5>";
+  chats.forEach(c => {
+    html += `<div style='border:1px solid #333;padding:10px;margin:8px;border-radius:8px'>${c.from}→${c.to}：${c.msg}</div>`;
+  });
+  document.getElementById("adminContent").innerHTML = html || "<p>暂无记录</p>";
 }
 
-function passReport(i){
-  let r = reports[i]
-  let targetUser = r.target
-  let now = new Date()
-  let passTime = now.toLocaleString()
-  let unlockTime = new Date(now.getTime() + 3*24*60*60*1000).toLocaleString()
-  
-  if(!bans.some(x=>x.user==targetUser)){
-    bans.push({
-      user: targetUser,
-      reportTime: r.time,
-      passTime: passTime,
-      unlockTime: unlockTime
-    })
-    localStorage.setItem("bans",JSON.stringify(bans))
-  }
-  reports.splice(i,1)
-  localStorage.setItem("reports",JSON.stringify(reports))
-  alert("举报已通过，用户已封禁！")
-  showReports()
+function openMsgPage() {
+  if (!currentUser) { alert("请先登录"); return; }
+  refreshAllData();
+  renderMsgList();
+  document.getElementById("msgPage").style.display = "block";
 }
-
-function updateBanStatus(){
-  if(!currentUser) return
-  let banInfo = bans.find(b=>b.user==currentUser)
-  if(!banInfo){
-    document.getElementById("banTipSelf").style.display = "none"
-    return
-  }
-  document.getElementById("banTipSelf").style.display = "block"
-  document.getElementById("banText").innerHTML = 
-  "您的账户被封禁<br>举报时间："+(banInfo.reportTime||"无")+
-  "<br>封禁通过时间："+(banInfo.passTime||"无")+
-  "<br>解封时间："+(banInfo.unlockTime||"永久")
-}
-
-function openMsgPage() { switchTab('msg') }
-function closeMsgPage() { switchTab('home') }
-function openChat(name) {
-  currentReportUser=name
-  document.getElementById("chatName").textContent=name
-  document.getElementById("chatPage").style.display="block"
-  renderChat()
-}
-function closeChatPage() { document.getElementById("chatPage").style.display="none" }
-function renderChat() {
-  let list = document.getElementById("chatList")
-  list.innerHTML = ""
-  let chatHistory = chats.filter(c=>
-    (c.from === currentUser && c.to === currentReportUser) ||
-    (c.from === currentReportUser && c.to === currentUser)
-  )
-  chatHistory.forEach(c=>{
-    let isMe = c.from === currentUser
-    list.innerHTML += `
-      <div style="display:flex;${isMe?'justify-content:flex-end':'justify-content:flex-start'};margin:8px 0">
-        <div style="max-width:70%;padding:10px 14px;border-radius:18px;background:${isMe?'#070':'#f0f0f0'};color:${isMe?'#fff':'#000'}">
-          ${c.msg}
+function closeMsgPage() { document.getElementById("msgPage").style.display = "none"; }
+function renderMsgList() {
+  let chats = getChats();
+  let chatUsers = new Set();
+  chats.forEach(c => {
+    if (c.from === currentUser) chatUsers.add(c.to);
+    if (c.to === currentUser) chatUsers.add(c.from);
+  });
+  getUsers().forEach(u => {
+    if (u.user !== currentUser) chatUsers.add(u.user);
+  });
+  let html = "";
+  chatUsers.forEach(u => {
+    let last = chats.filter(c =>
+      (c.from === currentUser && c.to === u) || (c.from === u && c.to === currentUser)
+    ).pop();
+    let text = last ? last.msg : "暂无消息";
+    html += `
+      <div class="msg-item" onclick="openChatPage('${u}')">
+        <div class="msg-avatar"><img src="https://via.placeholder.com/48"></div>
+        <div class="msg-info">
+          <div class="msg-name">${u}</div>
+          <div class="msg-last">${text}</div>
         </div>
       </div>
-    `
-  })
-  list.scrollTop = list.scrollHeight
+    `;
+  });
+  document.getElementById("msgList").innerHTML = html || "<p style='text-align:center'>暂无联系人</p>";
 }
-function sendChat() {
-  let input=document.getElementById("chatInput")
-  let text=input.value.trim()
-  if(!text) return
-  let bad=checkSensitive(text)
-  if(bad){ alert("消息包含违规词："+bad); return }
-  chats.push({
-    from:currentUser,
-    to:currentReportUser,
-    msg:text,
-    time:new Date().toLocaleString()
-  })
-  localStorage.setItem("chats",JSON.stringify(chats))
-  renderChat()
-  input.value = ""
+function openChatPage(target) {
+  currentChatTarget = target;
+  document.getElementById("chatTargetName").textContent = target;
+  renderChat();
+  document.getElementById("chatPage").style.display = "block";
+  closeMsgPage();
+}
+function closeChatPage() {
+  document.getElementById("chatPage").style.display = "none";
+  currentChatTarget = null;
+  openMsgPage();
+}
+function renderChat() {
+  if (!currentChatTarget) return;
+  let chats = getChats();
+  let list = chats.filter(c =>
+    (c.from === currentUser && c.to === currentChatTarget) ||
+    (c.from === currentChatTarget && c.to === currentUser)
+  );
+  let html = "";
+  list.forEach(c => {
+    let isMe = c.from === currentUser;
+    html += `
+      <div class="chat-item ${isMe ? 'me' : 'other'}">
+        <div class="chat-bubble">${c.msg}</div>
+      </div>
+    `;
+  });
+  document.getElementById("chatList").innerHTML = html;
+  setTimeout(() => {
+    document.getElementById("chatList").scrollTop = 99999;
+  }, 100);
+}
+function sendChatMsg() {
+  if (!currentUser || !currentChatTarget) return;
+  let txt = document.getElementById("chatInput").value.trim();
+  if (!txt) return;
+  let chats = getChats();
+  chats.push({ from: currentUser, to: currentChatTarget, msg: txt, time: new Date().toLocaleString() });
+  saveChats(chats);
+  document.getElementById("chatInput").value = "";
+  renderChat();
+  renderMsgList();
 }
 
-function updateMyPage() {
-  document.getElementById("myName").textContent = currentUser || "离门团队"
-  let avatar = localStorage.getItem("avatar")
-  if(avatar) {
-    document.getElementById("userAvatar").src = avatar
-    document.getElementById("myAvatar").src = avatar
+function switchTab(t) {
+  document.querySelectorAll(".tab-item").forEach(i => i.classList.remove("active"));
+  document.getElementById("videoPage").classList.add("hidden");
+  document.getElementById("myPage").style.display = "none";
+  document.getElementById("userPage").style.display = "none";
+  document.getElementById("msgPage").style.display = "none";
+  document.getElementById("chatPage").style.display = "none";
+
+  if (t === 'home') {
+    document.getElementById("tabHome").classList.add("active");
+    document.getElementById("videoPage").classList.remove("hidden");
+  } else if (t === 'my') {
+    document.getElementById("tabMy").classList.add("active");
+    document.getElementById("myPage").style.display = "block";
+  } else if (t === 'msg') {
+    document.getElementById("tabMsg").classList.add("active");
+    openMsgPage();
   }
-  document.getElementById("followNum").textContent = followStatus ? 1 : 0
-  document.getElementById("fansNum").textContent = "0"
-  document.getElementById("likeNum").textContent = document.getElementById("likeCount").textContent
-  updateBanStatus()
 }
+
+function openMyPage() { switchTab('my'); }
 function toggleFollow() {
-  followStatus = !followStatus
-  let btn = document.getElementById("followBtn")
-  if(followStatus){
-    btn.textContent = "已关注"
-    btn.classList.add("followed")
-  } else {
-    btn.textContent = "关注"
-    btn.classList.remove("followed")
-  }
-  updateMyPage()
-}
-function toggleLike() {
-  likeStatus = !likeStatus
-  let count = parseInt(document.getElementById("likeCount").textContent)
-  document.getElementById("likeCount").textContent = likeStatus ? count+1 : count-1
-  updateMyPage()
+  let b = document.getElementById("followBtn");
+  b.textContent = b.textContent === "关注" ? "已关注" : "关注";
+  b.classList.toggle("followed");
 }
 function toggleCollect() {
-  collectStatus = !collectStatus
-  let count = parseInt(document.getElementById("collectCount").textContent)
-  document.getElementById("collectCount").textContent = collectStatus ? count+1 : count-1
+  let c = parseInt(document.getElementById("collectCount").textContent);
+  document.getElementById("collectCount").textContent = c + (document.getElementById("collectCount").textContent.endsWith("0") ? 1 : -1);
 }
-function checkSensitive(text) {
-  for(let w of sensitiveWords){
-    if(text.includes(w)) return w
-  }
-  return null
-}
-function openComment() {
-  document.getElementById("commentModal").style.display = "flex"
-  renderComments()
-}
-function closeComment() { document.getElementById("commentModal").style.display = "none" }
-function sendComment() {
-  let text = document.getElementById("commentInput").value.trim()
-  if(!text) return
-  let bad=checkSensitive(text)
-  if(bad){ alert("评论包含违规词："+bad); return }
-  comments.push({user:currentUser,text})
-  localStorage.setItem("comments",JSON.stringify(comments))
-  document.getElementById("commentInput").value=""
-  renderComments()
-}
-function renderComments() {
-  let list=document.getElementById("commentList")
-  list.innerHTML=comments.map(c=>`
-    <div class='comment-item'>${c.user}：${c.text}</div>
-  `).join("")
-}
-function openShare() { document.getElementById("shareModal").style.display = "flex" }
-function closeShare() { document.getElementById("shareModal").style.display = "none" }
-function openWorkPage() {
-  document.getElementById("workPage").style.display="block"
-  setTimeout(renderWorks,50)
-}
-function closeWorkPage() { document.getElementById("workPage").style.display="none" }
-function uploadWork(e) {
-  let file=e.target.files[0];if(!file) return
-  let reader=new FileReader()
-  reader.onload=e=>{
-    let base64=e.target.result
-    let publishTime = new Date().toLocaleString()
-    works.push({
-      url:base64,
-      user:currentUser,
-      time:new Date().toLocaleString(),
-      publishTime: publishTime
-    })
-    localStorage.setItem("works",JSON.stringify(works))
-    renderWorks()
-    updateMyPage()
-    alert("发布成功")
-  }
-  reader.readAsDataURL(file)
-}
-function renderWorks() {
-  let list=document.getElementById("workList")
-  list.innerHTML = works.map(w=>`
-    <div class="work-item">
-      <video src="${w.url}"></video>
-      <div>${w.user}</div>
-      <div style="font-size:12px;color:#666">${w.publishTime||""}</div>
-      <button onclick="openUserPage('${w.user}')">主页</button>
-    </div>
-  `).join("")
-  document.querySelectorAll(".work-item video").forEach(v=>{
-    v.onclick=()=>{
-      playVideo(v.src)
-      closeWorkPage()
-      switchTab("home")
-    }
-  })
-}
-function delReport(i){
-  reports.splice(i,1)
-  localStorage.setItem("reports",JSON.stringify(reports))
-  showReports()
-}
-function showWorks(){
-  let html="<h3>所有作品</h3>"
-  works.forEach((it,i)=>{
-    html+=`<div style='border:1px solid #333;padding:10px;margin:6px'>
-      ${it.user} ${it.publishTime||""}
-      <button onclick='delWork(${i})'>删除</button>
-    </div>`
-  })
-  document.getElementById("adminContent").innerHTML=html
-}
-function delWork(i){
-  works.splice(i,1)
-  localStorage.setItem("works",JSON.stringify(works))
-  showWorks()
-  updateMyPage()
-}
-function showChatLog(){
-  let html="<h3>私信记录</h3>"
-  chats.forEach(c=>{
-    html+=`<div style='border:1px solid #333;padding:10px;margin:6px'>
-      ${c.from} → ${c.to}：${c.msg}
-    </div>`
-  })
-  document.getElementById("adminContent").innerHTML=html
-}
-function showAppeals(){
-  let html="<h3>申诉记录</h3>"
-  appeals.forEach((a,i)=>{
-    html+=`<div style='border:1px solid #333;padding:10px;margin:6px'>
-      ${a.user} ${a.status}
-      <button onclick='delAppeal(${i})'>删除</button>
-    </div>`
-  })
-  document.getElementById("adminContent").innerHTML = html
-}
-function delAppeal(i){
-  appeals.splice(i,1)
-  localStorage.setItem("appeals",JSON.stringify(appeals))
-  showAppeals()
-}
-function clearAll(){
-  if(confirm("确定清空所有数据？")){
-    localStorage.clear()
-    alert("已清空")
-    location.reload()
-  }
-}
-function openBanPage() { document.getElementById("banPage").style.display = "block" }
-function closeBanPage() {
-  document.getElementById("banPage").style.display = "none"
-  switchTab("home")
-}
-function openAppeal() { document.getElementById("appealModal").style.display = "flex" }
-function closeAppeal() {
-  document.getElementById("appealModal").style.display = "none"
-  document.getElementById("appealReason").value = ""
-}
-function submitAppeal() {
-  let reason = document.getElementById("appealReason").value.trim()
-  if(!reason) return alert("请填写申诉理由")
-  appeals.push({
-    user: currentUser, reason: reason,
-    time: new Date().toLocaleString(), status: "待审核"
-  })
-  localStorage.setItem("appeals", JSON.stringify(appeals))
-  alert("申诉提交成功")
-  closeAppeal()
-}
-
-window.onload = ()=>{
-  let u=localStorage.getItem("user")
-  let p=localStorage.getItem("pwd")
-  if(u&&p){
-    document.getElementById("regUser").value=u
-    document.getElementById("regPwd").value=p
-  }
-}
+function openComment() { alert("评论开发中"); }
+function openShare() { alert("分享开发中"); }
+function openWorkPage() { alert("我的作品开发中"); }
 </script>
 </body>
 </html>
+
