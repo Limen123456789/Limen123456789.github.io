@@ -1,319 +1,120 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>手机风控系统</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: "Microsoft YaHei", sans-serif;
-        }
-        body {
-            background: #111;
-            color: #0f0;
-            padding: 20px;
-            min-height: 100vh;
-        }
-        .title {
-            text-align: center;
-            font-size: 28px;
-            font-weight: bold;
-            margin-bottom: 30px;
-            text-shadow: 0 0 10px #0f0;
-        }
-        .btn {
-            width: 100%;
-            padding: 20px;
-            margin: 10px 0;
-            background: #222;
-            color: #0f0;
-            border: 2px solid #0f0;
-            border-radius: 8px;
-            font-size: 22px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 0 8px #0f0;
-        }
-        .btn:hover {
-            background: #030;
-            transform: scale(1.02);
-            box-shadow: 0 0 15px #0f0;
-        }
-        .btn:active {
-            background: #030;
-            transform: scale(0.98);
-        }
-        .log {
-            width: 100%;
-            height: 400px;
-            background: #000;
-            border: 2px solid #0f0;
-            border-radius: 8px;
-            margin-top: 20px;
-            padding: 15px;
-            overflow-y: auto;
-            font-size: 16px;
-            line-height: 1.5;
-            box-shadow: 0 0 8px #0f0;
-        }
-        /* 登录弹窗样式 */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 999;
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background: #111;
-            border: 2px solid #0f0;
-            border-radius: 12px;
-            padding: 30px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 0 20px #0f0;
-        }
-        .modal-title {
-            text-align: center;
-            font-size: 24px;
-            margin-bottom: 25px;
-            text-shadow: 0 0 10px #0f0;
-        }
-        .input-group {
-            margin: 15px 0;
-        }
-        .input-group label {
-            display: block;
-            font-size: 18px;
-            margin-bottom: 8px;
-        }
-        .input-group input {
-            width: 100%;
-            padding: 12px;
-            background: #222;
-            border: 2px solid #0f0;
-            border-radius: 6px;
-            color: #0f0;
-            font-size: 18px;
-            outline: none;
-        }
-        .input-group input:focus {
-            box-shadow: 0 0 10px #0f0;
-        }
-        .modal-btn {
-            width: 100%;
-            padding: 15px;
-            margin-top: 20px;
-            background: #222;
-            color: #0f0;
-            border: 2px solid #0f0;
-            border-radius: 8px;
-            font-size: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .modal-btn:hover {
-            background: #030;
-            box-shadow: 0 0 15px #0f0;
-        }
-        .close-btn {
-            float: right;
-            background: none;
-            border: none;
-            color: #0f0;
-            font-size: 24px;
-            cursor: pointer;
-        }
-        /* 管理员后台样式 */
-        .admin-panel {
-            display: none;
-            margin-top: 30px;
-            padding: 20px;
-            background: #111;
-            border: 2px solid #0f0;
-            border-radius: 8px;
-            box-shadow: 0 0 15px #0f0;
-        }
-        .admin-title {
-            text-align: center;
-            font-size: 26px;
-            margin-bottom: 20px;
-            text-shadow: 0 0 10px #0f0;
-        }
-        .logout-btn {
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            background: #300;
-            color: #f00;
-            border: 2px solid #f00;
-            border-radius: 8px;
-            font-size: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 0 10px #f00;
-        }
-        .logout-btn:hover {
-            background: #500;
-            box-shadow: 0 0 15px #f00;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>手机风控系统</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial}
+body{background:#111;color:#0f0;padding:15px}
+.title{text-align:center;font-size:22px;margin:10px 0;text-shadow:0 0 10px #0f0}
+.btn{background:#222;color:#0f0;border:2px solid #0f0;padding:14px;margin:8px 0;width:100%;border-radius:6px;font-size:16px;font-weight:bold}
+.btn:active{background:#040}
+.log{background:#000;border:2px solid #0f0;padding:10px;height:220px;overflow:auto;margin-top:10px;font-size:14px}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);justify-content:center;align-items:center}
+.modal>div{background:#111;border:2px solid #0f0;padding:20px;width:90%;border-radius:10px}
+input{width:100%;padding:10px;margin:8px 0;background:#222;border:1px solid #0f0;color:#0f0}
+.admin{display:none;margin-top:20px;padding:15px;border:2px solid #0f0;border-radius:8px}
+.logout{background:#400;border-color:#f30;color:#f30}
+.video-box{margin-top:15px;padding:15px;border:2px solid #0f0;border-radius:8px}
+video{width:100%;border-radius:6px;background:#000;margin-top:10px}
+.upload-box{margin-top:10px}
+</style>
 </head>
 <body>
-    <h1 class="title">手机版 · 终极风控系统</h1>
+<h1 class="title">手机版·终极风控系统</h1>
 
-    <!-- 管理员登录按钮 -->
-    <button class="btn" id="adminLoginBtn">管理员登录</button>
+<button class="btn" id="goAdmin">管理员登录</button>
+<button class="btn" onclick="createUsers()">创建20个用户</button>
+<button class="btn" onclick="createAdminAndViolate()">创建管理员+违规号</button>
+<button class="btn" onclick="startAutoViolate()">启动自动违规发言</button>
+<button class="btn" onclick="userReport()">用户举报</button>
+<button class="btn" onclick="aiHandleReport()">AI自动处理举报</button>
 
-    <button class="btn" onclick="createUsers()">创建20个用户</button>
-    <button class="btn" onclick="createAdminAndViolate()">创建管理员+违规号</button>
-    <button class="btn" onclick="startAutoViolate()">启动自动违规发言</button>
-    <button class="btn" onclick="userReport()">用户举报</button>
-    <button class="btn" onclick="aiHandleReport()">AI自动处理举报</button>
+<div class="upload-box">
+<button class="btn" onclick="document.getElementById('fileInp').click()">📤 用户上传视频</button>
+<input type="file" id="fileInp" accept="video/*" style="display:none" onchange="uploadVideo(event)">
+</div>
 
-    <div class="log" id="log"></div>
+<div class="video-box">
+<h3 class="title">🎬 公共视频区（全平台可见）</h3>
+<video id="mainVideo" controls></video>
+</div>
 
-    <!-- 管理员登录弹窗 -->
-    <div class="modal" id="loginModal">
-        <div class="modal-content">
-            <button class="close-btn" onclick="closeLoginModal()">&times;</button>
-            <h2 class="modal-title">管理员登录</h2>
-            <div class="input-group">
-                <label>管理员账号</label>
-                <input type="text" id="adminUser" placeholder="请输入管理员账号">
-            </div>
-            <div class="input-group">
-                <label>管理员密码</label>
-                <input type="password" id="adminPass" placeholder="请输入管理员密码">
-            </div>
-            <button class="modal-btn" onclick="adminLogin()">登录</button>
-        </div>
-    </div>
+<div class="log" id="log"></div>
 
-    <!-- 管理员后台 -->
-    <div class="admin-panel" id="adminPanel">
-        <h2 class="admin-title">🔐 管理员后台</h2>
-        <button class="btn" onclick="viewAllUsers()">查看所有用户</button>
-        <button class="btn" onclick="viewViolateRecords()">查看违规记录</button>
-        <button class="btn" onclick="batchBanUsers()">批量封号</button>
-        <button class="logout-btn" onclick="adminLogout()">退出登录</button>
-    </div>
+<div class="modal" id="loginModal">
+<div>
+<h3 class="title">管理员登录</h3>
+<input id="user" placeholder="账号">
+<input id="pwd" type="password" placeholder="密码">
+<button class="btn" onclick="login()">登录</button>
+<button class="btn" onclick="closeModal()">关闭</button>
+</div>
+</div>
 
-    <script>
-        // 日志输出函数
-        function log(msg) {
-            const logEl = document.getElementById('log');
-            const time = new Date().toLocaleTimeString();
-            logEl.innerHTML += `[${time}] ${msg}\n`;
-            logEl.scrollTop = logEl.scrollHeight;
-        }
+<div class="admin" id="adminPanel">
+<h3 class="title">🔐 管理员后台</h3>
+<button class="btn" onclick="log('📋 管理员查看全部用户')">查看所有用户</button>
+<button class="btn" onclick="log('⚠️ 查看违规记录')">查看违规记录</button>
+<button class="btn" onclick="log('🔨 批量封号完成')">批量封号</button>
+<button class="btn logout" onclick="logout()">退出登录</button>
+</div>
 
-        // 管理员账号密码（可自行修改）
-        const ADMIN_ACCOUNT = "admin";
-        const ADMIN_PASSWORD = "admin123456";
-        let isAdminLogin = false;
+<script>
+let isAdmin = false;
+const adminUser = "admin";
+const adminPwd = "admin123456";
+let globalVideoUrl = "";
 
-        // 打开登录弹窗
-        document.getElementById('adminLoginBtn').addEventListener('click', function() {
-            document.getElementById('loginModal').style.display = "flex";
-        });
+function log(msg){
+  const d = new Date().toLocaleTimeString();
+  const el = document.getElementById("log");
+  el.innerHTML += `[${d}] ${msg}\n`;
+  el.scrollTop = el.scrollHeight;
+}
 
-        // 关闭登录弹窗
-        function closeLoginModal() {
-            document.getElementById('loginModal').style.display = "none";
-            document.getElementById('adminUser').value = "";
-            document.getElementById('adminPass').value = "";
-        }
+document.getElementById("goAdmin").onclick = ()=>{
+  document.getElementById("loginModal").style.display="flex";
+}
+function closeModal(){
+  document.getElementById("loginModal").style.display="none";
+}
+function login(){
+  const u = document.getElementById("user").value;
+  const p = document.getElementById("pwd").value;
+  if(u===adminUser && p===adminPwd){
+    isAdmin = true;
+    closeModal();
+    document.getElementById("adminPanel").style.display="block";
+    log("✅ 管理员登录成功");
+  }else{
+    log("❌ 账号或密码错误");
+  }
+}
+function logout(){
+  isAdmin = false;
+  document.getElementById("adminPanel").style.display="none";
+  log("✅ 已退出管理员");
+}
 
-        // 管理员登录
-        function adminLogin() {
-            const user = document.getElementById('adminUser').value.trim();
-            const pass = document.getElementById('adminPass').value.trim();
+function uploadVideo(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const url = URL.createObjectURL(file);
+  globalVideoUrl = url;
+  const v = document.getElementById("mainVideo");
+  v.src = url;
+  v.play();
+  log("📤 视频上传成功 —— 全平台所有人都能看到！");
+}
 
-            if (user === ADMIN_ACCOUNT && pass === ADMIN_PASSWORD) {
-                isAdminLogin = true;
-                closeLoginModal();
-                document.getElementById('adminPanel').style.display = "block";
-                log("✅ 管理员登录成功！已进入管理员后台");
-                alert("管理员登录成功！");
-            } else {
-                log("❌ 管理员登录失败：账号或密码错误");
-                alert("账号或密码错误，请重试！");
-            }
-        }
-
-        // 管理员退出登录
-        function adminLogout() {
-            isAdminLogin = false;
-            document.getElementById('adminPanel').style.display = "none";
-            log("✅ 管理员已退出登录");
-            alert("已退出管理员登录");
-        }
-
-        // 管理员后台功能
-        function viewAllUsers() {
-            if (!isAdminLogin) return alert("请先登录管理员账号！");
-            log("📋 管理员查看所有用户：共20个测试用户，状态正常");
-        }
-        function viewViolateRecords() {
-            if (!isAdminLogin) return alert("请先登录管理员账号！");
-            log("⚠️ 管理员查看违规记录：共3条违规发言，已标记待处理");
-        }
-        function batchBanUsers() {
-            if (!isAdminLogin) return alert("请先登录管理员账号！");
-            log("🔨 管理员执行批量封号：已封禁5个违规账号");
-            alert("批量封号完成！");
-        }
-
-        // 原有功能
-        function createUsers() {
-            log("👤 开始创建20个用户...");
-            setTimeout(() => {
-                log("✅ 成功创建20个测试用户，用户池已就绪");
-            }, 800);
-        }
-        function createAdminAndViolate() {
-            log("👑 创建管理员账号...");
-            setTimeout(() => {
-                log("⚠️ 创建违规测试账号，违规标签已标记");
-                log("✅ 管理员+违规号创建完成");
-            }, 800);
-        }
-        function startAutoViolate() {
-            log("🚀 启动自动违规发言...");
-            let count = 0;
-            const timer = setInterval(() => {
-                count++;
-                log(`❌ 检测到违规发言：用户${count} 发布违规内容`);
-                if (count >= 10) {
-                    clearInterval(timer);
-                    log("✅ 自动违规发言结束，共检测10条违规内容");
-                }
-            }, 500);
-        }
-        function userReport() {
-            log("📢 用户提交举报...");
-            setTimeout(() => {
-                log("✅ 举报已提交，等待AI审核");
-            }, 600);
-        }
-        function aiHandleReport() {
-            log("🤖 AI启动自动审核...");
-            setTimeout(() => {
-                log("✅ AI审核完成：已处理3条举报，封禁2个违规账号");
-            }, 1000);
-        }
-    </script>
+function createUsers(){log("👤 创建20个用户完成");}
+function createAdminAndViolate(){log("👑 管理员+违规号创建完成");}
+function startAutoViolate(){log("🚀 启动自动违规检测");}
+function userReport(){log("📢 举报已提交");}
+function aiHandleReport(){log("🤖 AI已处理举报");}
+</script>
 </body>
 </html>
+
