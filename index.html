@@ -2,976 +2,328 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>离门团队视频</title>
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Microsoft Yahei", Arial, sans-serif;
-}
-body {
-  background: #000;
-  color: #fff;
-  overflow: hidden;
-}
-
-/* 页面容器 */
-.page {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: none;
-}
-.active {
-  display: block;
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+body{background:#000;color:#fff;overflow:hidden}
+.page{position:fixed;top:0;left:0;width:100%;height:100%;display:none}
+.page.show{display:block}
 
 /* 快手底部导航 */
-.nav-bar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 60px;
-  background: #000;
-  border-top: 1px solid #222;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  z-index: 100;
-}
-.nav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  cursor: pointer;
-  color: #999;
-  font-size: 12px;
-  transition: color 0.2s;
-}
-.nav-item.active {
-  color: #fff;
-}
-.nav-icon {
-  font-size: 24px;
-}
-/* 中间发布按钮（快手圆形+号） */
-.nav-publish {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #ff2442, #ff7232);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 30px;
-  color: #fff;
-  cursor: pointer;
-  margin-top: -15px;
-}
+.nav{position:fixed;bottom:0;left:0;width:100%;height:55px;background:#000;display:flex;align-items:center;justify-content:space-around;border-top:1px solid #222}
+.nav .item{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;color:#888}
+.nav .item.active{color:#fff}
+.nav .add{width:45px;height:45px;border-radius:50%;background:#ff4500;display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px}
 
-/* 首页-竖屏刷视频（快手核心样式） */
-.home-page {
-  background: #000;
-}
-.video-container {
-  width: 100%;
-  height: 100%;
-  overflow-y: scroll;
-  scroll-snap-type: y mandatory;
-  scrollbar-width: none;
-}
-.video-container::-webkit-scrollbar {
-  display: none;
-}
-.video-item {
-  width: 100%;
-  height: 100%;
-  scroll-snap-align: start;
-  position: relative;
-  background: #000;
-}
-.video-player {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+/* 视频页 */
+.video-box{width:100%;height:100%;background:#000}
+video{width:100%;height:100%;object-fit:cover}
+.video-info{position:fixed;bottom:70px;left:15px;z-index:10}
+.video-act{position:fixed;bottom:70px;right:15px;display:flex;flex-direction:column;gap:18px;align-items:center}
+.act-btn{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px}
 
-/* 右侧互动栏（快手同款） */
-.video-actions {
-  position: absolute;
-  bottom: 80px;
-  right: 15px;
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  align-items: center;
-}
-.action-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-.action-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: rgba(0,0,0,0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 28px;
-}
-.action-text {
-  font-size: 12px;
-  color: #fff;
-  text-shadow: 0 0 4px rgba(0,0,0,0.8);
-}
-.action-btn.liked .action-icon {
-  color: #ff2442;
-}
-.action-btn.followed .action-icon {
-  color: #ff2442;
-}
-/* 作者头像（快手圆形+关注） */
-.author-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: #333;
-  border: 2px solid #fff;
-  position: relative;
-}
-.follow-tag {
-  position: absolute;
-  bottom: -2px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #ff2442;
-  color: #fff;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+/* 登录页 */
+.login-box{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:30px}
+.login-box input{width:85%;padding:12px;border-radius:8px;background:#111;border:1px solid #333;color:#fff}
+.login-box button{width:85%;padding:12px;border-radius:8px;background:#ff4500;color:#fff;border:0}
 
-/* 视频底部信息（快手同款） */
-.video-info {
-  position: absolute;
-  bottom: 80px;
-  left: 15px;
-  z-index: 10;
-  max-width: 70%;
-}
-.video-username {
-  font-size: 16px;
-  font-weight: 600;
-  color: #fff;
-  margin-bottom: 8px;
-  text-shadow: 0 0 4px rgba(0,0,0,0.8);
-}
-.video-desc {
-  font-size: 14px;
-  color: #fff;
-  line-height: 1.4;
-  text-shadow: 0 0 4px rgba(0,0,0,0.8);
-  margin-bottom: 8px;
-}
-.video-music {
-  font-size: 12px;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  text-shadow: 0 0 4px rgba(0,0,0,0.8);
-}
-
-/* 登录/注册页 */
-.auth-page {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  padding: 20px;
-  background: #000;
-}
-.auth-page h1 {
-  font-size: 32px;
-  color: #ff2442;
-  margin-bottom: 20px;
-  font-weight: 600;
-}
-.auth-input {
-  width: 90%;
-  max-width: 400px;
-  height: 50px;
-  background: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 25px;
-  color: #fff;
-  padding: 0 20px;
-  font-size: 16px;
-}
-.auth-btn {
-  width: 90%;
-  max-width: 400px;
-  height: 50px;
-  background: linear-gradient(135deg, #ff2442, #ff7232);
-  border: none;
-  border-radius: 25px;
-  color: #fff;
-  font-size: 18px;
-  font-weight: 600;
-  cursor: pointer;
-}
-.auth-switch {
-  color: #ff2442;
-  font-size: 14px;
-  cursor: pointer;
-  margin-top: 8px;
-}
-
-/* 发布页 */
-.upload-page {
-  background: #000;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.upload-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: #fff;
-  margin-bottom: 8px;
-}
-.upload-file {
-  width: 100%;
-  height: 150px;
-  background: #1a1a1a;
-  border: 2px dashed #ff2442;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ff2442;
-  font-size: 16px;
-  cursor: pointer;
-}
-.upload-file input {
-  display: none;
-}
-.upload-input {
-  width: 100%;
-  height: 50px;
-  background: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 12px;
-  color: #fff;
-  padding: 0 15px;
-  font-size: 16px;
-}
-.upload-btn {
-  width: 100%;
-  height: 50px;
-  background: linear-gradient(135deg, #ff2442, #ff7232);
-  border: none;
-  border-radius: 25px;
-  color: #fff;
-  font-size: 18px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 20px;
-}
-
-/* 消息页 */
-.msg-page {
-  background: #000;
-  padding: 20px;
-}
-.msg-item {
-  padding: 16px;
-  border-bottom: 1px solid #222;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.msg-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: #333;
-}
-.msg-content {
-  flex: 1;
-}
-.msg-username {
-  font-size: 16px;
-  font-weight: 600;
-  color: #fff;
-  margin-bottom: 4px;
-}
-.msg-preview {
-  font-size: 14px;
-  color: #999;
-}
-
-/* 我的页 */
-.profile-page {
-  background: #000;
-  padding: 20px;
-}
-.profile-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 20px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #222;
-}
-.profile-avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: #333;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 32px;
-  font-weight: 600;
-}
-.profile-info {
-  flex: 1;
-}
-.profile-username {
-  font-size: 20px;
-  font-weight: 600;
-  color: #fff;
-  margin-bottom: 4px;
-}
-.profile-stats {
-  display: flex;
-  gap: 20px;
-  font-size: 14px;
-  color: #999;
-}
-.profile-stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-.profile-stat-num {
-  font-size: 16px;
-  font-weight: 600;
-  color: #fff;
-}
-.logout-btn {
-  width: 100%;
-  height: 50px;
-  background: #ff2442;
-  border: none;
-  border-radius: 25px;
-  color: #fff;
-  font-size: 18px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 20px;
-}
-
-/* 评论弹窗（快手同款） */
-.comment-modal {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: #1a1a1a;
-  border-radius: 16px 16px 0 0;
-  z-index: 200;
-  transform: translateY(100%);
-  transition: transform 0.3s;
-  max-height: 70%;
-  overflow-y: auto;
-}
-.comment-modal.active {
-  transform: translateY(0);
-}
-.comment-header {
-  padding: 16px;
-  border-bottom: 1px solid #333;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.comment-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #fff;
-}
-.comment-close {
-  background: none;
-  border: none;
-  font-size: 24px;
-  color: #999;
-  cursor: pointer;
-}
-.comment-list {
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.comment-item {
-  display: flex;
-  gap: 12px;
-}
-.comment-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: #333;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  flex-shrink: 0;
-}
-.comment-content {
-  flex: 1;
-}
-.comment-username {
-  font-size: 14px;
-  font-weight: 600;
-  color: #fff;
-  margin-bottom: 4px;
-}
-.comment-text {
-  font-size: 14px;
-  color: #fff;
-  line-height: 1.4;
-}
-.comment-input-box {
-  padding: 16px;
-  border-top: 1px solid #333;
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-.comment-input {
-  flex: 1;
-  height: 40px;
-  background: #2a2a2a;
-  border: 1px solid #333;
-  border-radius: 20px;
-  padding: 0 15px;
-  font-size: 14px;
-  color: #fff;
-}
-.comment-send {
-  background: #ff2442;
-  border: none;
-  border-radius: 20px;
-  padding: 0 16px;
-  height: 40px;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-/* 加载动画 */
-.loading {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #000;
-  z-index: 999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  color: #ff2442;
-}
-.loading.hidden {
-  display: none;
-}
+/* 页面样式 */
+.me-box,.msg-box,.upload-box{padding:20px;height:100%;overflow:auto}
+input,button{width:100%;margin:6px 0;padding:10px;border-radius:8px}
+input{background:#111;border:1px solid #333;color:#fff}
+button{background:#ff4500;color:#fff;border:0}
+.item{border:1px solid #222;padding:10px;margin:10px 0;border-radius:8px}
+.comment{background:#111;padding:8px;margin:4px 0;border-radius:6px}
 </style>
 </head>
 <body>
-<!-- 加载页 -->
-<div class="loading" id="loading">加载中...</div>
 
-<!-- 登录/注册页 -->
-<div class="page auth-page active" id="authPage">
-  <h1>离门团队视频</h1>
-  <input type="text" class="auth-input" id="authUsername" placeholder="请输入账号">
-  <input type="password" class="auth-input" id="authPassword" placeholder="请输入密码">
-  <button class="auth-btn" id="loginBtn">登录</button>
-  <button class="auth-btn" id="registerBtn">注册</button>
-  <span class="auth-switch" id="switchAuth">没有账号？去注册</span>
+<!-- 登录页（直接显示，无加载） -->
+<div class="page show" id="loginPage">
+  <div class="login-box">
+    <h2>离门团队视频</h2>
+    <input id="user" placeholder="账号">
+    <input id="pwd" type="password" placeholder="密码">
+    <button onclick="login()">登录</button>
+    <button onclick="reg()">注册</button>
+    <button onclick="go('adminPage')">管理员后台</button>
+  </div>
 </div>
 
-<!-- 首页（快手精选页） -->
-<div class="page home-page" id="homePage">
-  <div class="video-container" id="videoContainer"></div>
-  <div class="nav-bar">
-    <div class="nav-item active" data-page="home">
-      <div class="nav-icon">🏠</div>
-      <span>首页</span>
+<!-- 首页（快手） -->
+<div class="page" id="homePage">
+  <div class="video-box" id="videoList"></div>
+  <div class="nav">
+    <div class="item active" onclick="go('homePage')">
+      <div>🏠</div>
+      <div>首页</div>
     </div>
-    <div class="nav-item" data-page="msg">
-      <div class="nav-icon">💬</div>
-      <span>消息</span>
+    <div class="item" onclick="go('msgPage')">
+      <div>💬</div>
+      <div>消息</div>
     </div>
-    <div class="nav-publish" id="publishBtn">
-      +
+    <div class="add" onclick="go('uploadPage')">+</div>
+    <div class="item" onclick="go('mePage')">
+      <div>👤</div>
+      <div>我</div>
     </div>
-    <div class="nav-item" data-page="profile">
-      <div class="nav-icon">👤</div>
-      <span>我</span>
-    </div>
+  </div>
+</div>
+
+<!-- 消息页 -->
+<div class="page" id="msgPage">
+  <div class="msg-box">
+    <h3>私信</h3>
+    <input id="toUser" placeholder="发给谁">
+    <input id="msgText" placeholder="消息内容">
+    <button onclick="sendMsg()">发送私信</button>
+    <div id="msgList"></div>
+  </div>
+  <div class="nav">
+    <div class="item" onclick="go('homePage')">🏠<div>首页</div></div>
+    <div class="item active" onclick="go('msgPage')">💬<div>消息</div></div>
+    <div class="add" onclick="go('uploadPage')">+</div>
+    <div class="item" onclick="go('mePage')">👤<div>我</div></div>
   </div>
 </div>
 
 <!-- 发布页 -->
-<div class="page upload-page" id="uploadPage">
-  <h2 class="upload-title">发布新视频</h2>
-  <label class="upload-file" id="fileLabel">
-    <input type="file" id="videoFile" accept="video/*">
-    点击选择视频文件
-  </label>
-  <input type="text" class="upload-input" id="videoDesc" placeholder="输入视频描述">
-  <button class="upload-btn" id="uploadBtn">发布视频</button>
-  <button class="auth-btn" id="backHome">返回首页</button>
-</div>
-
-<!-- 消息页 -->
-<div class="page msg-page" id="msgPage">
-  <h2 class="upload-title">消息</h2>
-  <div id="msgList"></div>
-  <div class="nav-bar">
-    <div class="nav-item" data-page="home">
-      <div class="nav-icon">🏠</div>
-      <span>首页</span>
-    </div>
-    <div class="nav-item active" data-page="msg">
-      <div class="nav-icon">💬</div>
-      <span>消息</span>
-    </div>
-    <div class="nav-publish" id="publishBtn2">
-      +
-    </div>
-    <div class="nav-item" data-page="profile">
-      <div class="nav-icon">👤</div>
-      <span>我</span>
-    </div>
+<div class="page" id="uploadPage">
+  <div class="upload-box">
+    <h3>发布视频</h3>
+    <input type="file" id="vfile" accept="video/*">
+    <input id="vtitle" placeholder="视频说明">
+    <button onclick="upload()">发布</button>
+  </div>
+  <div class="nav">
+    <div class="item" onclick="go('homePage')">🏠<div>首页</div></div>
+    <div class="item" onclick="go('msgPage')">💬<div>消息</div></div>
+    <div class="add active" onclick="go('uploadPage')">+</div>
+    <div class="item" onclick="go('mePage')">👤<div>我</div></div>
   </div>
 </div>
 
 <!-- 我的页 -->
-<div class="page profile-page" id="profilePage">
-  <div class="profile-header">
-    <div class="profile-avatar" id="profileAvatar">U</div>
-    <div class="profile-info">
-      <div class="profile-username" id="profileUsername">用户名</div>
-      <div class="profile-stats">
-        <div class="profile-stat">
-          <span class="profile-stat-num" id="statVideos">0</span>
-          <span>作品</span>
-        </div>
-        <div class="profile-stat">
-          <span class="profile-stat-num" id="statFollow">0</span>
-          <span>关注</span>
-        </div>
-        <div class="profile-stat">
-          <span class="profile-stat-num" id="statFans">0</span>
-          <span>粉丝</span>
-        </div>
-      </div>
-    </div>
+<div class="page" id="mePage">
+  <div class="me-box">
+    <h3>我的主页</h3>
+    <p id="myname"></p>
+    <button onclick="go('appealPage')">申诉</button>
+    <button onclick="logout()">退出登录</button>
+    <div id="myVideos"></div>
   </div>
-  <button class="logout-btn" id="logoutBtn">退出登录</button>
-  <div id="myVideos"></div>
-  <div class="nav-bar">
-    <div class="nav-item" data-page="home">
-      <div class="nav-icon">🏠</div>
-      <span>首页</span>
-    </div>
-    <div class="nav-item" data-page="msg">
-      <div class="nav-icon">💬</div>
-      <span>消息</span>
-    </div>
-    <div class="nav-publish" id="publishBtn3">
-      +
-    </div>
-    <div class="nav-item active" data-page="profile">
-      <div class="nav-icon">👤</div>
-      <span>我</span>
-    </div>
+  <div class="nav">
+    <div class="item" onclick="go('homePage')">🏠<div>首页</div></div>
+    <div class="item" onclick="go('msgPage')">💬<div>消息</div></div>
+    <div class="add" onclick="go('uploadPage')">+</div>
+    <div class="item active" onclick="go('mePage')">👤<div>我</div></div>
   </div>
 </div>
 
-<!-- 评论弹窗 -->
-<div class="comment-modal" id="commentModal">
-  <div class="comment-header">
-    <div class="comment-title">评论</div>
-    <button class="comment-close" id="closeComment">×</button>
+<!-- 申诉页 -->
+<div class="page" id="appealPage">
+  <div style="padding:20px">
+    <h3>申诉</h3>
+    <input id="appealText" placeholder="申诉理由">
+    <button onclick="sendAppeal()">提交申诉</button>
+    <button onclick="go('mePage')">返回</button>
   </div>
-  <div class="comment-list" id="commentList"></div>
-  <div class="comment-input-box">
-    <input type="text" class="comment-input" id="commentInput" placeholder="发表评论...">
-    <button class="comment-send" id="sendComment">发送</button>
+</div>
+
+<!-- 管理员页 -->
+<div class="page" id="adminPage">
+  <div style="padding:20px">
+    <h3>管理员后台</h3>
+    <input id="adminPwd" type="password" placeholder="密码">
+    <button onclick="adminLogin()">登录后台</button>
+    <input id="banUid" placeholder="封禁UID">
+    <button onclick="banUser()">封禁</button>
+    <input id="unbanUid" placeholder="解封UID">
+    <button onclick="unbanUser()">解封</button>
+    <button onclick="showReports()">查看举报</button>
+    <button onclick="showAppeals()">查看申诉</button>
+    <button onclick="go('loginPage')">返回</button>
+    <div id="reportList"></div>
+    <div id="appealList"></div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// Supabase 配置
-const supabaseUrl = "https://melgyktzmzyednqtmqfz.supabase.co";
-const supabaseKey = "sb_publishable_iS4ChZxw5ixbg7S-y-Vddw_YQZ6SHMV";
-const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+const sb = supabase.createClient("https://melgyktzmzyednqtmqfz.supabase.co","sb_publishable_iS4ChZxw5ixbg7S-y-Vddw_YQZ6SHMV");
+let user = null;
+const ADMIN_PWD = "1234567890";
 
-// 全局变量
-let currentUser = null;
-let currentVideoId = null;
-
-// DOM 元素
-const loading = document.getElementById("loading");
-const authPage = document.getElementById("authPage");
-const homePage = document.getElementById("homePage");
-const uploadPage = document.getElementById("uploadPage");
-const msgPage = document.getElementById("msgPage");
-const profilePage = document.getElementById("profilePage");
-const commentModal = document.getElementById("commentModal");
-const navItems = document.querySelectorAll(".nav-item");
-const publishBtns = document.querySelectorAll("#publishBtn, #publishBtn2, #publishBtn3");
-
-// 3秒自动隐藏加载，显示登录页
-setTimeout(() => {
-  loading.classList.add("hidden");
-  authPage.classList.add("active");
-}, 2000);
-
-// 页面切换
-function switchPage(pageId) {
-  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-  document.getElementById(pageId).classList.add("active");
-  navItems.forEach(item => {
-    item.classList.toggle("active", item.dataset.page === pageId);
-  });
-  if (pageId === "homePage") loadVideos();
-  if (pageId === "profilePage") loadProfile();
-  if (pageId === "msgPage") loadMsgs();
-  loading.classList.add("hidden");
+function go(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('show'));
+  document.getElementById(id).classList.add('show');
+  if(id==='homePage')loadVideos();
+  if(id==='mePage')loadMe();
+  if(id==='msgPage')loadMsgs();
 }
 
-// 导航绑定
-navItems.forEach(item => {
-  item.addEventListener("click", () => {
-    const pageMap = { home: "homePage", msg: "msgPage", profile: "profilePage" };
-    switchPage(pageMap[item.dataset.page]);
-  });
-});
-
-// 发布按钮绑定
-publishBtns.forEach(btn => {
-  btn.addEventListener("click", () => {
-    if (!currentUser) return alert("请先登录");
-    switchPage("uploadPage");
-  });
-});
-document.getElementById("backHome").addEventListener("click", () => switchPage("homePage"));
-
-// 登录/注册
-document.getElementById("loginBtn").addEventListener("click", async () => {
-  loading.classList.remove("hidden");
-  const username = document.getElementById("authUsername").value.trim();
-  const password = document.getElementById("authPassword").value.trim();
-  if (!username || !password) {
-    loading.classList.add("hidden");
-    return alert("请输入账号密码");
-  }
-
-  try {
-    const { data, error } = await supabase
-      .from("users")
-      .select("*")
-      .eq("username", username)
-      .eq("password", password);
-
-    if (error || data.length === 0) {
-      loading.classList.add("hidden");
-      return alert("账号或密码错误");
-    }
-    currentUser = data[0];
-    switchPage("homePage");
-    loading.classList.add("hidden");
-  } catch (err) {
-    loading.classList.add("hidden");
-    alert("网络错误，请重试");
-  }
-});
-
-document.getElementById("registerBtn").addEventListener("click", async () => {
-  loading.classList.remove("hidden");
-  const username = document.getElementById("authUsername").value.trim();
-  const password = document.getElementById("authPassword").value.trim();
-  if (!username || !password) {
-    loading.classList.add("hidden");
-    return alert("请输入账号密码");
-  }
-
-  try {
-    const { data: exist } = await supabase
-      .from("users")
-      .select("username")
-      .eq("username", username);
-
-    if (exist.length > 0) {
-      loading.classList.add("hidden");
-      return alert("账号已存在");
-    }
-
-    const { error } = await supabase
-      .from("users")
-      .insert([{ username, password }]);
-
-    if (error) {
-      loading.classList.add("hidden");
-      return alert("注册失败：" + error.message);
-    }
-    alert("注册成功！请登录");
-    loading.classList.add("hidden");
-  } catch (err) {
-    loading.classList.add("hidden");
-    alert("网络错误，请重试");
-  }
-});
-
-// 加载视频（快手竖屏刷）
-async function loadVideos() {
-  loading.classList.remove("hidden");
-  const container = document.getElementById("videoContainer");
-  container.innerHTML = "";
-
-  try {
-    const { data, error } = await supabase
-      .from("videos")
-      .select("*, users(username)")
-      .order("created_at", { ascending: false });
-
-    if (error) throw error;
-
-    data.forEach(video => {
-      const item = document.createElement("div");
-      item.className = "video-item";
-      item.innerHTML = `
-        <video class="video-player" src="${video.video_url}" loop muted></video>
-        <div class="video-info">
-          <div class="video-username">@${video.users.username}</div>
-          <div class="video-desc">${video.description}</div>
-          <div class="video-music">🎵 原声</div>
-        </div>
-        <div class="video-actions">
-          <div class="action-btn">
-            <div class="author-avatar">
-              <div class="follow-tag">+</div>
-            </div>
-          </div>
-          <button class="action-btn like-btn" data-id="${video.id}">
-            <div class="action-icon">❤️</div>
-            <div class="action-text">${video.likes || 0}</div>
-          </button>
-          <button class="action-btn comment-btn" data-id="${video.id}">
-            <div class="action-icon">💬</div>
-            <div class="action-text">评论</div>
-          </button>
-          <button class="action-btn star-btn" data-id="${video.id}">
-            <div class="action-icon">⭐</div>
-            <div class="action-text">收藏</div>
-          </button>
-          <button class="action-btn share-btn" data-id="${video.id}">
-            <div class="action-icon">➡️</div>
-            <div class="action-text">分享</div>
-          </button>
-        </div>
-      `;
-      container.appendChild(item);
-
-      // 视频自动播放（快手进入可视区自动播）
-      const player = item.querySelector(".video-player");
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            player.play().catch(e => console.log(e));
-          } else {
-            player.pause();
-          }
-        });
-      });
-      observer.observe(player);
-    });
-
-    // 绑定事件
-    bindVideoEvents();
-    loading.classList.add("hidden");
-  } catch (err) {
-    loading.classList.add("hidden");
-    alert("加载视频失败，请重试");
-  }
+// 登录
+async function login(){
+  let u=document.getElementById('user').value,p=document.getElementById('pwd').value;
+  if(!u||!p)return alert('请输入账号密码');
+  let {data}=await sb.from('users').select().eq('username',u).eq('password',p);
+  if(data.length){user=data[0];alert('登录成功');go('homePage');}
+  else alert('账号或密码错误');
 }
 
-// 绑定视频事件
-function bindVideoEvents() {
-  // 点赞
-  document.querySelectorAll(".like-btn").forEach(btn => {
-    btn.addEventListener("click", async () => {
-      const id = btn.dataset.id;
-      const { data } = await supabase.from("videos").select("likes").eq("id", id).single();
-      await supabase.from("videos").update({ likes: (data.likes || 0) + 1 }).eq("id", id);
-      btn.querySelector(".action-text").textContent = (data.likes || 0) + 1;
-      btn.classList.add("liked");
-    });
-  });
-
-  // 评论
-  document.querySelectorAll(".comment-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      currentVideoId = btn.dataset.id;
-      loadComments();
-      commentModal.classList.add("active");
-    });
-  });
+// 注册
+async function reg(){
+  let u=document.getElementById('user').value,p=document.getElementById('pwd').value;
+  if(!u||!p)return alert('请输入账号密码');
+  let {data}=await sb.from('users').select().eq('username',u);
+  if(data.length)return alert('账号已存在');
+  await sb.from('users').insert([{username:u,password:p,status:'正常'}]);
+  alert('注册成功！请登录');
 }
 
-// 加载评论
-async function loadComments() {
-  const list = document.getElementById("commentList");
-  list.innerHTML = "";
+// 退出
+function logout(){user=null;go('loginPage');}
 
-  const { data, error } = await supabase
-    .from("comments")
-    .select("*, users(username)")
-    .eq("video_id", currentVideoId)
-    .order("created_at", { ascending: false });
+// 发视频
+async function upload(){
+  if(!user)return alert('请先登录');
+  let f=document.getElementById('vfile').files[0],t=document.getElementById('vtitle').value;
+  if(!f)return alert('请选视频');
+  let url=URL.createObjectURL(f);
+  await sb.from('videos').insert([{user_id:user.id,title:t,url:url,likes:0}]);
+  alert('发布成功');go('homePage');
+}
 
-  if (error) return console.error(error);
-
-  data.forEach(comment => {
-    const item = document.createElement("div");
-    item.className = "comment-item";
-    item.innerHTML = `
-      <div class="comment-avatar">${comment.users.username.charAt(0).toUpperCase()}</div>
-      <div class="comment-content">
-        <div class="comment-username">${comment.users.username}</div>
-        <div class="comment-text">${comment.content}</div>
-      </div>
+// 刷视频
+async function loadVideos(){
+  let {data}=await sb.from('videos').select('*,users(username)').order('id',{ascending:false});
+  let box=document.getElementById('videoList');box.innerHTML='';
+  data.forEach(v=>{
+    let d=document.createElement('div');
+    d.className='item';
+    d.innerHTML=`
+      <video src="${v.url}" controls style="width:100%;height:auto"></video>
+      <p>@${v.users.username}</p>
+      <p>${v.title}</p>
+      <p>点赞：${v.likes}</p>
+      <button onclick="like(${v.id})">点赞</button>
+      <button onclick="report(${v.id})">举报</button>
+      <input placeholder="评论" id="c${v.id}">
+      <button onclick="sendComment(${v.id})">发评论</button>
+      <div id="clist${v.id}"></div>
     `;
-    list.appendChild(item);
+    box.appendChild(d);
+    loadComment(v.id);
   });
 }
 
-// 发送评论
-document.getElementById("sendComment").addEventListener("click", async () => {
-  const content = document.getElementById("commentInput").value.trim();
-  if (!content || !currentVideoId || !currentUser) return;
-
-  await supabase.from("comments").insert([{
-    video_id: currentVideoId,
-    user_id: currentUser.id,
-    content
-  }]);
-
-  document.getElementById("commentInput").value = "";
-  loadComments();
-});
-
-// 关闭评论
-document.getElementById("closeComment").addEventListener("click", () => {
-  commentModal.classList.remove("active");
-});
-
-// 上传视频
-document.getElementById("uploadBtn").addEventListener("click", async () => {
-  loading.classList.remove("hidden");
-  const file = document.getElementById("videoFile").files[0];
-  const desc = document.getElementById("videoDesc").value.trim();
-  if (!file || !currentUser) {
-    loading.classList.add("hidden");
-    return alert("请选择视频并登录");
-  }
-
-  try {
-    const url = URL.createObjectURL(file);
-    const { error } = await supabase.from("videos").insert([{
-      user_id: currentUser.id,
-      video_url: url,
-      description: desc,
-      likes: 0
-    }]);
-
-    if (error) throw error;
-    alert("上传成功！");
-    switchPage("homePage");
-    document.getElementById("videoFile").value = "";
-    document.getElementById("videoDesc").value = "";
-    loading.classList.add("hidden");
-  } catch (err) {
-    loading.classList.add("hidden");
-    alert("上传失败：" + err.message);
-  }
-});
-
-// 加载个人主页
-async function loadProfile() {
-  if (!currentUser) return;
-  document.getElementById("profileUsername").textContent = currentUser.username;
-  document.getElementById("profileAvatar").textContent = currentUser.username.charAt(0).toUpperCase();
-
-  const { data: videos } = await supabase.from("videos").select("id").eq("user_id", currentUser.id);
-  document.getElementById("statVideos").textContent = videos.length;
+// 点赞
+async function like(id){
+  let {data}=await sb.from('videos').select('likes').eq('id',id).single();
+  await sb.from('videos').update({likes:(data.likes||0)+1}).eq('id',id);
+  loadVideos();
 }
 
-// 加载消息
-async function loadMsgs() {
-  const list = document.getElementById("msgList");
-  list.innerHTML = "<div class='msg-item'><div class='msg-avatar'></div><div class='msg-content'><div class='msg-username'>系统通知</div><div class='msg-preview'>欢迎使用离门团队视频</div></div></div>";
+// 举报
+async function report(vid){
+  if(!user)return alert('请登录');
+  await sb.from('reports').insert([{video_id:vid,user_id:user.id,content:'违规'}]);
+  alert('举报成功');
 }
 
-// 退出登录
-document.getElementById("logoutBtn").addEventListener("click", () => {
-  currentUser = null;
-  switchPage("authPage");
-  document.getElementById("authUsername").value = "";
-  document.getElementById("authPassword").value = "";
-});
+// 评论
+async function sendComment(vid){
+  if(!user)return;
+  let t=document.getElementById('c'+vid).value;
+  if(!t)return;
+  await sb.from('comments').insert([{video_id:vid,user_id:user.id,content:t}]);
+  document.getElementById('c'+vid).value='';
+  loadComment(vid);
+}
 
-// 文件选择监听
-document.getElementById("videoFile").addEventListener("change", (e) => {
-  if (e.target.files[0]) {
-    document.getElementById("fileLabel").textContent = "已选择：" + e.target.files[0].name;
-  }
-});
+async function loadComment(vid){
+  let {data}=await sb.from('comments').select('*,users(username)').eq('video_id',vid);
+  let b=document.getElementById('clist'+vid);b.innerHTML='';
+  data.forEach(c=>{
+    let d=document.createElement('div');
+    d.className='comment';
+    d.innerText='@'+c.users.username+'：'+c.content;
+    b.appendChild(d);
+  });
+}
+
+// 我的视频
+async function loadMe(){
+  if(!user)return;
+  document.getElementById('myname').innerText='用户：'+user.username;
+  let {data}=await sb.from('videos').select().eq('user_id',user.id);
+  let m=document.getElementById('myVideos');m.innerHTML='';
+  data.forEach(v=>{
+    let d=document.createElement('div');
+    d.className='item';
+    d.innerHTML=`<video src="${v.url}" controls style="width:100%"></video><p>${v.title}</p>`;
+    m.appendChild(d);
+  });
+}
+
+// 私信
+async function sendMsg(){
+  if(!user)return;
+  let to=document.getElementById('toUser').value,t=document.getElementById('msgText').value;
+  if(!to||!t)return;
+  await sb.from('messages').insert([{from_uid:user.id,to_user:to,content:t}]);
+  alert('发送成功');document.getElementById('msgText').value='';
+}
+
+async function loadMsgs(){
+  if(!user)return;
+  let {data}=await sb.from('messages').select().eq('to_user',user.username);
+  let l=document.getElementById('msgList');l.innerHTML='';
+  data.forEach(m=>{
+    let d=document.createElement('div');
+    d.className='comment';
+    d.innerText=m.from_uid+'：'+m.content;
+    l.appendChild(d);
+  });
+}
+
+// 申诉
+async function sendAppeal(){
+  if(!user)return;
+  let t=document.getElementById('appealText').value;
+  if(!t)return;
+  await sb.from('appeals').insert([{uid:user.id,reason:t}]);
+  alert('申诉提交成功');go('mePage');
+}
+
+// 管理员
+function adminLogin(){
+  if(document.getElementById('adminPwd').value===ADMIN_PWD)alert('管理员登录成功');
+  else alert('密码错误');
+}
+
+async function banUser(){
+  let uid=document.getElementById('banUid').value;
+  await sb.from('users').update({status:'封禁'}).eq('id',uid);
+  alert('已封禁');
+}
+
+async function unbanUser(){
+  let uid=document.getElementById('unbanUid').value;
+  await sb.from('users').update({status:'正常'}).eq('id',uid);
+  alert('已解封');
+}
+
+async function showReports(){
+  let {data}=await sb.from('reports').select();
+  document.getElementById('reportList').innerText=JSON.stringify(data);
+}
+
+async function showAppeals(){
+  let {data}=await sb.from('appeals').select();
+  document.getElementById('appealList').innerText=JSON.stringify(data);
+}
 </script>
 </body>
 </html>
