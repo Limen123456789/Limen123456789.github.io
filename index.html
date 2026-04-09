@@ -300,7 +300,7 @@ input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3p
 <input type="file" hidden id="uploadVideo" accept="video/*" onchange="uploadVideo(event)">
 
 <script>
-// ====================== 已帮你填好你的服务器信息 ======================
+// ====================== 你的服务器信息（已填好） ======================
 const SUPABASE_URL = "https://melgyktzmzyednqtmqfz.supabase.co";
 const SUPABASE_KEY = "sbpbl_5a2f6b2d416c71f20a275e7e0e0e5e7e7e7e7e7e";
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -343,8 +343,13 @@ progressWrap.addEventListener('click',(e)=>{
   video.currentTime=(e.clientX-rect.left)/rect.width*video.duration;
 });
 
+// 加载作品
 async function loadWorks(){
-  const {data}=await supabase.from("works").select("*").order("created_at",{ascending:false});
+  const {data, error} = await supabase.from("works").select("*").order("created_at",{ascending:false});
+  if(error) {
+    console.error("加载作品失败:", error);
+    return;
+  }
   works=data||[];
   if(works.length) loadCurrent();
 }
@@ -372,14 +377,22 @@ function prevVideo(){
 
 async function updateLike(){
   if(!works.length)return;
-  const {count}=await supabase.from("likes").select("*",{count:"exact"}).eq("work_id",works[currentWorkIndex].id);
+  const {count, error} = await supabase.from("likes").select("*",{count:"exact"}).eq("work_id",works[currentWorkIndex].id);
+  if(error) {
+    console.error("加载点赞失败:", error);
+    return;
+  }
   document.getElementById("likeCount").innerText=count||0;
 }
 
 async function toggleLike(){
   if(!currentUser){alert("请先登录");return;}
   const wid=works[currentWorkIndex].id;
-  const {data}=await supabase.from("likes").select("*").eq("work_id",wid).eq("username",currentUser);
+  const {data, error} = await supabase.from("likes").select("*").eq("work_id",wid).eq("username",currentUser);
+  if(error) {
+    console.error("检查点赞失败:", error);
+    return;
+  }
   if(data.length){
     await supabase.from("likes").delete().eq("work_id",wid).eq("username",currentUser);
   }else{
@@ -388,46 +401,95 @@ async function toggleLike(){
   updateLike();
 }
 
-// 注册登录
+// ====================== 修复版：注册/登录（核心修复） ======================
 async function doRegister(){
   let user=document.getElementById("regUser").value.trim();
   let pwd=document.getElementById("regPwd").value.trim();
-  if(!user||!pwd){alert("不能为空");return;}
-  const {data}=await supabase.from("users").select("*").eq("username",user);
-  if(data.length){alert("已注册");return;}
-  await supabase.from("users").insert([{username:user,password:pwd,is_banned:false,ban_expire:0}]);
-  alert("注册成功");
+  if(!user||!pwd){
+    alert("账号和密码不能为空！");
+    return;
+  }
+  // 检查用户是否已存在
+  const {data, error} = await supabase.from("users").select("*").eq("username",user);
+  if(error) {
+    alert("注册失败：" + error.message);
+    return;
+  }
+  if(data.length>0){
+    alert("该账号已注册，请直接登录！");
+    return;
+  }
+  // 插入新用户
+  const {error: insertError} = await supabase.from("users").insert([{username:user,password:pwd,is_banned:false,ban_expire:0}]);
+  if(insertError) {
+    alert("注册失败：" + insertError.message);
+    return;
+  }
+  alert("注册成功！请登录");
+  document.getElementById("regUser").value = user;
 }
 
 async function doLogin(){
   let user=document.getElementById("regUser").value.trim();
   let pwd=document.getElementById("regPwd").value.trim();
-  if(!user||!pwd){alert("请输入账号密码");return;}
-  const {data}=await supabase.from("users").select("*").eq("username",user).eq("password",pwd);
-  if(!data.length){alert("账号密码错误");return;}
+  if(!user||!pwd){
+    alert("请输入账号和密码！");
+    return;
+  }
+  // 验证账号密码
+  const {data, error} = await supabase.from("users").select("*").eq("username",user).eq("password",pwd);
+  if(error) {
+    alert("登录失败：" + error.message);
+    return;
+  }
+  if(!data.length){
+    alert("账号或密码错误！");
+    return;
+  }
   let u=data[0];
-  if(u.is_banned&&u.ban_expire>Date.now()){alert("已封禁");return;}
+  // 检查封禁状态
+  if(u.is_banned && u.ban_expire > Date.now()){
+    alert(`账号已封禁，解封时间：${new Date(u.ban_expire).toLocaleString()}`);
+    return;
+  }
+  // 登录成功
   currentUser=user;
   document.getElementById("myName").innerText=currentUser;
   document.getElementById("authPage").style.display="none";
   document.getElementById("videoPage").classList.remove("hidden");
   loadWorks();
+  alert("登录成功！");
 }
 
-// 上传视频
+function goHome() {
+  document.getElementById("authPage").style.display = "none";
+  document.getElementById("videoPage").classList.remove("hidden");
+  document.getElementById("myName").textContent = currentUser;
+  loadWorks();
+}
+
+// ====================== 上传视频 ======================
 async function uploadVideo(e){
   if(!currentUser){alert("请登录");return;}
   let f=e.target.files[0];
   if(!f)return;
   let fn=Date.now()+"_"+f.name;
-  const {data}=await supabase.storage.from("video-files").upload(fn,f);
-  const {data:{publicUrl}}=supabase.storage.from("video-files").getPublicUrl(fn);
-  await supabase.from("works").insert([{username:currentUser,video_url:publicUrl,created_at:new Date()}]);
+  const {data, error} = await supabase.storage.from("video-files").upload(fn,f);
+  if(error) {
+    alert("上传失败：" + error.message);
+    return;
+  }
+  const {data:{publicUrl}} = supabase.storage.from("video-files").getPublicUrl(fn);
+  const {error: insertError} = await supabase.from("works").insert([{username:currentUser,video_url:publicUrl,created_at:new Date()}]);
+  if(insertError) {
+    alert("保存作品失败：" + insertError.message);
+    return;
+  }
   loadWorks();
-  alert("上传成功");
+  alert("上传成功！");
 }
 
-// 举报
+// ====================== 举报 ======================
 function openReport(user){
   if(!currentUser){alert("请登录");return;}
   document.getElementById("reportTarget").value=user||"";
@@ -438,11 +500,15 @@ async function submitReport(){
   let target=document.getElementById("reportTarget").value;
   let type=document.getElementById("reportType").value;
   let msg=document.getElementById("reportMsg").value;
-  await supabase.from("reports").insert([{from_user:currentUser,target_user:target,type:type,msg:msg,status:"待处理"}]);
+  const {error} = await supabase.from("reports").insert([{from_user:currentUser,target_user:target,type:type,msg:msg,status:"待处理"}]);
+  if(error) {
+    alert("举报失败：" + error.message);
+    return;
+  }
   alert("举报成功"); closeReport();
 }
 
-// 管理员
+// ====================== 管理员 ======================
 function openAdmin(){if(!currentUser){alert("请登录");return;}document.getElementById("adminLoginModal").style.display="flex";}
 function closeAdminLogin(){document.getElementById("adminLoginModal").style.display="none";}
 function checkAdminPwd(){
@@ -452,7 +518,11 @@ function checkAdminPwd(){
 function closeAdmin(){document.getElementById("adminModal").style.display="none";}
 
 async function showReports(){
-  const {data}=await supabase.from("reports").select("*");
+  const {data, error} = await supabase.from("reports").select("*");
+  if(error) {
+    alert("加载举报失败：" + error.message);
+    return;
+  }
   let html="<h5>举报列表</h5>";
   data.forEach(it=>{
     html+=`<div style='padding:10px;border:1px solid #333;margin:8px'>
@@ -466,7 +536,11 @@ async function showReports(){
 }
 
 async function showWorks(){
-  const {data}=await supabase.from("works").select("*");
+  const {data, error} = await supabase.from("works").select("*");
+  if(error) {
+    alert("加载作品失败：" + error.message);
+    return;
+  }
   let html="<h5>作品列表</h5>";
   data.forEach(it=>{
     html+=`<div style='padding:10px;border:1px solid #333;margin:8px'>
@@ -478,14 +552,22 @@ async function showWorks(){
 }
 
 async function delWork(id){
-  await supabase.from("works").delete().eq("id",id);
+  const {error} = await supabase.from("works").delete().eq("id",id);
+  if(error) {
+    alert("删除失败：" + error.message);
+    return;
+  }
   showWorks(); loadWorks();
 }
 
-// 封禁
+// ====================== 封禁 ======================
 async function openBanManage(){
   document.getElementById("adminModal").style.display="none";
-  const {data}=await supabase.from("users").select("*");
+  const {data, error} = await supabase.from("users").select("*");
+  if(error) {
+    alert("加载用户失败：" + error.message);
+    return;
+  }
   let html="<h5>账号列表</h5>";
   data.forEach(u=>{
     let status=u.is_banned&&u.ban_expire>Date.now()?"已封禁":"正常";
@@ -508,16 +590,24 @@ function closeBanModal(){
 async function banUser(user){
   let days=prompt("封禁天数：","7");
   if(!days||isNaN(days))return;
-  await supabase.from("users").update({is_banned:true,ban_expire:Date.now()+days*86400000}).eq("username",user);
+  const {error} = await supabase.from("users").update({is_banned:true,ban_expire:Date.now()+days*86400000}).eq("username",user);
+  if(error) {
+    alert("封禁失败：" + error.message);
+    return;
+  }
   alert("已封禁"); openBanManage();
 }
 
 async function unbanUser(user){
-  await supabase.from("users").update({is_banned:false,ban_expire:0}).eq("username",user);
+  const {error} = await supabase.from("users").update({is_banned:false,ban_expire:0}).eq("username",user);
+  if(error) {
+    alert("解封失败：" + error.message);
+    return;
+  }
   alert("已解封"); openBanManage();
 }
 
-// 消息聊天
+// ====================== 消息聊天 ======================
 function openMsgPage(){if(!currentUser){alert("请登录");return;}document.getElementById("msgPage").style.display="block";}
 function closeMsgPage(){document.getElementById("msgPage").style.display="none";}
 function openChatPage(t){currentChatTarget=t;document.getElementById("chatPage").style.display="block";}
@@ -526,11 +616,15 @@ async function sendChatMsg(){
   if(!currentUser||!currentChatTarget)return;
   let txt=document.getElementById("chatInput").value.trim();
   if(!txt)return;
-  await supabase.from("chats").insert([{from_user:currentUser,to_user:currentChatTarget,msg:txt}]);
+  const {error} = await supabase.from("chats").insert([{from_user:currentUser,to_user:currentChatTarget,msg:txt}]);
+  if(error) {
+    alert("发送失败：" + error.message);
+    return;
+  }
   document.getElementById("chatInput").value="";
 }
 
-// 页面切换
+// ====================== 页面切换 ======================
 function switchTab(t){
   document.querySelectorAll(".tab-item").forEach(i=>i.classList.remove("active"));
   document.getElementById("videoPage").classList.add("hidden");
@@ -551,11 +645,13 @@ function openComment(){alert("评论开发中");}
 function openShare(){alert("分享开发中");}
 function openWorkPage(){alert("我的作品开发中");}
 
-// 初始化
+// ====================== 初始化（绑定按钮，核心修复） ======================
 document.addEventListener("DOMContentLoaded",()=>{
-  document.getElementById("btnRegister").onclick=doRegister;
-  document.getElementById("btnLogin").onclick=doLogin;
-  document.getElementById("authPage").style.display="flex";
+  // 绑定注册/登录按钮
+  document.getElementById("btnRegister").onclick = doRegister;
+  document.getElementById("btnLogin").onclick = doLogin;
+  // 显示登录页
+  document.getElementById("authPage").style.display = "flex";
 });
 </script>
 </body>
