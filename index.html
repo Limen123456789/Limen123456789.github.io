@@ -6,7 +6,7 @@
 <title>离门团队视频</title>
 <style>
 * {margin:0;padding:0;box-sizing:border-box}
-body {background:#000;color:#fff;font-family:"Microsoft YaHei",sans-serif;overflow:hidden}
+body {background:#000;color:#fff;font-family:"Microsoft YaHei",sans-serif}
 .hidden {display:none !important}
 
 .top-bar {position:fixed;top:0;left:0;width:100%;height:46px;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:space-between;padding:0 14px}
@@ -15,30 +15,27 @@ body {background:#000;color:#fff;font-family:"Microsoft YaHei",sans-serif;overfl
 .tab-bar {position:fixed;bottom:0;left:0;width:100%;height:50px;background:#111;display:flex;align-items:center;justify-content:space-around;z-index:9999;border-top:1px solid #333}
 .tab-item {display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;color:#999;cursor:pointer}
 .tab-item.active {color:#fff}
-.tab-plus {width:50px;height:50px;border-radius:50%;background:#070;display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;margin-top:-10px;z-index:99999}
+.tab-plus {width:50px;height:50px;border-radius:50%;background:#070;display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;margin-top:-10px}
 
 .video-page {width:100vw;height:calc(100vh - 50px);position:relative;overflow:hidden}
 .video-container {width:100%;height:100%;position:relative}
 video {width:100%;height:100%;object-fit:cover;background:#000}
 
 .user-info {position:fixed;left:14px;bottom:80px;z-index:99999;display:flex;align-items:center;gap:12px}
-.avatar {width:56px;height:56px;border-radius:50%;background:#fff;overflow:hidden;border:2px solid #fff;cursor:pointer}
-.avatar img {width:100%;height:100%;object-fit:cover;display:block}
+.avatar {width:56px;height:56px;border-radius:50%;background:#fff;overflow:hidden;border:2px solid #fff}
+.avatar img {width:100%;height:100%;object-fit:cover}
 .user-name {font-size:18px;font-weight:bold;margin-bottom:6px}
-.follow-btn {background:#ff4400;color:#fff;border:none;padding:7px 18px;border-radius:20px;font-size:14px;font-weight:bold;cursor:pointer}
-.followed {background:#333;color:#fff}
-.report-btn {background:#f00;color:#fff;border:none;padding:7px 14px;border-radius:16px;font-size:13px;margin-top:6px;cursor:pointer;z-index:999999}
+.follow-btn {background:#ff4400;color:#fff;border:none;padding:7px 18px;border-radius:20px;font-size:14px;font-weight:bold}
+.followed {background:#333}
+.report-btn {background:#f00;color:#fff;border:none;padding:7px 14px;border-radius:16px;font-size:13px;margin-top:6px}
 
 .right-bar {position:fixed;right:14px;bottom:80px;z-index:99999;display:flex;flex-direction:column;gap:16px;align-items:center}
-.icon-btn {width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer}
+.icon-btn {width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;font-size:22px}
 .icon-count {font-size:12px;margin-top:3px}
-
-.progress {position:fixed;bottom:18px;left:14px;width:calc(100% - 28px);height:5px;background:#444;border-radius:3px;z-index:9999;cursor:pointer}
-.progress-bar {height:100%;width:0%;background:#0f0;border-radius:3px}
 
 .upload-btn {position:fixed;top:56px;left:14px;z-index:9999;width:calc(100% - 28px);padding:10px;background:#070;color:#fff;border:none;border-radius:8px;font-size:16px}
 .upload-progress {position:fixed;top:100px;left:14px;width:calc(100% - 28px);height:5px;background:#444;border-radius:3px;z-index:9999;display:none}
-.upload-bar {height:100%;width:0%;background:#0f0;border-radius:3px}
+.upload-bar {height:100%;width:0%;background:#0f0}
 
 .my-page,.user-page,.ban-page,.msg-page,.chat-page,.work-page {
   position:fixed;inset:0;background:#fff;z-index:10000;display:none;overflow:auto;padding-bottom:50px;color:#000
@@ -46,13 +43,7 @@ video {width:100%;height:100%;object-fit:cover;background:#000}
 .my-header {height:140px;background:#f5f5f5;display:flex;align-items:center;padding:18px;gap:14px;position:relative}
 .my-avatar {width:72px;height:72px;border-radius:50%;overflow:hidden;border:3px solid #fff}
 .my-avatar img {width:100%;height:100%;object-fit:cover}
-.my-info {flex:1}
-.my-name {font-size:20px;font-weight:bold;margin-bottom:6px}
-.my-follow {display:flex;gap:18px;margin-top:8px}
-.my-follow-item {text-align:center}
-.my-follow-num {font-size:17px;font-weight:bold}
-.my-follow-text {font-size:12px;color:#999}
-.back-btn {position:absolute;top:12px;left:12px;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;cursor:pointer}
+.back-btn {position:absolute;top:12px;left:12px;width:36px;height:36px;border-radius:50%;background:#333;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px}
 
 .user-head {height:150px;background:#111;color:#fff;display:flex;align-items:center;gap:12px;padding:12px;position:relative}
 .user-av {width:64px;height:64px;border-radius:50%;overflow:hidden}
@@ -61,15 +52,11 @@ video {width:100%;height:100%;object-fit:cover;background:#000}
 .user-work-item video {width:100%;height:100%;object-fit:cover}
 
 input, textarea, select {
-  width:100%;padding:12px;margin:8px 0;background:#222;border:2px solid #0f0;color:#fff;border-radius:12px;font-size:16px;
-  outline:none;transition:border 0.2s
+  width:100%;padding:12px;margin:8px 0;background:#222;border:2px solid #0f0;color:#fff;border-radius:12px;font-size:16px;outline:none;
 }
-input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3px rgba(0,255,0,0.2)}
 .btn {
   width:100%;padding:14px;background:#070;color:#fff;border:none;border-radius:12px;margin-top:8px;font-size:18px;font-weight:bold;
-  cursor:pointer;transition:background 0.2s
 }
-.btn:hover {background:#0a0}
 .btn-secondary {background:#333}
 .btn-danger {background:#f00}
 
@@ -82,73 +69,40 @@ input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3p
   max-height:80vh;overflow:auto
 }
 
-.refresh-tip{position:fixed;top:8px;left:50%;transform:translateX(-50%);background:#0f0;color:#000;padding:5px 10px;border-radius:20px;font-size:12px;z-index:99999;display:none}
-
-/* 举报弹窗 */
-#reportModal .modal-card h4 {font-size:24px;margin-bottom:16px}
-#reportTarget {background:#333;cursor:not-allowed;}
-#reportType {appearance:none;background:#222 url('data:image/svg+xml;utf8,<svg fill="%230f0" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 12px center;background-size:20px}
-#reportMsg {min-height:100px;resize:none}
-
-/* 消息页 */
 .msg-page {background:#f5f5f5;padding-top:50px}
-.msg-list {padding:10px}
 .msg-item {
-  display:flex;align-items:center;gap:12px;padding:12px;background:#fff;margin:6px 10px;border-radius:12px;cursor:pointer;
-  border:1px solid #eee;transition:background 0.2s
+  display:flex;align-items:center;gap:12px;padding:12px;background:#fff;margin:6px 10px;border-radius:12px;
+  border:1px solid #eee;
 }
-.msg-item:hover {background:#f0f0f0}
 .msg-avatar {width:48px;height:48px;border-radius:50%;background:#ddd;overflow:hidden}
-.msg-avatar img {width:100%;height:100%;object-fit:cover}
-.msg-info {flex:1}
-.msg-name {font-size:16px;font-weight:bold}
-.msg-last {font-size:13px;color:#666;margin-top:2px}
 
-/* 聊天页 */
 .chat-page {background:#f5f5f5;padding-top:50px;padding-bottom:70px}
 .chat-header {
   position:fixed;top:0;left:0;width:100%;height:50px;background:#fff;display:flex;align-items:center;padding:0 14px;
   border-bottom:1px solid #eee;z-index:10001
 }
-.chat-list {padding:10px;margin-top:50px;margin-bottom:70px}
-.chat-item {
-  display:flex;margin:8px 10px;max-width:70%
-}
-.chat-item.me {justify-content:flex-end;margin-left:auto}
-.chat-item.other {justify-content:flex-start;margin-right:auto}
-.chat-bubble {
-  padding:10px 14px;border-radius:18px;font-size:15px;line-height:1.4
-}
-.chat-item.me .chat-bubble {background:#070;color:#fff;border-bottom-right-radius:4px}
-.chat-item.other .chat-bubble {background:#fff;color:#000;border-bottom-left-radius:4px;border:1px solid #eee}
+.chat-item {margin:8px 10px;max-width:70%}
+.chat-item.me {margin-left:auto}
+.chat-bubble {padding:10px 14px;border-radius:18px;font-size:15px}
+.chat-item.me .chat-bubble {background:#070;color:#fff}
+.chat-item.other .chat-bubble {background:#fff;color:#000;border:1px solid #eee}
 .chat-input {
   position:fixed;bottom:50px;left:0;width:100%;display:flex;gap:8px;padding:10px;background:#fff;
   border-top:1px solid #eee;z-index:10001
 }
 .chat-input input {flex:1;margin:0;background:#f5f5f5;border:2px solid #0f0;border-radius:24px;padding:12px 16px}
-.chat-input button {
-  width:80px;background:#070;color:#fff;border:none;border-radius:24px;font-size:16px;font-weight:bold;
-  cursor:pointer
-}
+.chat-input button {width:80px;background:#070;color:#fff;border:none;border-radius:24px}
 
-/* 封禁弹窗 */
-#banModal .modal-card h4 {font-size:20px;margin-bottom:12px}
-.ban-item {
-  border:1px solid #333;padding:10px;margin:8px;border-radius:8px
-}
-.ban-btn {
-  padding:6px 12px;border:none;border-radius:6px;font-weight:bold;cursor:pointer;margin-left:8px
-}
+.ban-item {border:1px solid #333;padding:10px;margin:8px;border-radius:8px}
+.ban-btn {padding:6px 12px;border:none;border-radius:6px;font-weight:bold;margin-left:8px}
 .ban-btn.ban {background:#f00;color:#fff}
 .ban-btn.unban {background:#070;color:#fff}
 </style>
 </head>
 <body>
 
-<div class="refresh-tip" id="refreshTip">同步成功</div>
-
 <div class="top-bar">
-  <span onclick="openMyPage()">我</span>
+  <span onclick="switchTab('my')">我</span>
   <span>离门团队视频</span>
   <span onclick="openAdmin()">管理</span>
   <span class="time-text" id="realTime"></span>
@@ -173,9 +127,7 @@ input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3p
     <div class="icon-count" id="commentCount">0</div>
     <div class="icon-btn" onclick="toggleCollect()">⭐</div>
     <div class="icon-count" id="collectCount">0</div>
-    <div class="icon-btn" onclick="openShare()">📤</div>
   </div>
-  <div class="progress" id="progressBarWrap"><div class="progress-bar" id="progressBar"></div></div>
 </div>
 
 <button class="upload-btn" onclick="document.getElementById('uploadVideo').click()">📤 上传视频</button>
@@ -183,9 +135,9 @@ input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3p
 
 <div class="auth-page" id="authPage">
   <div class="auth-card">
-    <h3 style="text-align:center;margin-bottom:16px;font-size:22px">登录 / 注册</h3>
-    <input id="regUser" placeholder="账号（必填）">
-    <input id="regPwd" type="password" placeholder="密码（必填）">
+    <h3 style="text-align:center;margin-bottom:16px">登录 / 注册</h3>
+    <input id="regUser" placeholder="账号">
+    <input id="regPwd" type="password" placeholder="密码">
     <button class="btn" id="btnRegister">注册</button>
     <button class="btn btn-secondary" id="btnLogin">登录</button>
   </div>
@@ -194,24 +146,24 @@ input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3p
 <div class="my-page" id="myPage">
   <div class="my-header">
     <div class="back-btn" onclick="switchTab('home')">←</div>
-    <div class="my-avatar"><img id="myAvatar" src=""></div>
+    <div class="my-avatar"><img src=""></div>
     <div class="my-info">
       <div class="my-name" id="myName"></div>
-      <div class="my-follow">
-        <div class="my-follow-item"><div class="my-follow-num" id="fansNum">0</div><div class="my-follow-text">粉丝</div></div>
-        <div class="my-follow-item"><div class="my-follow-num" id="followNum">0</div><div class="my-follow-text">关注</div></div>
-        <div class="my-follow-item"><div class="my-follow-num" id="likeNum">0</div><div class="my-follow-text">获赞</div></div>
+      <div class="my-follow" style="display:flex;gap:18px;margin-top:8px">
+        <div style="text-align:center"><div style="font-weight:bold" id="fansNum">0</div><div style="font-size:12px;color:#999">粉丝</div></div>
+        <div style="text-align:center"><div style="font-weight:bold" id="followNum">0</div><div style="font-size:12px;color:#999">关注</div></div>
+        <div style="text-align:center"><div style="font-weight:bold" id="likeNum">0</div><div style="font-size:12px;color:#999">获赞</div></div>
       </div>
     </div>
   </div>
   <div style="padding:14px">
-    <div class="my-item" onclick="openWorkPage()" style="padding:12px;border-bottom:1px solid #eee;display:flex;gap:12px;align-items:center">
+    <div onclick="openWorkPage()" style="padding:12px;border-bottom:1px solid #eee;display:flex;gap:12px;align-items:center">
       <span>📹</span><span>我的作品</span>
     </div>
-    <div class="my-item" onclick="openMsgPage()" style="padding:12px;border-bottom:1px solid #eee;display:flex;gap:12px;align-items:center">
+    <div onclick="openMsgPage()" style="padding:12px;border-bottom:1px solid #eee;display:flex;gap:12px;align-items:center">
       <span>📩</span><span>消息</span>
     </div>
-    <div class="my-item" onclick="openAdmin()" style="padding:12px;border-bottom:1px solid #eee;display:flex;gap:12px;align-items:center">
+    <div onclick="openAdmin()" style="padding:12px;border-bottom:1px solid #eee;display:flex;gap:12px;align-items:center">
       <span>🔐</span><span>管理后台</span>
     </div>
   </div>
@@ -230,30 +182,27 @@ input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3p
   <div class="user-work" id="targetWork"></div>
 </div>
 
-<!-- 举报弹窗 -->
 <div class="modal" id="reportModal">
   <div class="modal-card">
     <h4>举报</h4>
-    <input id="reportTarget" readonly placeholder="被举报用户">
+    <input id="reportTarget" readonly>
     <select id="reportType">
       <option>作品违规</option>
       <option>辱骂人身攻击</option>
       <option>私信骚扰</option>
       <option>其他违规</option>
     </select>
-    <textarea id="reportMsg" placeholder="请补充举报说明（选填）"></textarea>
+    <textarea id="reportMsg" placeholder="补充说明" style="min-height:100px"></textarea>
     <button class="btn" onclick="submitReport()">提交</button>
     <button class="btn btn-secondary" onclick="closeReport()">取消</button>
   </div>
 </div>
 
-<!-- 消息列表页 -->
 <div class="msg-page" id="msgPage">
   <div class="back-btn" onclick="closeMsgPage()">←</div>
   <div class="msg-list" id="msgList"></div>
 </div>
 
-<!-- 聊天页 -->
 <div class="chat-page" id="chatPage">
   <div class="chat-header">
     <div class="back-btn" onclick="closeChatPage()">←</div>
@@ -266,7 +215,6 @@ input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3p
   </div>
 </div>
 
-<!-- 管理员登录弹窗 -->
 <div class="modal" id="adminLoginModal">
   <div class="modal-card">
     <h4>管理员验证</h4>
@@ -276,21 +224,18 @@ input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3p
   </div>
 </div>
 
-<!-- 管理员后台弹窗 -->
 <div class="modal" id="adminModal">
   <div class="modal-card">
     <h4>管理后台</h4>
-    <button class="btn" onclick="showReports()">查看所有举报</button>
+    <button class="btn" onclick="showReports()">查看举报</button>
     <button class="btn" onclick="showWorks()">所有作品</button>
     <button class="btn" onclick="showChatLog()">私信记录</button>
-    <!-- 新增封禁功能按钮 -->
-    <button class="btn btn-danger" onclick="openBanManage()">封禁/解封账号</button>
+    <button class="btn btn-danger" onclick="openBanManage()">封禁/解封</button>
     <button class="btn btn-secondary" onclick="closeAdmin()">关闭</button>
     <div id="adminContent" style="margin-top:10px"></div>
   </div>
 </div>
 
-<!-- 封禁管理弹窗 -->
 <div class="modal" id="banModal">
   <div class="modal-card">
     <h4>账号封禁管理</h4>
@@ -309,9 +254,6 @@ input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3p
 <input type="file" hidden id="uploadVideo" accept="video/*" onchange="uploadVideo(event)">
 
 <script>
-// ======================
-// 全局存储（稳定版）
-// ======================
 const DB_KEY = "LIMEN_GLOBAL_DB";
 const USER_KEY = "LIMEN_LOGIN_USER";
 const ADMIN_PWD = "1234567890";
@@ -319,42 +261,30 @@ const ADMIN_PWD = "1234567890";
 function getDB() {
   try {
     let s = localStorage.getItem(DB_KEY);
-    return s ? JSON.parse(s) : { 
-      users: [], works: [], reports: [], likes: [], comments: [], chats: [], bans: [] 
-    };
-  } catch (e) {
-    return { users: [], works: [], reports: [], likes: [], comments: [], chats: [], bans: [] };
+    return s ? JSON.parse(s) : {users:[], works:[], reports:[], likes:[], comments:[], chats:[], bans:[]};
+  } catch(e) {
+    return {users:[], works:[], reports:[], likes:[], comments:[], chats:[], bans:[]};
   }
 }
-function setDB(db) {
-  localStorage.setItem(DB_KEY, JSON.stringify(db));
-}
+function setDB(db) { localStorage.setItem(DB_KEY, JSON.stringify(db)); }
 
-// 读取
-function getUsers()   { return getDB().users || []; }
-function getWorks()   { return getDB().works || []; }
+function getUsers() { return getDB().users || []; }
+function getWorks() { return getDB().works || []; }
 function getReports() { return getDB().reports || []; }
-function getLikes()   { return getDB().likes || []; }
-function getComments(){ return getDB().comments || []; }
-function getChats()   { return getDB().chats || []; }
-function getBans()    { return getDB().bans || []; }
+function getLikes() { return getDB().likes || []; }
+function getChats() { return getDB().chats || []; }
+function getBans() { return getDB().bans || []; }
 
-// 保存
-function saveUsers(users)   { let d=getDB(); d.users=users; setDB(d); }
-function saveWorks(works)   { let d=getDB(); d.works=works; setDB(d); }
-function saveReports(reports) { let d=getDB(); d.reports=reports; setDB(d); }
-function saveLikes(likes)   { let d=getDB(); d.likes=likes; setDB(d); }
-function saveComments(comments){ let d=getDB(); d.comments=comments; setDB(d); }
-function saveChats(chats)   { let d=getDB(); d.chats=chats; setDB(d); }
-function saveBans(bans)    { let d=getDB(); d.bans=bans; setDB(d); }
+function saveUsers(v) { let d=getDB();d.users=v;setDB(d); }
+function saveWorks(v) { let d=getDB();d.works=v;setDB(d); }
+function saveReports(v) { let d=getDB();d.reports=v;setDB(d); }
+function saveLikes(v) { let d=getDB();d.likes=v;setDB(d); }
+function saveChats(v) { let d=getDB();d.chats=v;setDB(d); }
+function saveBans(v) { let d=getDB();d.bans=v;setDB(d); }
 
-// 登录状态
-function saveLoginUser(user) { localStorage.setItem(USER_KEY, user); }
+function saveLoginUser(u) { localStorage.setItem(USER_KEY, u); }
 function getLoginUser() { return localStorage.getItem(USER_KEY) || null; }
 
-// ======================
-// 全局变量
-// ======================
 let currentUser = getLoginUser();
 let currentWorkIndex = 0;
 let currentChatTarget = null;
@@ -362,14 +292,11 @@ let currentUserName = "";
 let works = getWorks();
 let users = getUsers();
 
-// ======================
-// 工具
-// ======================
 function updateTime() {
   let d = new Date();
-  let h = String(d.getHours()).padStart(2, '0');
-  let m = String(d.getMinutes()).padStart(2, '0');
-  document.getElementById("realTime").innerText = `${h}:${m}`;
+  let h = String(d.getHours()).padStart(2,'0');
+  let m = String(d.getMinutes()).padStart(2,'0');
+  document.getElementById("realTime").innerText = h+":"+m;
 }
 setInterval(updateTime, 1000);
 updateTime();
@@ -379,488 +306,345 @@ function refreshAllData() {
   users = getUsers();
 }
 
-// ======================
-// 视频上下滑
-// ======================
 let startY = 0;
-document.addEventListener('touchstart', e => { startY = e.touches[0].clientY; });
-document.addEventListener('touchend', e => {
+document.addEventListener('touchstart', e=>{ startY = e.touches[0].clientY; });
+document.addEventListener('touchend', e=>{
   let dy = e.changedTouches[0].clientY - startY;
-  if (Math.abs(dy) > 70) {
-    dy > 0 ? prevVideo() : nextVideo();
-  }
+  if(Math.abs(dy)>70){ dy>0 ? prevVideo() : nextVideo(); }
 });
 
-function nextVideo() {
+function nextVideo(){
   refreshAllData();
-  if (works.length === 0) return;
-  currentWorkIndex = (currentWorkIndex + 1) % works.length;
+  if(works.length===0)return;
+  currentWorkIndex = (currentWorkIndex+1)%works.length;
   loadCurrent();
 }
-function prevVideo() {
+function prevVideo(){
   refreshAllData();
-  if (works.length === 0) return;
-  currentWorkIndex = (currentWorkIndex - 1 + works.length) % works.length;
+  if(works.length===0)return;
+  currentWorkIndex = (currentWorkIndex-1+works.length)%works.length;
   loadCurrent();
 }
 
-function loadCurrent() {
+function loadCurrent(){
   refreshAllData();
-  if (works.length === 0) return;
+  if(works.length===0)return;
   let w = works[currentWorkIndex];
   currentUserName = w.user;
   document.getElementById("userName").innerText = currentUserName;
   let v = document.getElementById("mainVideo");
   v.src = w.url;
   v.load();
-  v.play().catch(() => {});
+  v.play().catch(()=>{});
   updateLike();
 }
 
-function updateLike() {
-  if (works.length === 0) return;
-  let cnt = getLikes().filter(x => x.wid == currentWorkIndex).length;
+function updateLike(){
+  if(works.length===0)return;
+  let cnt = getLikes().filter(x=>x.wid==currentWorkIndex).length;
   document.getElementById("likeCount").innerText = cnt;
 }
 
-function toggleLike() {
-  if (!currentUser || works.length === 0) return;
+function toggleLike(){
+  if(!currentUser || works.length===0)return;
   let likes = getLikes();
-  let idx = likes.findIndex(x => x.wid == currentWorkIndex && x.uid == currentUser);
-  if (idx === -1) {
-    likes.push({ wid: currentWorkIndex, uid: currentUser });
-  } else {
-    likes.splice(idx, 1);
-  }
+  let idx = likes.findIndex(x=>x.wid==currentWorkIndex && x.uid==currentUser);
+  if(idx===-1) likes.push({wid:currentWorkIndex, uid:currentUser});
+  else likes.splice(idx,1);
   saveLikes(likes);
   updateLike();
 }
 
-// ======================
-// 注册/登录（修复版）
-// ======================
-function doRegister() {
+function doRegister(){
   let user = document.getElementById("regUser").value.trim();
   let pwd = document.getElementById("regPwd").value.trim();
-
-  if (!user || !pwd) {
-    alert("账号和密码不能为空！");
-    return;
-  }
-
+  if(!user||!pwd){alert("账号密码不能为空");return;}
   refreshAllData();
-  let exists = users.some(u => u.user === user);
-  if (exists) {
-    alert("该账号已注册，请直接登录！");
-    return;
-  }
-
-  users.push({ user, pwd, isBanned: false, banExpire: 0 });
+  if(users.some(u=>u.user===user)){alert("已注册");return;}
+  users.push({user,pwd,isBanned:false,banExpire:0});
   saveUsers(users);
-  alert("注册成功！请登录");
+  alert("注册成功");
 }
 
-function doLogin() {
+function doLogin(){
   let user = document.getElementById("regUser").value.trim();
   let pwd = document.getElementById("regPwd").value.trim();
-
-  if (!user || !pwd) {
-    alert("请输入账号和密码！");
-    return;
-  }
-
+  if(!user||!pwd){alert("请输入账号密码");return;}
   refreshAllData();
-  let found = users.find(u => u.user === user && u.pwd === pwd);
-  if (!found) {
-    alert("账号或密码错误！");
-    return;
+  let found = users.find(u=>u.user===user&&u.pwd===pwd);
+  if(!found){alert("账号或密码错误");return;}
+  if(found.isBanned && found.banExpire>Date.now()){
+    alert("账号已封禁");return;
   }
-
-  // 检查是否封禁
-  if (found.isBanned && found.banExpire > Date.now()) {
-    alert(`账号已封禁，解封时间：${new Date(found.banExpire).toLocaleString()}`);
-    return;
-  }
-
   currentUser = user;
   saveLoginUser(user);
   goHome();
 }
 
-function goHome() {
+function goHome(){
   document.getElementById("authPage").style.display = "none";
   document.getElementById("videoPage").classList.remove("hidden");
   document.getElementById("myName").textContent = currentUser;
   refreshAllData();
-  if (works.length > 0) loadCurrent();
+  if(works.length>0) loadCurrent();
 }
 
-// ======================
-// 举报功能（修复版，后台可见）
-// ======================
-function openReport(user) {
-  if (!currentUser) { alert("请先登录才能举报"); return; }
+function openReport(user){
+  if(!currentUser){alert("请先登录");return;}
   document.getElementById("reportTarget").value = user;
   document.getElementById("reportMsg").value = "";
   document.getElementById("reportModal").style.display = "flex";
 }
-function closeReport() { document.getElementById("reportModal").style.display = "none"; }
-function submitReport() {
+function closeReport(){ document.getElementById("reportModal").style.display = "none"; }
+function submitReport(){
   let target = document.getElementById("reportTarget").value.trim();
   let type = document.getElementById("reportType").value;
   let msg = document.getElementById("reportMsg").value.trim();
-  if (!target || !currentUser) { alert("举报异常，请重试"); return; }
-  
+  if(!target||!currentUser){alert("异常");return;}
   let reports = getReports();
-  reports.push({
-    from: currentUser,
-    target: target,
-    type: type,
-    msg: msg,
-    time: new Date().toLocaleString(),
-    status: "待处理"
-  });
+  reports.push({from:currentUser,target,type,msg,time:new Date().toLocaleString(),status:"待处理"});
   saveReports(reports);
-  
-  alert("举报提交成功！管理员后台可查看");
+  alert("举报成功");
   closeReport();
 }
 
-// ======================
-// 管理员后台（修复版+封禁功能）
-// ======================
-function openAdmin() {
-  if (!currentUser) { alert("请先登录"); return; }
+function openAdmin(){
+  if(!currentUser){alert("请先登录");return;}
   document.getElementById("adminPwd").value = "";
   document.getElementById("adminLoginModal").style.display = "flex";
 }
-function closeAdminLogin() { document.getElementById("adminLoginModal").style.display = "none"; }
-function checkAdminPwd() {
+function closeAdminLogin(){ document.getElementById("adminLoginModal").style.display = "none"; }
+function checkAdminPwd(){
   let p = document.getElementById("adminPwd").value.trim();
-  if (p !== ADMIN_PWD) { alert("密码错误"); return; }
+  if(p!==ADMIN_PWD){alert("密码错误");return;}
   closeAdminLogin();
   document.getElementById("adminModal").style.display = "flex";
 }
-function closeAdmin() { document.getElementById("adminModal").style.display = "none"; }
+function closeAdmin(){ document.getElementById("adminModal").style.display = "none"; }
 
-// 查看所有举报（修复，显示完整数据）
-function showReports() {
+function showReports(){
   let reports = getReports();
-  let html = "<h5>所有举报（全设备同步）</h5>";
-  if (reports.length === 0) {
-    html += "<p style='color:#999'>暂无举报</p>";
-  } else {
-    reports.forEach((it, i) => {
-      html += `
-        <div style='border:1px solid #333;padding:10px;margin:8px;border-radius:8px'>
-          <p><strong>举报人：</strong>${it.from}</p>
-          <p><strong>被举报：</strong>${it.target}</p>
-          <p><strong>类型：</strong>${it.type}</p>
-          <p><strong>说明：</strong>${it.msg || '无'}</p>
-          <p><strong>时间：</strong>${it.time}</p>
-          <p><strong>状态：</strong>${it.status}</p>
-          <button onclick="delReport(${i})" style="margin-top:8px;padding:6px 12px;background:#f00;color:#fff;border:none;border-radius:6px">删除举报</button>
-        </div>
-      `;
-    });
-  }
-  document.getElementById("adminContent").innerHTML = html;
+  let html = "<h5>所有举报</h5>";
+  reports.forEach((it,i)=>{
+    html+=`
+    <div style='border:1px solid #333;padding:10px;margin:8px'>
+      <p>举报人：${it.from}</p>
+      <p>被举报：${it.target}</p>
+      <p>类型：${it.type}</p>
+      <p>说明：${it.msg||'无'}</p>
+      <p>时间：${it.time}</p>
+      <button onclick='delReport(${i})' style='background:red;color:white;border:none;padding:6px'>删除</button>
+    </div>`;
+  });
+  document.getElementById("adminContent").innerHTML = html||"<p>暂无</p>";
+}
+function delReport(i){
+  let r = getReports();r.splice(i,1);saveReports(r);showReports();
 }
 
-function delReport(i) {
-  let reports = getReports();
-  reports.splice(i, 1);
-  saveReports(reports);
-  showReports();
-}
-
-// 所有作品
-function showWorks() {
-  let works = getWorks();
+function showWorks(){
+  let ws = getWorks();
   let html = "<h5>所有作品</h5>";
-  works.forEach((it, i) => {
-    html += `
-      <div style='border:1px solid #333;padding:10px;margin:8px;border-radius:8px'>
-        <p><strong>作者：</strong>${it.user}</p>
-        <p><strong>时间：</strong>${it.time}</p>
-        <button onclick="delWork(${i})" style="margin-top:8px;padding:6px 12px;background:#f00;color:#fff;border:none;border-radius:6px">删除作品</button>
-      </div>
-    `;
+  ws.forEach((w,i)=>{
+    html+=`
+    <div style='border:1px solid #333;padding:10px;margin:8px'>
+      <p>作者：${w.user}</p>
+      <p>时间：${w.time}</p>
+      <button onclick='delWork(${i})' style='background:red;color:white;border:none;padding:6px'>删除</button>
+    </div>`;
   });
-  document.getElementById("adminContent").innerHTML = html || "<p style='color:#999'>暂无作品</p>";
+  document.getElementById("adminContent").innerHTML = html||"<p>暂无</p>";
+}
+function delWork(i){
+  let ws = getWorks();ws.splice(i,1);saveWorks(ws);showWorks();
 }
 
-function delWork(i) {
-  let works = getWorks();
-  works.splice(i, 1);
-  saveWorks(works);
-  showWorks();
-}
-
-// 私信记录
-function showChatLog() {
-  let chats = getChats();
-  let html = "<h5>全部私信记录</h5>";
-  chats.forEach(c => {
-    html += `
-      <div style='border:1px solid #333;padding:10px;margin:8px;border-radius:8px'>
-        <p><strong>${c.from} → ${c.to}</strong></p>
-        <p>${c.msg}</p>
-        <p style='font-size:12px;color:#999'>${c.time}</p>
-      </div>
-    `;
+function showChatLog(){
+  let cs = getChats();
+  let html = "<h5>私信记录</h5>";
+  cs.forEach(c=>{
+    html+=`
+    <div style='border:1px solid #333;padding:10px;margin:8px'>
+      <p>${c.from} → ${c.to}</p>
+      <p>${c.msg}</p>
+      <p style='font-size:12px;color:#999'>${c.time}</p>
+    </div>`;
   });
-  document.getElementById("adminContent").innerHTML = html || "<p style='color:#999'>暂无私信</p>";
+  document.getElementById("adminContent").innerHTML = html||"<p>暂无</p>";
 }
 
-// ======================
-// 新增：封禁/解封功能
-// ======================
-function openBanManage() {
+function openBanManage(){
   closeAdmin();
-  let users = getUsers();
-  let html = "<h5>账号列表</h5>";
-  
-  users.forEach((u, i) => {
-    let banStatus = u.isBanned && u.banExpire > Date.now() 
-      ? `已封禁，解封时间：${new Date(u.banExpire).toLocaleString()}` 
-      : "正常";
-    let banBtn = u.isBanned && u.banExpire > Date.now() 
-      ? `<button class="ban-btn unban" onclick="unbanUser('${u.user}')">解封</button>` 
-      : `<button class="ban-btn ban" onclick="banUser('${u.user}')">封禁</button>`;
-    
-    html += `
-      <div class="ban-item">
-        <p><strong>账号：</strong>${u.user}</p>
-        <p><strong>状态：</strong>${banStatus}</p>
-        ${banBtn}
-      </div>
-    `;
+  let us = getUsers();
+  let html = "";
+  us.forEach(u=>{
+    let st = u.isBanned&&u.banExpire>Date.now()?"已封禁":"正常";
+    let btn = st=="已封禁"?`<button class='ban-btn unban' onclick='unbanUser("${u.user}")'>解封</button>`:`<button class='ban-btn ban' onclick='banUser("${u.user}")'>封禁</button>`;
+    html+=`<div class='ban-item'><p>账号：${u.user}</p><p>状态：${st}</p>${btn}</div>`;
   });
-  
   document.getElementById("banUserList").innerHTML = html;
   document.getElementById("banModal").style.display = "flex";
 }
-
-function closeBanModal() {
+function closeBanModal(){
   document.getElementById("banModal").style.display = "none";
   document.getElementById("adminModal").style.display = "flex";
 }
-
-// 封禁用户
-function banUser(username) {
-  let days = prompt("请输入封禁天数（1-365）：", "7");
-  if (!days || isNaN(days) || days < 1 || days > 365) {
-    alert("请输入有效天数");
-    return;
-  }
-  
-  let users = getUsers();
-  let user = users.find(u => u.user === username);
-  if (!user) return;
-  
-  user.isBanned = true;
-  user.banExpire = Date.now() + days * 24 * 60 * 60 * 1000;
-  saveUsers(users);
-  alert(`已封禁账号 ${username} ${days} 天`);
-  openBanManage(); // 刷新列表
+function banUser(user){
+  let d = prompt("封禁天数：","7");
+  if(!d||isNaN(d)||d<1)return;
+  let us = getUsers();
+  let u = us.find(x=>x.user===user);
+  if(!u)return;
+  u.isBanned = true;
+  u.banExpire = Date.now()+d*86400000;
+  saveUsers(us);
+  alert("已封禁");
+  openBanManage();
+}
+function unbanUser(user){
+  let us = getUsers();
+  let u = us.find(x=>x.user===user);
+  if(!u)return;
+  u.isBanned = false;
+  u.banExpire = 0;
+  saveUsers(us);
+  alert("已解封");
+  openBanManage();
 }
 
-// 解封用户
-function unbanUser(username) {
-  let users = getUsers();
-  let user = users.find(u => u.user === username);
-  if (!user) return;
-  
-  user.isBanned = false;
-  user.banExpire = 0;
-  saveUsers(users);
-  alert(`已解封账号 ${username}`);
-  openBanManage(); // 刷新列表
-}
-
-// ======================
-// 消息&聊天功能
-// ======================
-function openMsgPage() {
-  if (!currentUser) { alert("请先登录"); return; }
-  refreshAllData();
+function openMsgPage(){
+  if(!currentUser){alert("请登录");return;}
   renderMsgList();
   document.getElementById("msgPage").style.display = "block";
 }
-function closeMsgPage() { document.getElementById("msgPage").style.display = "none"; }
+function closeMsgPage(){ document.getElementById("msgPage").style.display = "none"; }
 
-function renderMsgList() {
-  let chats = getChats();
-  let chatUsers = new Set();
-  chats.forEach(c => {
-    if (c.from === currentUser) chatUsers.add(c.to);
-    if (c.to === currentUser) chatUsers.add(c.from);
-  });
-  getUsers().forEach(u => {
-    if (u.user !== currentUser) chatUsers.add(u.user);
+function renderMsgList(){
+  let cs = getChats();
+  let s = new Set();
+  cs.forEach(c=>{
+    if(c.from===currentUser)s.add(c.to);
+    if(c.to===currentUser)s.add(c.from);
   });
   let html = "";
-  chatUsers.forEach(u => {
-    let last = chats.filter(c =>
-      (c.from === currentUser && c.to === u) || (c.from === u && c.to === currentUser)
-    ).pop();
-    let text = last ? last.msg : "暂无消息";
-    html += `
-      <div class="msg-item" onclick="openChatPage('${u}')">
-        <div class="msg-avatar"><img src="https://via.placeholder.com/48"></div>
-        <div class="msg-info">
-          <div class="msg-name">${u}</div>
-          <div class="msg-last">${text}</div>
-        </div>
+  s.forEach(u=>{
+    let last = cs.filter(c=>(c.from===currentUser&&c.to===u)||(c.from===u&&c.to===currentUser)).pop();
+    let txt = last?last.msg:"暂无消息";
+    html+=`
+    <div class='msg-item' onclick='openChatPage("${u}")'>
+      <div class='msg-avatar'></div>
+      <div>
+        <div style='font-weight:bold'>${u}</div>
+        <div style='font-size:13px;color:#999'>${txt}</div>
       </div>
-    `;
+    </div>`;
   });
-  document.getElementById("msgList").innerHTML = html || "<p style='text-align:center;color:#999;padding:20px'>暂无联系人</p>";
+  document.getElementById("msgList").innerHTML = html||"<p style='text-align:center'>暂无联系人</p>";
 }
 
-function openChatPage(target) {
-  currentChatTarget = target;
-  document.getElementById("chatTargetName").textContent = target;
+function openChatPage(t){
+  currentChatTarget = t;
+  document.getElementById("chatTargetName").textContent = t;
   renderChat();
   document.getElementById("chatPage").style.display = "block";
   closeMsgPage();
 }
-function closeChatPage() {
+function closeChatPage(){
   document.getElementById("chatPage").style.display = "none";
   currentChatTarget = null;
   openMsgPage();
 }
 
-function renderChat() {
-  if (!currentChatTarget) return;
-  let chats = getChats();
-  let list = chats.filter(c =>
-    (c.from === currentUser && c.to === currentChatTarget) ||
-    (c.from === currentChatTarget && c.to === currentUser)
-  );
+function renderChat(){
+  if(!currentChatTarget)return;
+  let cs = getChats();
+  let list = cs.filter(c=>(c.from===currentUser&&c.to===currentChatTarget)||(c.from===currentChatTarget&&c.to===currentUser));
   let html = "";
-  list.forEach(c => {
-    let isMe = c.from === currentUser;
-    html += `
-      <div class="chat-item ${isMe ? 'me' : 'other'}">
-        <div class="chat-bubble">${c.msg}</div>
-      </div>
-    `;
+  list.forEach(c=>{
+    let me = c.from===currentUser;
+    html+=`<div class='chat-item ${me?"me":"other"}'><div class='chat-bubble'>${c.msg}</div></div>`;
   });
   document.getElementById("chatList").innerHTML = html;
-  setTimeout(() => {
-    document.getElementById("chatList").scrollTop = 99999;
-  }, 100);
 }
 
-function sendChatMsg() {
-  if (!currentUser || !currentChatTarget) return;
+function sendChatMsg(){
+  if(!currentUser||!currentChatTarget)return;
   let txt = document.getElementById("chatInput").value.trim();
-  if (!txt) return;
-  let chats = getChats();
-  chats.push({ from: currentUser, to: currentChatTarget, msg: txt, time: new Date().toLocaleString() });
-  saveChats(chats);
+  if(!txt)return;
+  let cs = getChats();
+  cs.push({from:currentUser,to:currentChatTarget,msg:txt,time:new Date().toLocaleString()});
+  saveChats(cs);
   document.getElementById("chatInput").value = "";
   renderChat();
   renderMsgList();
 }
 
-// ======================
-// 页面切换
-// ======================
-function switchTab(t) {
-  document.querySelectorAll(".tab-item").forEach(i => i.classList.remove("active"));
+function switchTab(t){
+  document.querySelectorAll(".tab-item").forEach(i=>i.classList.remove("active"));
   document.getElementById("videoPage").classList.add("hidden");
   document.getElementById("myPage").style.display = "none";
   document.getElementById("userPage").style.display = "none";
   document.getElementById("msgPage").style.display = "none";
   document.getElementById("chatPage").style.display = "none";
-
-  if (t === 'home') {
+  if(t==='home'){
     document.getElementById("tabHome").classList.add("active");
     document.getElementById("videoPage").classList.remove("hidden");
-  } else if (t === 'my') {
+  }else if(t==='my'){
     document.getElementById("tabMy").classList.add("active");
     document.getElementById("myPage").style.display = "block";
-  } else if (t === 'msg') {
+  }else if(t==='msg'){
     document.getElementById("tabMsg").classList.add("active");
     openMsgPage();
   }
 }
 
-// ======================
-// 其他功能
-// ======================
-function openOtherUserPage() { if (currentUserName) openUserPage(currentUserName); }
-function openUserPage(name) {
+function openOtherUserPage(){
+  if(currentUserName) openUserPage(currentUserName);
+}
+function openUserPage(name){
   refreshAllData();
   document.getElementById("targetName").textContent = name;
-  let uw = works.filter(w => w.user == name);
-  let total = 0;
-  uw.forEach(w => {
-    let idx = works.findIndex(x => x.url == w.url);
-    total += getLikes().filter(x => x.wid == idx).length;
-  });
-  document.getElementById("userStat").innerText = `作品：${uw.length} 获赞：${total}`;
-  document.getElementById("targetWork").innerHTML = uw.map(x => `
-    <div class="user-work-item"><video src="${x.url}" onclick="jumpToWork(x)"></video></div>
-  `).join("");
+  let uw = works.filter(w=>w.user==name);
+  document.getElementById("userStat").innerText = `作品：${uw.length}`;
+  document.getElementById("targetWork").innerHTML = uw.map(x=>`<div class='user-work-item'><video src='${x.url}'></video></div>`).join("");
   document.getElementById("userPage").style.display = "block";
 }
-function jumpToWork(w) {
-  let idx = works.findIndex(x => x.url == w.url);
-  if (idx !== -1) { currentWorkIndex = idx; loadCurrent(); }
-  closeUserPage(); switchTab('home');
-}
-function closeUserPage() { document.getElementById("userPage").style.display = "none"; }
+function closeUserPage(){ document.getElementById("userPage").style.display = "none"; }
 
-function uploadVideo(e) {
+function uploadVideo(e){
   let f = e.target.files[0];
-  if (!f || !currentUser) return;
+  if(!f||!currentUser)return;
   let r = new FileReader();
-  let wrap = document.getElementById("uploadProgress");
-  wrap.style.display = "block";
-  r.onload = ev => {
+  document.getElementById("uploadProgress").style.display = "block";
+  r.onload = ev=>{
     refreshAllData();
-    works.unshift({ url: ev.target.result, user: currentUser, time: new Date().toLocaleString() });
+    works.unshift({url:ev.target.result,user:currentUser,time:new Date().toLocaleString()});
     saveWorks(works);
     currentWorkIndex = 0;
     loadCurrent();
-    wrap.style.display = "none";
+    document.getElementById("uploadProgress").style.display = "none";
   };
   r.readAsDataURL(f);
 }
 
-function openMyPage() { switchTab('my'); }
-function toggleFollow() {
+function toggleFollow(){
   let b = document.getElementById("followBtn");
-  b.textContent = b.textContent === "关注" ? "已关注" : "关注";
+  b.textContent = b.textContent==="关注"?"已关注":"关注";
   b.classList.toggle("followed");
 }
-function toggleCollect() {
+function toggleCollect(){
   let c = parseInt(document.getElementById("collectCount").textContent);
-  document.getElementById("collectCount").textContent = c + 1;
+  document.getElementById("collectCount").textContent = c+1;
 }
-function openComment() { alert("评论功能开发中"); }
-function openShare() { alert("分享功能开发中"); }
-function openWorkPage() { alert("我的作品功能开发中"); }
+function openComment(){alert("评论开发中")}
+function openWorkPage(){alert("我的作品开发中")}
 
-// ======================
-// 初始化（绑定按钮）
-// ======================
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded",function(){
   document.getElementById("btnRegister").onclick = doRegister;
   document.getElementById("btnLogin").onclick = doLogin;
-
-  if (currentUser) {
-    goHome();
-  } else {
-    document.getElementById("authPage").style.display = "flex";
-  }
+  if(currentUser) goHome();
+  else document.getElementById("authPage").style.display = "flex";
 });
 </script>
 </body>
 </html>
-
-
