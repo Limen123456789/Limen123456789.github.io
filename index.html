@@ -5,654 +5,320 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>离门团队视频</title>
 <style>
-* {margin:0;padding:0;box-sizing:border-box}
-body {background:#000;color:#fff;font-family:"Microsoft YaHei",sans-serif;overflow:hidden}
-.hidden {display:none !important}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;color:#fff;font-family:"Microsoft YaHei",sans-serif;overflow:hidden}
+.hidden{display:none !important}
 
-.top-bar {position:fixed;top:0;left:0;width:100%;height:46px;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:space-between;padding:0 14px}
-.time-text {font-size:13px;color:#fff}
+.top-bar{position:fixed;top:0;left:0;width:100%;height:46px;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:space-between;padding:0 14px}
+.time-text{font-size:13px;color:#fff}
 
-.tab-bar {position:fixed;bottom:0;left:0;width:100%;height:50px;background:#111;display:flex;align-items:center;justify-content:space-around;z-index:9999;border-top:1px solid #333}
-.tab-item {display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;color:#999;cursor:pointer}
-.tab-item.active {color:#fff}
-.tab-plus {width:50px;height:50px;border-radius:50%;background:#070;display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;margin-top:-10px;z-index:99999}
+.tab-bar{position:fixed;bottom:0;left:0;width:100%;height:50px;background:#111;display:flex;align-items:center;justify-content:space-around;z-index:9999;border-top:1px solid #333}
+.tab-item{display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;color:#999;cursor:pointer}
+.tab-item.active{color:#fff}
+.tab-plus{width:50px;height:50px;border-radius:50%;background:#070;display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;margin-top:-10px}
 
-.video-page {width:100vw;height:calc(100vh - 50px);position:relative;overflow:hidden}
-.video-container {width:100%;height:100%;position:relative}
-video {width:100%;height:100%;object-fit:cover;background:#000}
+.video-page{width:100vw;height:calc(100vh - 50px);position:relative}
+video{width:100%;height:100%;object-fit:cover}
 
-.user-info {position:fixed;left:14px;bottom:80px;z-index:99999;display:flex;align-items:center;gap:12px}
-.avatar {width:56px;height:56px;border-radius:50%;background:#fff;overflow:hidden;border:2px solid #fff;cursor:pointer}
-.avatar img {width:100%;height:100%;object-fit:cover;display:block}
-.user-name {font-size:18px;font-weight:bold;margin-bottom:6px}
-.follow-btn {background:#ff4400;color:#fff;border:none;padding:7px 18px;border-radius:20px;font-size:14px;font-weight:bold;cursor:pointer}
-.followed {background:#333;color:#fff}
-.report-btn {background:#f00;color:#fff;border:none;padding:7px 14px;border-radius:16px;font-size:13px;margin-top:6px;cursor:pointer;z-index:999999}
+.video-info{position:absolute;left:14px;bottom:80px;z-index:10}
+.username{font-size:16px;font-weight:bold;margin-bottom:6px}
+.avatar{width:40px;height:40px;border-radius:50%;background:#070;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
 
-.right-bar {position:fixed;right:14px;bottom:80px;z-index:99999;display:flex;flex-direction:column;gap:16px;align-items:center}
-.icon-btn {width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer}
-.icon-count {font-size:12px;margin-top:3px}
+.right-bar{position:absolute;right:14px;bottom:80px;display:flex;flex-direction:column;gap:18px;z-index:10}
+.icon-btn{width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;font-size:18px}
 
-.progress {position:fixed;bottom:18px;left:14px;width:calc(100% - 28px);height:5px;background:#444;border-radius:3px;z-index:9999;cursor:pointer}
-.progress-bar {height:100%;width:0%;background:#0f0;border-radius:3px}
+.auth-page{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;padding:20px;z-index:99999}
+.auth-card{width:100%;max-width:360px;background:#111;padding:24px;border-radius:16px}
+input{width:100%;padding:12px;margin:8px 0;background:#222;border:1px solid #0f0;color:#fff;border-radius:8px}
+button{width:100%;padding:12px;margin:6px 0;background:#070;color:#fff;border:0;border-radius:8px;font-size:16px;cursor:pointer}
+.sec-btn{background:#333}
 
-.upload-btn {position:fixed;top:56px;left:14px;z-index:9999;width:calc(100% - 28px);padding:10px;background:#070;color:#fff;border:none;border-radius:8px;font-size:16px;cursor:pointer}
-.upload-progress {position:fixed;top:100px;left:14px;width:calc(100% - 28px);height:5px;background:#444;border-radius:3px;z-index:9999;display:none}
-.upload-bar {height:100%;width:0%;background:#0f0;border-radius:3px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;padding:20px;z-index:9999}
+.modal-content{background:#111;padding:20px;border-radius:12px;width:90%;max-width:350px}
 
-.my-page,.user-page,.ban-page,.msg-page,.chat-page,.work-page {
-  position:fixed;inset:0;background:#fff;z-index:10000;display:none;overflow:auto;padding-bottom:50px;color:#000
-}
-.my-header {height:140px;background:#f5f5f5;display:flex;align-items:center;padding:18px;gap:14px;position:relative}
-.my-avatar {width:72px;height:72px;border-radius:50%;overflow:hidden;border:3px solid #fff}
-.my-avatar img {width:100%;height:100%;object-fit:cover}
-.my-info {flex:1}
-.my-name {font-size:20px;font-weight:bold;margin-bottom:6px}
-.my-follow {display:flex;gap:18px;margin-top:8px}
-.my-follow-item {text-align:center}
-.my-follow-num {font-size:17px;font-weight:bold}
-.my-follow-text {font-size:12px;color:#999}
-.back-btn {position:absolute;top:12px;left:12px;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;cursor:pointer}
+.page{position:fixed;inset:0;background:#000;padding:20px;padding-top:60px;padding-bottom:60px;overflow:auto;z-index:100}
+.me-card{display:flex;align-items:center;gap:14px;margin-bottom:20px}
+.me-avatar{width:60px;height:60px;border-radius:50%;background:#070}
+.title{font-size:18px;margin-bottom:14px}
+.item{padding:12px;background:#111;margin:6px 0;border-radius:8px}
 
-.user-head {height:150px;background:#111;color:#fff;display:flex;align-items:center;gap:12px;padding:12px;position:relative}
-.user-av {width:64px;height:64px;border-radius:50%;overflow:hidden}
-.user-work {display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;padding:10px}
-.user-work-item {aspect-ratio:9/16;background:#000;border-radius:8px;overflow:hidden;cursor:pointer}
-.user-work-item video {width:100%;height:100%;object-fit:cover}
+.progress{position:absolute;bottom:60px;left:0;width:100%;height:4px;background:#333}
+.bar{height:100%;width:0%;background:#0f0}
 
-input, textarea, select {
-  width:100%;padding:12px;margin:8px 0;background:#222;border:2px solid #0f0;color:#fff;border-radius:12px;font-size:16px;
-  outline:none;transition:border 0.2s
-}
-input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3px rgba(0,255,0,0.2)}
-.btn {
-  width:100%;padding:14px;background:#070;color:#fff;border:none;border-radius:12px;margin-top:8px;font-size:18px;font-weight:bold;
-  cursor:pointer;transition:background 0.2s
-}
-.btn:hover {background:#0a0}
-.btn-secondary {background:#333}
-.btn-danger {background:#f00}
-
-.auth-page {position:fixed;inset:0;background:#000;z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px}
-.auth-card {width:100%;max-width:360px;background:#111;padding:24px;border-radius:16px;border:2px solid #0f0}
-
-.modal {position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999999;display:none;align-items:center;justify-content:center;padding:20px}
-.modal-card {
-  width:100%;max-width:420px;background:#111;padding:24px;border-radius:16px;border:2px solid #0f0;color:#fff;
-  max-height:80vh;overflow:auto
-}
-
-.refresh-tip{position:fixed;top:8px;left:50%;transform:translateX(-50%);background:#0f0;color:#000;padding:5px 10px;border-radius:20px;font-size:12px;z-index:99999;display:none}
-
-#reportModal .modal-card h4 {font-size:24px;margin-bottom:16px}
-#reportTarget {background:#333;cursor:not-allowed;}
-#reportType {appearance:none;background:#222 url('data:image/svg+xml;utf8,<svg fill="%230f0" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 12px center;background-size:20px}
-#reportMsg {min-height:100px;resize:none}
-
-.msg-page {background:#f5f5f5;padding-top:50px}
-.msg-list {padding:10px}
-.msg-item {
-  display:flex;align-items:center;gap:12px;padding:12px;background:#fff;margin:6px 10px;border-radius:12px;cursor:pointer;
-  border:1px solid #eee;transition:background 0.2s
-}
-.msg-item:hover {background:#f0f0f0}
-.msg-avatar {width:48px;height:48px;border-radius:50%;background:#ddd;overflow:hidden}
-.msg-avatar img {width:100%;height:100%;object-fit:cover}
-.msg-info {flex:1}
-.msg-name {font-size:16px;font-weight:bold}
-.msg-last {font-size:13px;color:#666;margin-top:2px}
-
-.chat-page {background:#f5f5f5;padding-top:50px;padding-bottom:70px}
-.chat-header {
-  position:fixed;top:0;left:0;width:100%;height:50px;background:#fff;display:flex;align-items:center;padding:0 14px;
-  border-bottom:1px solid #eee;z-index:10001
-}
-.chat-list {padding:10px;margin-top:50px;margin-bottom:70px}
-.chat-item {
-  display:flex;margin:8px 10px;max-width:70%
-}
-.chat-item.me {justify-content:flex-end;margin-left:auto}
-.chat-item.other {justify-content:flex-start;margin-right:auto}
-.chat-bubble {
-  padding:10px 14px;border-radius:18px;font-size:15px;line-height:1.4
-}
-.chat-item.me .chat-bubble {background:#070;color:#fff;border-bottom-right-radius:4px}
-.chat-item.other .chat-bubble {background:#fff;color:#000;border-bottom-left-radius:4px;border:1px solid #eee}
-.chat-input {
-  position:fixed;bottom:50px;left:0;width:100%;display:flex;gap:8px;padding:10px;background:#fff;
-  border-top:1px solid #eee;z-index:10001
-}
-.chat-input input {flex:1;margin:0;background:#f5f5f5;border:2px solid #0f0;border-radius:24px;padding:12px 16px}
-.chat-input button {
-  width:80px;background:#070;color:#fff;border:none;border-radius:24px;font-size:16px;font-weight:bold;
-  cursor:pointer
-}
-
-#banModal .modal-card h4 {font-size:20px;margin-bottom:12px}
-.ban-item {
-  border:1px solid #333;padding:10px;margin:8px;border-radius:8px
-}
-.ban-btn {
-  padding:6px 12px;border:none;border-radius:6px;font-weight:bold;cursor:pointer;margin-left:8px
-}
-.ban-btn.ban {background:#f00;color:#fff}
-.ban-btn.unban {background:#070;color:#fff}
+.comment-box{position:fixed;bottom:0;left:0;width:100%;background:#111;padding:14px;z-index:1000}
+.comment-input{width:80%;padding:10px;background:#222;border:0;color:#fff;border-radius:8px}
+.send-btn{width:18%;padding:10px;background:#070;color:#fff;border:0;border-radius:8px}
 </style>
 </head>
 <body>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<div class="refresh-tip" id="refreshTip">同步成功</div>
-
 <div class="top-bar">
-  <span onclick="openMyPage()">我</span>
-  <span>离门团队视频</span>
-  <span onclick="openAdmin()">管理</span>
-  <span class="time-text" id="realTime"></span>
+  <div class="time-text" id="topTime"></div>
+  <div>离门团队视频</div>
+  <div onclick="openAdmin()" style="cursor:pointer">管理</div>
 </div>
 
-<div class="video-page hidden" id="videoPage">
-  <div class="video-container">
-    <video id="mainVideo" playsinline preload="auto" muted></video>
-  </div>
-  <div class="user-info">
-    <div class="avatar" id="userAvatar" onclick="openOtherUserPage()"><img src="https://via.placeholder.com/56"></div>
-    <div>
-      <div class="user-name" id="userName"></div>
-      <button class="follow-btn" id="followBtn" onclick="toggleFollow()">关注</button>
-      <button class="report-btn" onclick="openReport(currentUserName)">举报</button>
-    </div>
+<div class="video-page" id="videoPage">
+  <video id="mainVideo" controls></video>
+  <div class="progress"><div class="bar" id="progressBar"></div></div>
+  <div class="video-info">
+    <div class="avatar">头</div>
+    <div class="username" id="videoUser">用户</div>
   </div>
   <div class="right-bar">
-    <div class="icon-btn" onclick="toggleLike()">❤️</div>
-    <div class="icon-count" id="likeCount">0</div>
-    <div class="icon-btn" onclick="openComment()">💬</div>
-    <div class="icon-count" id="commentCount">0</div>
-    <div class="icon-btn" onclick="toggleCollect()">⭐</div>
-    <div class="icon-count" id="collectCount">0</div>
-    <div class="icon-btn" onclick="openShare()">📤</div>
+    <div class="icon-btn" onclick="doLike()">❤️</div>
+    <div class="icon-btn" onclick="doFollow()">关注</div>
+    <div class="icon-btn" onclick="openComment()">评论</div>
+    <div class="icon-btn" onclick="openReport()">举报</div>
   </div>
-  <div class="progress" id="progressBarWrap"><div class="progress-bar" id="progressBar"></div></div>
 </div>
-
-<button class="upload-btn" onclick="document.getElementById('uploadVideo').click()">📤 上传视频</button>
-<div class="upload-progress" id="uploadProgress"><div class="upload-bar" id="uploadBar"></div></div>
 
 <div class="auth-page" id="authPage">
   <div class="auth-card">
-    <h3 style="text-align:center;margin-bottom:16px;font-size:22px">登录 / 注册</h3>
-    <input id="regUser" placeholder="账号（必填）">
-    <input id="regPwd" type="password" placeholder="密码（必填）">
-    <button class="btn" id="btnRegister">注册</button>
-    <button class="btn btn-secondary" id="btnLogin">登录</button>
-  </div>
-</div>
-
-<div class="my-page" id="myPage">
-  <div class="my-header">
-    <div class="back-btn" onclick="switchTab('home')">←</div>
-    <div class="my-avatar"><img id="myAvatar" src="https://via.placeholder.com/72"></div>
-    <div class="my-info">
-      <div class="my-name" id="myName"></div>
-      <div class="my-follow">
-        <div class="my-follow-item"><div class="my-follow-num" id="fansNum">0</div><div class="my-follow-text">粉丝</div></div>
-        <div class="my-follow-item"><div class="my-follow-num" id="followNum">0</div><div class="my-follow-text">关注</div></div>
-        <div class="my-follow-item"><div class="my-follow-num" id="likeNum">0</div><div class="my-follow-text">获赞</div></div>
-      </div>
-    </div>
-  </div>
-  <div style="padding:14px">
-    <div class="my-item" onclick="openWorkPage()" style="padding:12px;border-bottom:1px solid #eee;display:flex;gap:12px;align-items:center;cursor:pointer">
-      <span>📹</span><span>我的作品</span>
-    </div>
-    <div class="my-item" onclick="openMsgPage()" style="padding:12px;border-bottom:1px solid #eee;display:flex;gap:12px;align-items:center;cursor:pointer">
-      <span>📩</span><span>消息</span>
-    </div>
-    <div class="my-item" onclick="openAdmin()" style="padding:12px;border-bottom:1px solid #eee;display:flex;gap:12px;align-items:center;cursor:pointer">
-      <span>🔐</span><span>管理后台</span>
-    </div>
-  </div>
-</div>
-
-<div class="user-page" id="userPage">
-  <div class="user-head">
-    <div class="back-btn" onclick="closeUserPage()">←</div>
-    <div class="user-av"><img id="targetAv" src="https://via.placeholder.com/64"></div>
-    <div>
-      <div style="font-size:17px" id="targetName"></div>
-      <div style="font-size:13px;color:#ccc;margin-top:4px" id="userStat"></div>
-      <button class="report-btn" onclick="openReport(document.getElementById('targetName').textContent)">举报</button>
-    </div>
-  </div>
-  <div class="user-work" id="targetWork"></div>
-</div>
-
-<div class="modal" id="reportModal">
-  <div class="modal-card">
-    <h4>举报</h4>
-    <input id="reportTarget" readonly placeholder="被举报用户">
-    <select id="reportType">
-      <option>作品违规</option>
-      <option>辱骂人身攻击</option>
-      <option>私信骚扰</option>
-      <option>其他违规</option>
-    </select>
-    <textarea id="reportMsg" placeholder="请补充举报说明（选填）"></textarea>
-    <button class="btn" onclick="submitReport()">提交</button>
-    <button class="btn btn-secondary" onclick="closeReport()">取消</button>
-  </div>
-</div>
-
-<div class="msg-page" id="msgPage">
-  <div class="back-btn" onclick="closeMsgPage()">←</div>
-  <div class="msg-list" id="msgList"></div>
-</div>
-
-<div class="chat-page" id="chatPage">
-  <div class="chat-header">
-    <div class="back-btn" onclick="closeChatPage()">←</div>
-    <div id="chatTargetName" style="font-size:18px;font-weight:bold;margin-left:12px"></div>
-  </div>
-  <div class="chat-list" id="chatList"></div>
-  <div class="chat-input">
-    <input id="chatInput" placeholder="输入消息">
-    <button onclick="sendChatMsg()">发送</button>
-  </div>
-</div>
-
-<div class="modal" id="adminLoginModal">
-  <div class="modal-card">
-    <h4>管理员验证</h4>
-    <input id="adminPwd" type="password" placeholder="密码">
-    <button class="btn" onclick="checkAdminPwd()">登录</button>
-    <button class="btn btn-secondary" onclick="closeAdminLogin()">取消</button>
-  </div>
-</div>
-
-<div class="modal" id="adminModal">
-  <div class="modal-card">
-    <h4>管理后台</h4>
-    <button class="btn" onclick="showReports()">查看所有举报</button>
-    <button class="btn" onclick="showWorks()">所有作品</button>
-    <button class="btn" onclick="showChatLog()">私信记录</button>
-    <button class="btn btn-danger" onclick="openBanManage()">封禁/解封账号</button>
-    <button class="btn btn-secondary" onclick="closeAdmin()">关闭</button>
-    <div id="adminContent" style="margin-top:10px"></div>
-  </div>
-</div>
-
-<div class="modal" id="banModal">
-  <div class="modal-card">
-    <h4>账号封禁管理</h4>
-    <div id="banUserList"></div>
-    <button class="btn btn-secondary" onclick="closeBanModal()">返回</button>
+    <h3 style="text-align:center;margin-bottom:16px">登录 / 注册</h3>
+    <input id="userInput" placeholder="输入账号">
+    <input id="pwdInput" type="password" placeholder="输入密码">
+    <button onclick="doRegister()">注册</button>
+    <button onclick="doLogin()" class="sec-btn">登录</button>
   </div>
 </div>
 
 <div class="tab-bar">
-  <div class="tab-item active" id="tabHome" onclick="switchTab('home')">精选</div>
-  <div class="tab-item tab-plus" onclick="document.getElementById('uploadVideo').click()">+</div>
-  <div class="tab-item" id="tabMsg" onclick="switchTab('msg')">消息</div>
-  <div class="tab-item" id="tabMy" onclick="switchTab('my')">我</div>
+  <div class="tab-item active" onclick="goPage('video')">首页</div>
+  <div class="tab-item" onclick="goPage('upload')">发布</div>
+  <div class="tab-plus" onclick="goPage('upload')">+</div>
+  <div class="tab-item" onclick="goPage('msg')">消息</div>
+  <div class="tab-item" onclick="goPage('me')">我的</div>
 </div>
 
-<input type="file" hidden id="uploadVideo" accept="video/*" onchange="uploadVideo(event)">
+<div class="page hidden" id="uploadPage">
+  <div class="title">发布视频</div>
+  <input type="file" id="videoFile" accept="video/*">
+  <button onclick="uploadVideo()">发布</button>
+</div>
+
+<div class="page hidden" id="mePage">
+  <div class="me-card">
+    <div class="me-avatar"></div>
+    <div>
+      <div id="meName">用户</div>
+      <div style="font-size:12px;color:#999">我的作品</div>
+    </div>
+  </div>
+  <div id="myVideos"></div>
+  <button onclick="openAppeal()">申诉</button>
+</div>
+
+<div class="page hidden" id="msgPage">
+  <div class="title">消息</div>
+  <div style="font-size:12px;color:#0f0">欢迎使用离门团队视频</div>
+  <div id="chatList"></div>
+  <input id="chatInput" placeholder="发私信">
+  <button onclick="sendMsg()">发送</button>
+</div>
+
+<div class="modal" id="reportModal">
+  <div class="modal-content">
+    <div class="title">举报</div>
+    <select id="reportType">
+      <option>作品违规</option>
+      <option>私信违规</option>
+      <option>用户不良</option>
+    </select>
+    <button onclick="submitReport()">提交举报</button>
+  </div>
+</div>
+
+<div class="modal" id="adminModal">
+  <div class="modal-content">
+    <div class="title">管理员后台</div>
+    <input id="adminPwd" type="password" placeholder="密码">
+    <button onclick="checkAdmin()">登录</button>
+    <div id="adminPanel" class="hidden">
+      <button onclick="banUser()">封禁用户</button>
+      <button onclick="unbanUser()">解封</button>
+      <button onclick="handleAppeal(true)">申诉通过</button>
+      <button onclick="handleAppeal(false)">申诉拒绝</button>
+      <div id="banTime"></div>
+    </div>
+  </div>
+</div>
+
+<div class="comment-box hidden" id="commentBox">
+  <input class="comment-input" id="commentText" placeholder="写评论">
+  <button class="send-btn" onclick="sendComment()">发送</button>
+</div>
 
 <script>
-// ====================== 你的服务器信息（已填好） ======================
-const SUPABASE_URL = "https://melgyktzmzyednqtmqfz.supabase.co";
-const SUPABASE_KEY = "sbpbl_5a2f6b2d416c71f20a275e7e0e0e5e7e7e7e7e7e";
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const ADMIN_PWD = "1234567890";
-
 let currentUser = null;
-let currentWorkIndex = 0;
-let currentChatTarget = null;
-let currentUserName = "";
-let works = [];
+let videos = JSON.parse(localStorage.getItem("videos")||"[]");
+let users = JSON.parse(localStorage.getItem("users")||"{}");
+let reports = JSON.parse(localStorage.getItem("reports")||"[]");
+let appeals = JSON.parse(localStorage.getItem("appeals")||"[]");
+let likes = JSON.parse(localStorage.getItem("likes")||"{}");
+let follows = JSON.parse(localStorage.getItem("follows")||"{}");
+let comments = JSON.parse(localStorage.getItem("comments")||"{}");
+let msgs = JSON.parse(localStorage.getItem("msgs")||"[]");
 
-// 实时时间
-function updateTime() {
+function updateTime(){
   let d = new Date();
-  let h = String(d.getHours()).padStart(2,'0');
-  let m = String(d.getMinutes()).padStart(2,'0');
-  document.getElementById("realTime").innerText = `${h}:${m}`;
+  document.getElementById("topTime").innerText = d.toLocaleString();
 }
 setInterval(updateTime,1000); updateTime();
 
-// 视频滑动
-let startY=0;
-document.addEventListener('touchstart',e=>{startY=e.touches[0].clientY});
-document.addEventListener('touchend',e=>{
-  let dy=e.changedTouches[0].clientY-startY;
-  if(Math.abs(dy)>70) dy>0?prevVideo():nextVideo();
-});
-
-const video=document.getElementById("mainVideo");
-const progressBar=document.getElementById("progressBar");
-const progressWrap=document.getElementById("progressBarWrap");
-
-video.addEventListener('timeupdate',()=>{
-  const percent=(video.currentTime/video.duration)*100;
-  progressBar.style.width=`${percent}%`;
-});
-
-progressWrap.addEventListener('click',(e)=>{
-  const rect=progressWrap.getBoundingClientRect();
-  video.currentTime=(e.clientX-rect.left)/rect.width*video.duration;
-});
-
-// 加载作品
-async function loadWorks(){
-  const {data, error} = await supabase.from("works").select("*").order("created_at",{ascending:false});
-  if(error) {
-    console.error("加载作品失败:", error);
-    return;
-  }
-  works=data||[];
-  if(works.length) loadCurrent();
+function doRegister(){
+  let u = document.getElementById("userInput").value.trim();
+  let p = document.getElementById("pwdInput").value.trim();
+  if(!u||!p)return alert("不能为空");
+  if(users[u])return alert("已存在");
+  users[u]=p;
+  localStorage.setItem("users",JSON.stringify(users));
+  alert("注册成功");
 }
 
-function loadCurrent(){
-  if(!works.length)return;
-  let w=works[currentWorkIndex];
-  currentUserName=w.username;
-  document.getElementById("userName").innerText=currentUserName;
-  video.src=w.video_url;
-  video.load(); video.play().catch(()=>{});
-  updateLike();
-}
-
-function nextVideo(){
-  if(!works.length)return;
-  currentWorkIndex=(currentWorkIndex+1)%works.length;
-  loadCurrent();
-}
-function prevVideo(){
-  if(!works.length)return;
-  currentWorkIndex=(currentWorkIndex-1+works.length)%works.length;
-  loadCurrent();
-}
-
-async function updateLike(){
-  if(!works.length)return;
-  const {count, error} = await supabase.from("likes").select("*",{count:"exact"}).eq("work_id",works[currentWorkIndex].id);
-  if(error) {
-    console.error("加载点赞失败:", error);
-    return;
-  }
-  document.getElementById("likeCount").innerText=count||0;
-}
-
-async function toggleLike(){
-  if(!currentUser){alert("请先登录");return;}
-  const wid=works[currentWorkIndex].id;
-  const {data, error} = await supabase.from("likes").select("*").eq("work_id",wid).eq("username",currentUser);
-  if(error) {
-    console.error("检查点赞失败:", error);
-    return;
-  }
-  if(data.length){
-    await supabase.from("likes").delete().eq("work_id",wid).eq("username",currentUser);
-  }else{
-    await supabase.from("likes").insert([{work_id:wid,username:currentUser}]);
-  }
-  updateLike();
-}
-
-// ====================== 修复版：注册/登录（核心修复） ======================
-async function doRegister(){
-  let user=document.getElementById("regUser").value.trim();
-  let pwd=document.getElementById("regPwd").value.trim();
-  if(!user||!pwd){
-    alert("账号和密码不能为空！");
-    return;
-  }
-  // 检查用户是否已存在
-  const {data, error} = await supabase.from("users").select("*").eq("username",user);
-  if(error) {
-    alert("注册失败：" + error.message);
-    return;
-  }
-  if(data.length>0){
-    alert("该账号已注册，请直接登录！");
-    return;
-  }
-  // 插入新用户
-  const {error: insertError} = await supabase.from("users").insert([{username:user,password:pwd,is_banned:false,ban_expire:0}]);
-  if(insertError) {
-    alert("注册失败：" + insertError.message);
-    return;
-  }
-  alert("注册成功！请登录");
-  document.getElementById("regUser").value = user;
-}
-
-async function doLogin(){
-  let user=document.getElementById("regUser").value.trim();
-  let pwd=document.getElementById("regPwd").value.trim();
-  if(!user||!pwd){
-    alert("请输入账号和密码！");
-    return;
-  }
-  // 验证账号密码
-  const {data, error} = await supabase.from("users").select("*").eq("username",user).eq("password",pwd);
-  if(error) {
-    alert("登录失败：" + error.message);
-    return;
-  }
-  if(!data.length){
-    alert("账号或密码错误！");
-    return;
-  }
-  let u=data[0];
-  // 检查封禁状态
-  if(u.is_banned && u.ban_expire > Date.now()){
-    alert(`账号已封禁，解封时间：${new Date(u.ban_expire).toLocaleString()}`);
-    return;
-  }
-  // 登录成功
-  currentUser=user;
-  document.getElementById("myName").innerText=currentUser;
-  document.getElementById("authPage").style.display="none";
+function doLogin(){
+  let u = document.getElementById("userInput").value.trim();
+  let p = document.getElementById("pwdInput").value.trim();
+  if(!u||!p)return alert("请输入");
+  if(users[u]!==p)return alert("错误");
+  currentUser=u;
+  localStorage.setItem("currentUser",currentUser);
+  document.getElementById("authPage").classList.add("hidden");
   document.getElementById("videoPage").classList.remove("hidden");
-  loadWorks();
-  alert("登录成功！");
+  document.getElementById("meName").innerText=currentUser;
+  loadVideo();
 }
 
-function goHome() {
-  document.getElementById("authPage").style.display = "none";
-  document.getElementById("videoPage").classList.remove("hidden");
-  document.getElementById("myName").textContent = currentUser;
-  loadWorks();
+function goPage(p){
+  if(!currentUser)return alert("请登录");
+  document.querySelectorAll(".page,.video-page").forEach(i=>i.classList.add("hidden"));
+  if(p==="video")document.getElementById("videoPage").classList.remove("hidden");
+  if(p==="upload")document.getElementById("uploadPage").classList.remove("hidden");
+  if(p==="me"){document.getElementById("mePage").classList.remove("hidden");loadMyVideos();}
+  if(p==="msg")document.getElementById("msgPage").classList.remove("hidden");
 }
 
-// ====================== 上传视频 ======================
-async function uploadVideo(e){
-  if(!currentUser){alert("请登录");return;}
-  let f=e.target.files[0];
-  if(!f)return;
-  let fn=Date.now()+"_"+f.name;
-  const {data, error} = await supabase.storage.from("video-files").upload(fn,f);
-  if(error) {
-    alert("上传失败：" + error.message);
-    return;
-  }
-  const {data:{publicUrl}} = supabase.storage.from("video-files").getPublicUrl(fn);
-  const {error: insertError} = await supabase.from("works").insert([{username:currentUser,video_url:publicUrl,created_at:new Date()}]);
-  if(insertError) {
-    alert("保存作品失败：" + insertError.message);
-    return;
-  }
-  loadWorks();
-  alert("上传成功！");
+function uploadVideo(){
+  let f = document.getElementById("videoFile").files[0];
+  if(!f)return alert("选视频");
+  let url = URL.createObjectURL(f);
+  videos.unshift({user:currentUser,url:url,time:new Date().toLocaleString()});
+  localStorage.setItem("videos",JSON.stringify(videos));
+  alert("发布成功");
+  loadVideo();
 }
 
-// ====================== 举报 ======================
-function openReport(user){
-  if(!currentUser){alert("请登录");return;}
-  document.getElementById("reportTarget").value=user||"";
-  document.getElementById("reportModal").style.display="flex";
-}
-function closeReport(){document.getElementById("reportModal").style.display="none";}
-async function submitReport(){
-  let target=document.getElementById("reportTarget").value;
-  let type=document.getElementById("reportType").value;
-  let msg=document.getElementById("reportMsg").value;
-  const {error} = await supabase.from("reports").insert([{from_user:currentUser,target_user:target,type:type,msg:msg,status:"待处理"}]);
-  if(error) {
-    alert("举报失败：" + error.message);
-    return;
-  }
-  alert("举报成功"); closeReport();
+function loadVideo(){
+  if(videos.length===0)return;
+  let v = document.getElementById("mainVideo");
+  v.src = videos[0].url;
+  document.getElementById("videoUser").innerText = videos[0].user;
+  v.play();
 }
 
-// ====================== 管理员 ======================
-function openAdmin(){if(!currentUser){alert("请登录");return;}document.getElementById("adminLoginModal").style.display="flex";}
-function closeAdminLogin(){document.getElementById("adminLoginModal").style.display="none";}
-function checkAdminPwd(){
-  if(document.getElementById("adminPwd").value!==ADMIN_PWD){alert("密码错误");return;}
-  closeAdminLogin(); document.getElementById("adminModal").style.display="flex";
-}
-function closeAdmin(){document.getElementById("adminModal").style.display="none";}
-
-async function showReports(){
-  const {data, error} = await supabase.from("reports").select("*");
-  if(error) {
-    alert("加载举报失败：" + error.message);
-    return;
-  }
-  let html="<h5>举报列表</h5>";
-  data.forEach(it=>{
-    html+=`<div style='padding:10px;border:1px solid #333;margin:8px'>
-      <p>举报人：${it.from_user}</p>
-      <p>被举报：${it.target_user}</p>
-      <p>类型：${it.type}</p>
-      <p>状态：${it.status}</p>
-    </div>`;
-  });
-  document.getElementById("adminContent").innerHTML=html;
+function doLike(){
+  if(!videos[0])return;
+  let k = videos[0].user+"_0";
+  likes[k]=(likes[k]||0)+1;
+  localStorage.setItem("likes",JSON.stringify(likes));
 }
 
-async function showWorks(){
-  const {data, error} = await supabase.from("works").select("*");
-  if(error) {
-    alert("加载作品失败：" + error.message);
-    return;
-  }
-  let html="<h5>作品列表</h5>";
-  data.forEach(it=>{
-    html+=`<div style='padding:10px;border:1px solid #333;margin:8px'>
-      <p>作者：${it.username}</p>
-      <button onclick='delWork(${it.id})' style='background:red;color:white;padding:6px;border:none;border-radius:6px'>删除</button>
-    </div>`;
-  });
-  document.getElementById("adminContent").innerHTML=html;
+function doFollow(){
+  follows[currentUser] = videos[0].user;
+  localStorage.setItem("follows",JSON.stringify(follows));
+  alert("已关注");
 }
 
-async function delWork(id){
-  const {error} = await supabase.from("works").delete().eq("id",id);
-  if(error) {
-    alert("删除失败：" + error.message);
-    return;
-  }
-  showWorks(); loadWorks();
+function openComment(){document.getElementById("commentBox").classList.remove("hidden");}
+function sendComment(){
+  let t = document.getElementById("commentText").value.trim();
+  if(!t)return;
+  comments[videos[0].user] = comments[videos[0].user]||[];
+  comments[videos[0].user].push({user:currentUser,text:t});
+  localStorage.setItem("comments",JSON.stringify(comments));
+  alert("评论成功");
 }
 
-// ====================== 封禁 ======================
-async function openBanManage(){
-  document.getElementById("adminModal").style.display="none";
-  const {data, error} = await supabase.from("users").select("*");
-  if(error) {
-    alert("加载用户失败：" + error.message);
-    return;
-  }
-  let html="<h5>账号列表</h5>";
-  data.forEach(u=>{
-    let status=u.is_banned&&u.ban_expire>Date.now()?"已封禁":"正常";
-    html+=`<div class='ban-item'>
-      <p>账号：${u.username}</p>
-      <p>状态：${status}</p>
-      <button class='ban-btn ban' onclick='banUser("${u.username}")'>封禁</button>
-      <button class='ban-btn unban' onclick='unbanUser("${u.username}")'>解封</button>
-    </div>`;
-  });
-  document.getElementById("banUserList").innerHTML=html;
-  document.getElementById("banModal").style.display="flex";
+function openReport(){document.getElementById("reportModal").style.display="flex";}
+function submitReport(){
+  let t = document.getElementById("reportType").value;
+  reports.push({from:currentUser,type:t,target:videos[0].user,time:new Date().toLocaleString()});
+  localStorage.setItem("reports",JSON.stringify(reports));
+  alert("举报成功");
+  document.getElementById("reportModal").style.display="none";
 }
 
-function closeBanModal(){
-  document.getElementById("banModal").style.display="none";
-  document.getElementById("adminModal").style.display="flex";
+function openAppeal(){
+  appeals.push({user:currentUser,time:new Date().toLocaleString()});
+  localStorage.setItem("appeals",JSON.stringify(appeals));
+  alert("已提交申诉");
 }
 
-async function banUser(user){
-  let days=prompt("封禁天数：","7");
-  if(!days||isNaN(days))return;
-  const {error} = await supabase.from("users").update({is_banned:true,ban_expire:Date.now()+days*86400000}).eq("username",user);
-  if(error) {
-    alert("封禁失败：" + error.message);
-    return;
-  }
-  alert("已封禁"); openBanManage();
+function openAdmin(){document.getElementById("adminModal").style.display="flex";}
+function checkAdmin(){
+  if(document.getElementById("adminPwd").value===ADMIN_PWD){
+    document.getElementById("adminPanel").classList.remove("hidden");
+  }else alert("密码错误");
+}
+function banUser(){
+  let t = prompt("输入要封禁的用户");
+  if(!t)return;
+  localStorage.setItem("ban_"+t,new Date().getTime()+86400000);
+  alert("已封禁24小时");
+}
+function unbanUser(){
+  let t = prompt("输入用户");
+  localStorage.removeItem("ban_"+t);
+  alert("已解封");
+}
+function handleAppeal(ok){
+  appeals=[];
+  localStorage.setItem("appeals",JSON.stringify(appeals));
+  alert(ok?"申诉通过":"申诉拒绝");
 }
 
-async function unbanUser(user){
-  const {error} = await supabase.from("users").update({is_banned:false,ban_expire:0}).eq("username",user);
-  if(error) {
-    alert("解封失败：" + error.message);
-    return;
-  }
-  alert("已解封"); openBanManage();
+function loadMyVideos(){
+  let list = videos.filter(v=>v.user===currentUser);
+  let html="";
+  list.forEach((v,i)=>{html+=`<div class="item" onclick="playVideo(${i})">作品${i+1}</div>`;});
+  document.getElementById("myVideos").innerHTML=html;
+}
+function playVideo(i){
+  document.getElementById("mainVideo").src=videos[i].url;
+  goPage('video');
 }
 
-// ====================== 消息聊天 ======================
-function openMsgPage(){if(!currentUser){alert("请登录");return;}document.getElementById("msgPage").style.display="block";}
-function closeMsgPage(){document.getElementById("msgPage").style.display="none";}
-function openChatPage(t){currentChatTarget=t;document.getElementById("chatPage").style.display="block";}
-function closeChatPage(){document.getElementById("chatPage").style.display="none";}
-async function sendChatMsg(){
-  if(!currentUser||!currentChatTarget)return;
-  let txt=document.getElementById("chatInput").value.trim();
-  if(!txt)return;
-  const {error} = await supabase.from("chats").insert([{from_user:currentUser,to_user:currentChatTarget,msg:txt}]);
-  if(error) {
-    alert("发送失败：" + error.message);
-    return;
-  }
+function sendMsg(){
+  let t = document.getElementById("chatInput").value.trim();
+  if(!t)return;
+  msgs.push({from:currentUser,text:t,time:new Date().toLocaleString()});
+  localStorage.setItem("msgs",JSON.stringify(msgs));
   document.getElementById("chatInput").value="";
 }
 
-// ====================== 页面切换 ======================
-function switchTab(t){
-  document.querySelectorAll(".tab-item").forEach(i=>i.classList.remove("active"));
-  document.getElementById("videoPage").classList.add("hidden");
-  document.getElementById("myPage").style.display="none";
-  document.getElementById("msgPage").style.display="none";
-  if(t==='home'){document.getElementById("tabHome").classList.add("active");document.getElementById("videoPage").classList.remove("hidden");}
-  if(t==='my'){document.getElementById("tabMy").classList.add("active");document.getElementById("myPage").style.display="block";}
-  if(t==='msg'){document.getElementById("tabMsg").classList.add("active");openMsgPage();}
+window.onload=function(){
+  let u=localStorage.getItem("currentUser");
+  if(u){currentUser=u;document.getElementById("authPage").classList.add("hidden");document.getElementById("meName").innerText=u;loadVideo();}
+};
+
+document.addEventListener('touchstart',e=>{window.sy=e.touches[0].clientY;});
+document.addEventListener('touchend',e=>{
+  let ey=e.changedTouches[0].clientY;
+  if(ey-window.sy>50)prevVideo();
+  else if(window.sy-ey>50)nextVideo();
+});
+function nextVideo(){
+  videos.push(videos.shift());
+  loadVideo();
+}
+function prevVideo(){
+  videos.unshift(videos.pop());
+  loadVideo();
 }
 
-function openMyPage(){switchTab('my');}
-function openOtherUserPage(){openUserPage(currentUserName);}
-function openUserPage(n){document.getElementById("targetName").innerText=n;document.getElementById("userPage").style.display="block";}
-function closeUserPage(){document.getElementById("userPage").style.display="none";}
-function toggleFollow(){let b=document.getElementById("followBtn");b.textContent=b.textContent=="关注"?"已关注":"关注";b.classList.toggle("followed");}
-function toggleCollect(){let c=parseInt(document.getElementById("collectCount").textContent);document.getElementById("collectCount").textContent=c+1;}
-function openComment(){alert("评论开发中");}
-function openShare(){alert("分享开发中");}
-function openWorkPage(){alert("我的作品开发中");}
-
-// ====================== 初始化（绑定按钮，核心修复） ======================
-document.addEventListener("DOMContentLoaded",()=>{
-  // 绑定注册/登录按钮
-  document.getElementById("btnRegister").onclick = doRegister;
-  document.getElementById("btnLogin").onclick = doLogin;
-  // 显示登录页
-  document.getElementById("authPage").style.display = "flex";
-});
+let v=document.getElementById("mainVideo");
+v.ontimeupdate=()=>{document.getElementById("progressBar").style.width=(v.currentTime/v.duration)*100+"%";};
 </script>
 </body>
 </html>
