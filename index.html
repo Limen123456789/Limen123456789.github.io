@@ -39,7 +39,6 @@ body{background:#000;color:#fff;overflow:hidden}
   object-fit:cover;
   display:block
 }
-/* 修复空白占位图 */
 .profile-avatar .placeholder{
   position:absolute;
   top:0;
@@ -63,10 +62,9 @@ body{background:#000;color:#fff;overflow:hidden}
 .profile-btn{padding:15px 20px;border-radius:8px;font-size:18px;border:none;width:100%}
 .profile-btn.primary{background:#ff4500;color:#fff}
 .profile-btn.secondary{background:#1a1a1a;color:#fff;border:1px solid #333}
-/* 申诉按钮默认隐藏 */
 #appealBtn{display:none}
 
-/* 作品列表（修复空状态） */
+/* 作品列表 */
 .profile-videos{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;min-height:200px}
 .profile-video-item{aspect-ratio:9/16;background:#1a1a1a;position:relative;overflow:hidden}
 .profile-video-item video{width:100%;height:100%;object-fit:cover}
@@ -85,12 +83,12 @@ video{width:100%;height:auto;display:block}
 input,button,input[type="file"]{width:100%;margin:6px 0;padding:10px;border-radius:8px}
 input{background:#111;border:1px solid #333;color:#fff}
 button{background:#ff4500;color:#fff;border:0}
-input[type="file"]{color:#fff;display:none}
+input[type="file"]{color:#fff;display:block;background:#1a1a1a;border:1px solid #333}
 </style>
 </head>
 <body>
 
-<!-- 登录页（直接显示，无加载） -->
+<!-- 登录页 -->
 <div class="page show" id="loginPage">
   <div class="login-box">
     <h2>离门团队视频</h2>
@@ -102,7 +100,7 @@ input[type="file"]{color:#fff;display:none}
   </div>
 </div>
 
-<!-- 首页（快手，修复空状态） -->
+<!-- 首页 -->
 <div class="page" id="homePage">
   <div class="video-box" id="videoList">
     <div class="empty-state">暂无作品，快去发布第一条吧~</div>
@@ -141,11 +139,12 @@ input[type="file"]{color:#fff;display:none}
   </div>
 </div>
 
-<!-- 发布页（修复发布逻辑） -->
+<!-- 发布页（修复：补上视频选择框） -->
 <div class="page" id="uploadPage">
   <div class="video-box">
     <h3>发布视频</h3>
-    <input type="file" id="vfile" accept="video/*">
+    <!-- 补上视频选择输入框 -->
+    <input type="file" id="vfile" accept="video/*" placeholder="选择视频文件">
     <input id="vtitle" placeholder="输入视频描述">
     <button onclick="upload()">发布作品</button>
     <button onclick="go('homePage')">返回首页</button>
@@ -158,7 +157,7 @@ input[type="file"]{color:#fff;display:none}
   </div>
 </div>
 
-<!-- 我的页（修复头像空白，动态控制申诉按钮） -->
+<!-- 我的页 -->
 <div class="page" id="mePage">
   <div class="profile-page">
     <div class="profile-header">
@@ -251,7 +250,7 @@ const sb = supabase.createClient("https://melgyktzmzyednqtmqfz.supabase.co","sb_
 let user = null;
 const ADMIN_PWD = "1234567890";
 
-// 页面切换（修复黑屏问题）
+// 页面切换
 function go(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('show'));
   document.getElementById(id).classList.add('show');
@@ -260,31 +259,29 @@ function go(id){
   if(id==='msgPage')loadMsgs();
 }
 
-// 🔧 核心：动态控制申诉按钮显示/隐藏
+// 控制申诉按钮
 function toggleAppealBtn(isBanned){
   const appealBtn = document.getElementById('appealBtn');
   appealBtn.style.display = isBanned ? 'block' : 'none';
 }
 
-// 🔧 核心：修复头像显示逻辑
+// 更新头像显示
 function updateAvatar(avatarUrl, username){
   const avatarImg = document.getElementById('avatarImg');
   const avatarPlaceholder = document.getElementById('avatarPlaceholder');
   
   if(avatarUrl && avatarUrl.trim() !== ''){
-    // 有头像：显示图片，隐藏占位符
     avatarImg.src = avatarUrl;
     avatarImg.style.display = 'block';
     avatarPlaceholder.style.display = 'none';
   }else{
-    // 无头像：显示首字母占位符
     avatarImg.style.display = 'none';
     avatarPlaceholder.style.display = 'flex';
-    avatarPlaceholder.innerText = username.charAt(0).toUpperCase();
+    avatarPlaceholder.innerText = username ? username.charAt(0).toUpperCase() : 'U';
   }
 }
 
-// 登录（修复异常，增加状态判断）
+// 登录
 async function login(){
   const u = document.getElementById('user').value.trim();
   const p = document.getElementById('pwd').value.trim();
@@ -302,7 +299,6 @@ async function login(){
 
     user = data[0];
     toggleAppealBtn(user.status === '封禁');
-    // 登录时更新头像
     updateAvatar(user.avatar, user.username);
     alert('登录成功！');
     go('homePage');
@@ -312,7 +308,7 @@ async function login(){
   }
 }
 
-// 注册（修复数据异常，增加avatar字段）
+// 注册
 async function reg(){
   const u = document.getElementById('user').value.trim();
   const p = document.getElementById('pwd').value.trim();
@@ -329,7 +325,12 @@ async function reg(){
 
     const { error } = await sb
       .from('users')
-      .insert([{ username: u, password: p, status: '正常', avatar: '' }]);
+      .insert([{ 
+        username: u, 
+        password: p, 
+        status: '正常',
+        avatar: ''
+      }]);
 
     if(error) throw error;
     alert('注册成功！请返回登录');
@@ -347,14 +348,11 @@ function logout(){
   document.getElementById('user').value = '';
   document.getElementById('pwd').value = '';
   toggleAppealBtn(false);
-  // 退出时重置头像
   updateAvatar('', 'U');
   go('loginPage');
 }
 
-// ======================
-// 【修复】上传头像逻辑
-// ======================
+// 上传头像
 document.getElementById('avatarFile').addEventListener('change',async function(e){
   if(!user) return alert('请先登录');
   const file = e.target.files[0];
@@ -362,18 +360,14 @@ document.getElementById('avatarFile').addEventListener('change',async function(e
   if(!file.type.startsWith('image/')) return alert('请选择图片文件');
 
   try {
-    // 生成本地预览URL（兼容所有浏览器）
     const reader = new FileReader();
     reader.onload = async function(event){
       const avatarUrl = event.target.result;
       
-      // 更新数据库
       const { error } = await sb.from('users').update({avatar:avatarUrl}).eq('id',user.id);
       if(error) throw error;
       
-      // 更新本地用户数据
       user.avatar = avatarUrl;
-      // 立即更新头像显示
       updateAvatar(avatarUrl, user.username);
       alert('头像上传成功！');
     };
@@ -384,10 +378,11 @@ document.getElementById('avatarFile').addEventListener('change',async function(e
   }
 });
 
-// 发布作品（彻底修复黑屏问题）
+// 发布作品（修复：完整逻辑）
 async function upload(){
   if(!user) return alert('请先登录账号');
-  const file = document.getElementById('vfile').files[0];
+  const fileInput = document.getElementById('vfile');
+  const file = fileInput.files[0];
   const title = document.getElementById('vtitle').value.trim();
 
   if(!file) return alert('请选择要发布的视频文件');
@@ -409,7 +404,7 @@ async function upload(){
     if(error) throw error;
     alert('作品发布成功！');
     go('homePage');
-    document.getElementById('vfile').value = '';
+    fileInput.value = '';
     document.getElementById('vtitle').value = '';
   } catch (err) {
     console.error(err);
@@ -417,7 +412,7 @@ async function upload(){
   }
 }
 
-// 加载首页视频（修复空状态/加载失败）
+// 加载首页视频
 async function loadVideos(){
   try {
     const { data, error } = await sb
@@ -437,10 +432,9 @@ async function loadVideos(){
     data.forEach(v=>{
       const d = document.createElement('div');
       d.className = 'item';
-      // 视频页头像显示
       const avatarHtml = v.users?.avatar ? 
         `<img src="${v.users.avatar}" style="width:100%;height:100%;object-fit:cover">` : 
-        v.users?.username.charAt(0).toUpperCase();
+        (v.users?.username ? v.users.username.charAt(0).toUpperCase() : 'U');
       
       d.innerHTML = `
         <video src="${v.url}" controls></video>
@@ -554,7 +548,7 @@ async function loadComment(vid){
   }
 }
 
-// 🔧 加载我的主页（彻底修复加载失败，修复头像显示）
+// 加载我的主页
 async function loadMe(){
   if(!user){
     go('loginPage');
@@ -563,7 +557,6 @@ async function loadMe(){
 
   document.getElementById('profileUsername').innerText = user.username;
   toggleAppealBtn(user.status === '封禁');
-  // 加载时更新头像
   updateAvatar(user.avatar, user.username);
 
   try {
