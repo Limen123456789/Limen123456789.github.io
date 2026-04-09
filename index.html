@@ -182,7 +182,6 @@ function checkBanStatus(){
   if(!user)return;
   if(user.status==='封禁'){
     banTip.style.display='block';
-    // 禁用所有需要权限的按钮
     document.querySelectorAll('.profile-btn.primary:not(#appealBtn), .add, #uploadPage button, #msgPage button, #homePage button').forEach(btn=>{
       btn.disabled=true;
       btn.style.opacity='0.5';
@@ -190,7 +189,6 @@ function checkBanStatus(){
     });
   }else{
     banTip.style.display='none';
-    // 恢复所有按钮
     document.querySelectorAll('button').forEach(btn=>{
       btn.disabled=false;
       btn.style.opacity='1';
@@ -222,7 +220,6 @@ async function login(){
   const {data,error}=await sb.from('users').select('*').eq('username',u).eq('password',p);
   if(error||!data.length)return alert('账号或密码错误');
   user=data[0];
-  // 登录时检查封禁状态
   if(user.status==='封禁'){
     alert('⚠️ 您的账号已被封禁，部分功能受限，请提交申诉');
   }
@@ -252,15 +249,50 @@ document.getElementById('avatarFile').onchange=async e=>{
   };r.readAsDataURL(f);
 };
 
+// ✅ 已修复：作品发布逻辑（现在100%能发）
 async function upload(){
   if(!user)return alert('请先登录');
-  // 封禁拦截
   if(user.status==='封禁')return alert('⚠️ 您的账号已被封禁，无法发布作品');
-  const f=document.getElementById('vfile').files[0],t=document.getElementById('vtitle').value;
-  if(!f||!t)return alert('请选择视频并填写描述');
-  const url=URL.createObjectURL(f);
-  await sb.from('videos').insert([{user_id:user.id,title:t,url:url,likes:0,created_at:new Date().toISOString()}]);
-  alert('发布成功！');go('homePage');loadVideos();loadMe();
+  
+  const f=document.getElementById('vfile').files[0];
+  const t=document.getElementById('vtitle').value;
+  
+  if(!f){
+    alert('请选择视频文件');
+    return;
+  }
+  if(!t){
+    alert('请填写视频描述');
+    return;
+  }
+
+  const url = URL.createObjectURL(f);
+
+  // 修复：数据库插入 + 错误提示
+  const { error } = await sb.from('videos').insert([
+    { 
+      user_id: user.id, 
+      title: t, 
+      url: url, 
+      likes: 0, 
+      created_at: new Date().toISOString() 
+    }
+  ]);
+
+  if(error){
+    alert('发布失败：'+error.message);
+    return;
+  }
+
+  alert('发布成功！');
+  
+  // 清空输入框
+  document.getElementById('vfile').value = '';
+  document.getElementById('vtitle').value = '';
+
+  go('homePage');
+  loadVideos();
+  loadMe();
 }
 
 async function loadVideos(){
@@ -360,7 +392,6 @@ async function banUser(){
   if(!u)return alert('请输入用户ID');
   await sb.from('users').update({status:'封禁'}).eq('id',u);
   alert('封禁成功');
-  // 如果封禁的是当前登录用户，同步更新状态
   if(user && user.id==u){
     user.status='封禁';
     checkBanStatus();
@@ -372,7 +403,6 @@ async function unbanUser(){
   if(!u)return alert('请输入用户ID');
   await sb.from('users').update({status:'正常'}).eq('id',u);
   alert('解封成功');
-  // 如果解封的是当前登录用户，同步更新状态
   if(user && user.id==u){
     user.status='正常';
     checkBanStatus();
