@@ -139,7 +139,7 @@ input[type="file"]{color:#fff;display:block;background:#1a1a1a;border:1px solid 
   </div>
 </div>
 
-<!-- 发布页（修复：完整视频选择+正确uuid格式） -->
+<!-- 发布页 -->
 <div class="page" id="uploadPage">
   <div class="video-box">
     <h3>发布视频</h3>
@@ -249,6 +249,12 @@ const sb = supabase.createClient("https://melgyktzmzyednqtmqfz.supabase.co","sb_
 let user = null;
 const ADMIN_PWD = "1234567890";
 
+// 核心工具：把数字ID转成合法UUID
+function numToUuid(num) {
+  const hex = num.toString(16).padStart(32, '0');
+  return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20,32)}`;
+}
+
 // 页面切换
 function go(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('show'));
@@ -280,7 +286,7 @@ function updateAvatar(avatarUrl, username){
   }
 }
 
-// 登录（修复：正确获取uuid格式的user.id）
+// 登录
 async function login(){
   const u = document.getElementById('user').value.trim();
   const p = document.getElementById('pwd').value.trim();
@@ -297,7 +303,6 @@ async function login(){
     if(data.length === 0) return alert('账号或密码错误');
 
     user = data[0];
-    // 确保user.id是正确的uuid格式，直接使用数据库返回的id
     toggleAppealBtn(user.status === '封禁');
     updateAvatar(user.avatar, user.username);
     alert('登录成功！');
@@ -378,7 +383,7 @@ document.getElementById('avatarFile').addEventListener('change',async function(e
   }
 });
 
-// 发布作品（修复：正确传递uuid格式的user_id）
+// 发布作品（核心修复：数字ID转UUID）
 async function upload(){
   if(!user) return alert('请先登录账号');
   const fileInput = document.getElementById('vfile');
@@ -391,11 +396,12 @@ async function upload(){
 
   try {
     const url = URL.createObjectURL(file);
-    // 直接使用user.id，确保是数据库返回的正确uuid格式
+    // 核心修复：把数字user.id转成合法UUID
+    const uuidUserId = numToUuid(user.id);
     const { error } = await sb
       .from('videos')
       .insert([{
-        user_id: user.id,
+        user_id: uuidUserId,
         title: title,
         url: url,
         likes: 0,
@@ -493,7 +499,7 @@ async function report(vid){
       .from('reports')
       .insert([{
         video_id: vid,
-        user_id: user.id,
+        user_id: numToUuid(user.id),
         content: '用户举报',
         created_at: new Date().toISOString()
       }]);
@@ -515,7 +521,7 @@ async function sendComment(vid){
       .from('comments')
       .insert([{
         video_id: vid,
-        user_id: user.id,
+        user_id: numToUuid(user.id),
         content: txt,
         created_at: new Date().toISOString()
       }]);
@@ -564,7 +570,7 @@ async function loadMe(){
     const { data: videos, error } = await sb
       .from('videos')
       .select('id')
-      .eq('user_id', user.id);
+      .eq('user_id', numToUuid(user.id));
 
     if(error) throw error;
     document.getElementById('statVideos').innerText = videos.length;
@@ -611,7 +617,7 @@ async function sendMsg(){
     await sb
       .from('messages')
       .insert([{
-        from_uid: user.id,
+        from_uid: numToUuid(user.id),
         to_user: to,
         content: txt,
         created_at: new Date().toISOString()
@@ -658,7 +664,7 @@ async function sendAppeal(){
     await sb
       .from('appeals')
       .insert([{
-        uid: user.id,
+        uid: numToUuid(user.id),
         reason: txt,
         status: '待处理',
         created_at: new Date().toISOString()
