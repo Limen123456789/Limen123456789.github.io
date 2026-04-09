@@ -320,7 +320,6 @@ const ADMIN_PWD = "1234567890";
 function initDB() {
   const defaultDB = { 
     users: [
-      // 默认管理员账号，防止全丢
       { user: "admin", pwd: "admin123", isBanned: false, banExpire: 0, isAdmin: true }
     ], 
     works: [], 
@@ -352,12 +351,10 @@ function getDB() {
 }
 function setDB(db) {
   localStorage.setItem(DB_KEY, JSON.stringify(db));
-  // 手动触发同步提示
   document.getElementById("refreshTip").style.display = "block";
   setTimeout(()=>{document.getElementById("refreshTip").style.display = "none"},1500);
 }
 
-// 读取
 function getUsers()   { return getDB().users || []; }
 function getWorks()   { return getDB().works || []; }
 function getReports() { return getDB().reports || []; }
@@ -366,7 +363,6 @@ function getComments(){ return getDB().comments || []; }
 function getChats()   { return getDB().chats || []; }
 function getBans()    { return getDB().bans || []; }
 
-// 保存
 function saveUsers(users)   { let d=getDB(); d.users=users; setDB(d); }
 function saveWorks(works)   { let d=getDB(); d.works=works; setDB(d); }
 function saveReports(reports) { let d=getDB(); d.reports=reports; setDB(d); }
@@ -375,7 +371,6 @@ function saveComments(comments){ let d=getDB(); d.comments=comments; setDB(d); }
 function saveChats(chats)   { let d=getDB(); d.chats=chats; setDB(d); }
 function saveBans(bans)    { let d=getDB(); d.bans=bans; setDB(d); }
 
-// 登录状态
 function saveLoginUser(user) { localStorage.setItem(USER_KEY, user); }
 function getLoginUser() { return localStorage.getItem(USER_KEY) || null; }
 
@@ -418,7 +413,6 @@ document.addEventListener('touchend', e => {
   }
 });
 
-// 视频进度条
 const video = document.getElementById("mainVideo");
 const progressBar = document.getElementById("progressBar");
 const progressWrap = document.getElementById("progressBarWrap");
@@ -484,7 +478,7 @@ function toggleLike() {
 }
 
 // ======================
-// 注册/登录（修复版，加默认账号）
+// 注册/登录
 // ======================
 function doRegister() {
   let user = document.getElementById("regUser").value.trim();
@@ -505,7 +499,6 @@ function doRegister() {
   users.push({ user, pwd, isBanned: false, banExpire: 0, isAdmin: false });
   saveUsers(users);
   alert("注册成功！请登录");
-  // 自动填充账号，方便登录
   document.getElementById("regUser").value = user;
 }
 
@@ -525,7 +518,6 @@ function doLogin() {
     return;
   }
 
-  // 检查是否封禁
   if (found.isBanned && found.banExpire > Date.now()) {
     alert(`账号已封禁，解封时间：${new Date(found.banExpire).toLocaleString()}`);
     return;
@@ -545,15 +537,13 @@ function goHome() {
 }
 
 // ======================
-// 举报功能（彻底修复版，解决异常报错）
+// 举报功能
 // ======================
 function openReport(user) {
-  // 先检查登录状态
   if (!currentUser) { 
     alert("请先登录才能举报！"); 
     return; 
   }
-  // 强制填充被举报用户，杜绝空值
   document.getElementById("reportTarget").value = user || "未知用户";
   document.getElementById("reportMsg").value = "";
   document.getElementById("reportModal").style.display = "flex";
@@ -564,7 +554,6 @@ function submitReport() {
   let type = document.getElementById("reportType").value;
   let msg = document.getElementById("reportMsg").value.trim();
   
-  // 双重校验，杜绝异常
   if (!target) {
     alert("被举报用户不能为空！");
     return;
@@ -590,7 +579,7 @@ function submitReport() {
 }
 
 // ======================
-// 管理员后台（修复版+封禁功能）
+// 管理员后台
 // ======================
 function openAdmin() {
   if (!currentUser) { alert("请先登录"); return; }
@@ -606,7 +595,7 @@ function checkAdminPwd() {
 }
 function closeAdmin() { document.getElementById("adminModal").style.display = "none"; }
 
-// 查看所有举报（修复，显示完整数据）
+// 查看所有举报（已加：已处理、驳回按钮）
 function showReports() {
   let reports = getReports();
   let html = "<h5>所有举报（全设备同步）</h5>";
@@ -622,12 +611,34 @@ function showReports() {
           <p><strong>说明：</strong>${it.msg || '无'}</p>
           <p><strong>时间：</strong>${it.time}</p>
           <p><strong>状态：</strong>${it.status}</p>
+          <button onclick="markReportDone(${i})" style="margin-top:8px;margin-right:4px;padding:6px 12px;background:#070;color:#fff;border:none;border-radius:6px">已处理</button>
+          <button onclick="markReportReject(${i})" style="margin-top:8px;margin-right:4px;padding:6px 12px;background:#555;color:#fff;border:none;border-radius:6px">驳回</button>
           <button onclick="delReport(${i})" style="margin-top:8px;padding:6px 12px;background:#f00;color:#fff;border:none;border-radius:6px">删除举报</button>
         </div>
       `;
     });
   }
   document.getElementById("adminContent").innerHTML = html;
+}
+
+// 标记举报为已处理
+function markReportDone(i) {
+  let reports = getReports();
+  if(reports[i]){
+    reports[i].status = "已处理";
+    saveReports(reports);
+    showReports();
+  }
+}
+
+// 标记举报为驳回
+function markReportReject(i) {
+  let reports = getReports();
+  if(reports[i]){
+    reports[i].status = "已驳回";
+    saveReports(reports);
+    showReports();
+  }
 }
 
 function delReport(i) {
@@ -677,7 +688,7 @@ function showChatLog() {
 }
 
 // ======================
-// 新增：封禁/解封功能
+// 封禁/解封功能
 // ======================
 function openBanManage() {
   closeAdmin();
@@ -710,7 +721,6 @@ function closeBanModal() {
   document.getElementById("adminModal").style.display = "flex";
 }
 
-// 封禁用户
 function banUser(username) {
   let days = prompt("请输入封禁天数（1-365）：", "7");
   if (!days || isNaN(days) || days < 1 || days > 365) {
@@ -726,10 +736,9 @@ function banUser(username) {
   user.banExpire = Date.now() + days * 24 * 60 * 60 * 1000;
   saveUsers(users);
   alert(`已封禁账号 ${username} ${days} 天`);
-  openBanManage(); // 刷新列表
+  openBanManage();
 }
 
-// 解封用户
 function unbanUser(username) {
   let users = getUsers();
   let user = users.find(u => u.user === username);
@@ -739,7 +748,7 @@ function unbanUser(username) {
   user.banExpire = 0;
   saveUsers(users);
   alert(`已解封账号 ${username}`);
-  openBanManage(); // 刷新列表
+  openBanManage();
 }
 
 // ======================
@@ -889,7 +898,6 @@ function uploadVideo(e) {
   let bar = document.getElementById("uploadBar");
   wrap.style.display = "block";
   
-  // 模拟上传进度
   let progress = 0;
   let interval = setInterval(() => {
     progress += 10;
@@ -927,7 +935,7 @@ function openShare() { alert("分享功能开发中"); }
 function openWorkPage() { alert("我的作品功能开发中"); }
 
 // ======================
-// 初始化（绑定按钮）
+// 初始化
 // ======================
 document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("btnRegister").onclick = doRegister;
