@@ -2,37 +2,101 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>离门团队视频</title>
 <style>
-  *{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
-  body{background:#fff;color:#000}
-  .box{padding:30px;text-align:center}
-  input{width:80%;padding:12px;margin:8px;border:1px solid #000;border-radius:6px}
-  button{padding:12px 25px;margin:6px;background:#007aff;color:#fff;border:0;border-radius:6px;width:80%}
-  .page{display:none}
-  .show{display:block}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+body{background:#fff;color:#000}
+input,button{width:85%;padding:10px;margin:6px;border-radius:6px}
+input{border:1px solid #333}
+button{background:#007aff;color:#fff;border:0}
+.page{display:none;padding:20px;text-align:center}
+.show{display:block}
+.video-box{width:100%;height:70vh;background:#000;margin:10px 0;border-radius:8px}
+video{width:100%;height:100%;object-fit:cover}
+.item{border:1px solid #eee;padding:12px;margin:10px 0;border-radius:8px;text-align:left}
+.comment{padding:8px;background:#f5f5f5;border-radius:6px;margin:4px 0;text-align:left}
+.time-bar{position:fixed;top:0;left:0;width:100%;background:#000;color:#fff;padding:6px;font-size:12px;text-align:center}
 </style>
 </head>
 <body>
 
-<!-- 登录注册页（默认直接显示，无加载） -->
+<!-- 顶部实时时间 -->
+<div class="time-bar" id="timeBar"></div>
+
+<!-- 登录页 -->
 <div class="page show" id="loginPage">
-  <div class="box">
-    <h2>离门团队视频</h2>
-    <input id="user" placeholder="账号">
-    <input id="pwd" type="password" placeholder="密码">
-    <button onclick="login()">登录</button>
-    <button onclick="register()">注册</button>
-  </div>
+  <h2>离门团队视频</h2>
+  <input id="user" placeholder="账号">
+  <input id="pwd" type="password" placeholder="密码">
+  <button onclick="login()">登录</button>
+  <button onclick="reg()">注册</button>
+  <button onclick="goAdmin()">管理员后台</button>
 </div>
 
 <!-- 首页 -->
 <div class="page" id="homePage">
-  <div class="box">
-    <h3>首页</h3>
-    <button onclick="goPage('loginPage')">退出登录</button>
-  </div>
+  <h3>首页</h3>
+  <button onclick="goUpload()">发视频</button>
+  <button onclick="goMe()">我的</button>
+  <button onclick="goMsg()">私信</button>
+  <button onclick="logout()">退出</button>
+  <div id="videoList"></div>
+</div>
+
+<!-- 发布页 -->
+<div class="page" id="uploadPage">
+  <h3>发布视频</h3>
+  <input type="file" id="videoFile" accept="video/*">
+  <input id="title" placeholder="视频说明">
+  <button onclick="upload()">发布</button>
+  <button onclick="goHome()">返回</button>
+</div>
+
+<!-- 我的主页 -->
+<div class="page" id="mePage">
+  <h3>我的主页</h3>
+  <p id="myName"></p>
+  <button onclick="goHome()">返回首页</button>
+  <button onclick="goAppeal()">申诉</button>
+  <div id="myVideos"></div>
+</div>
+
+<!-- 私信页 -->
+<div class="page" id="msgPage">
+  <h3>私信</h3>
+  <input id="toUser" placeholder="发给谁">
+  <input id="msgText" placeholder="消息内容">
+  <button onclick="sendMsg()">发送</button>
+  <button onclick="goHome()">返回</button>
+  <div id="msgList"></div>
+</div>
+
+<!-- 申诉页 -->
+<div class="page" id="appealPage">
+  <h3>申诉</h3>
+  <input id="appealText" placeholder="请输入申诉理由">
+  <button onclick="sendAppeal()">提交申诉</button>
+  <button onclick="goMe()">返回</button>
+</div>
+
+<!-- 管理员后台 -->
+<div class="page" id="adminPage">
+  <h3>管理员后台</h3>
+  <input id="adminPwd" type="password" placeholder="管理员密码">
+  <button onclick="adminLogin()">进入后台</button>
+  <br><br>
+  <input id="banUser" placeholder="输入要封禁的UID">
+  <button onclick="banUser()">封禁账号</button>
+  <br>
+  <input id="unbanUser" placeholder="输入要解封的UID">
+  <button onclick="unbanUser()">解封账号</button>
+  <br>
+  <button onclick="showReports()">查看举报</button>
+  <button onclick="showAppeals()">查看申诉</button>
+  <button onclick="goHome()">返回</button>
+  <div id="reportList"></div>
+  <div id="appealList"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -42,35 +106,197 @@ const sb = supabase.createClient(
   "sb_publishable_iS4ChZxw5ixbg7S-y-Vddw_YQZ6SHMV"
 );
 
-function goPage(id) {
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('show'));
-  document.getElementById(id).classList.add('show');
+let user = null;
+const ADMIN_PWD = "1234567890";
+
+// 页面切换
+function show(id) {
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("show"));
+  document.getElementById(id).classList.add("show");
+}
+function goHome(){show("homePage");loadVideos()}
+function goUpload(){show("uploadPage")}
+function goMe(){show("mePage");loadMy()}
+function goMsg(){show("msgPage");loadMsgs()}
+function goAdmin(){show("adminPage")}
+function goAppeal(){show("appealPage")}
+
+// 顶部时间
+setInterval(()=>{
+  let d = new Date();
+  document.getElementById("timeBar").innerText = d.toLocaleString();
+},1000);
+
+// 登录
+async function login(){
+  let u=document.getElementById("user").value,pw=document.getElementById("pwd").value
+  if(!u||!pw)return alert("请输入账号密码")
+  let {data}=await sb.from("users").select().eq("username",u).eq("password",pw)
+  if(data.length){
+    user=data[0];alert("登录成功");goHome()
+  }else alert("账号或密码错误")
 }
 
-async function login() {
-  let u = document.getElementById('user').value
-  let p = document.getElementById('pwd').value
-  if(!u||!p)return alert('请输入账号密码')
-  
-  let {data} = await sb.from('users').select().eq('username',u).eq('password',p)
-  if(data.length>0){
-    alert('登录成功')
-    goPage('homePage')
-  }else{
-    alert('账号或密码错误')
-  }
+// 注册
+async function reg(){
+  let u=document.getElementById("user").value,pw=document.getElementById("pwd").value
+  if(!u||!pw)return alert("请输入账号密码")
+  let {data}=await sb.from("users").select().eq("username",u)
+  if(data.length)return alert("账号已存在")
+  await sb.from("users").insert([{username:u,password:pw,status:"正常"}])
+  alert("注册成功！请登录")
 }
 
-async function register() {
-  let u = document.getElementById('user').value
-  let p = document.getElementById('pwd').value
-  if(!u||!p)return alert('请输入账号密码')
-  
-  let {data} = await sb.from('users').select().eq('username',u)
-  if(data.length>0)return alert('账号已存在')
-  
-  await sb.from('users').insert([{username:u,password:p}])
-  alert('注册成功！请登录')
+// 退出
+function logout(){user=null;show("loginPage")}
+
+// 发布视频
+async function upload(){
+  if(!user)return alert("请先登录")
+  let f=document.getElementById("videoFile").files[0]
+  let t=document.getElementById("title").value
+  if(!f)return alert("请选择视频")
+  let url=URL.createObjectURL(f)
+  await sb.from("videos").insert([{user_id:user.id,title:t,url:url,likes:0}])
+  alert("发布成功");goHome()
+}
+
+// 加载视频
+async function loadVideos(){
+  let {data}=await sb.from("videos").select("*,users(username)").order("id",{ascending:false})
+  let list=document.getElementById("videoList")
+  list.innerHTML=""
+  data.forEach(v=>{
+    let div=document.createElement("div")
+    div.className="item"
+    div.innerHTML=`
+      <div class="video-box"><video src="${v.url}" controls></video></div>
+      <p>@${v.users.username}</p>
+      <p>${v.title}</p>
+      <p>点赞：${v.likes}</p>
+      <button onclick="like(${v.id})">点赞</button>
+      <button onclick="report(${v.id})">举报</button>
+      <br>
+      <input placeholder="写评论..." id="c${v.id}">
+      <button onclick="sendComment(${v.id})">发评论</button>
+      <div id="clist${v.id}"></div>
+    `
+    list.appendChild(div)
+    loadComment(v.id)
+  })
+}
+
+// 点赞
+async function like(id){
+  let {data}=await sb.from("videos").select("likes").eq("id",id).single()
+  await sb.from("videos").update({likes:(data.likes||0)+1}).eq("id",id)
+  loadVideos()
+}
+
+// 举报
+async function report(vid){
+  if(!user)return alert("请登录")
+  await sb.from("reports").insert([{video_id:vid,user_id:user.id,content:"违规内容"}])
+  alert("举报成功")
+}
+
+// 评论
+async function sendComment(vid){
+  if(!user)return alert("请登录")
+  let txt=document.getElementById("c"+vid).value
+  if(!txt)return
+  await sb.from("comments").insert([{video_id:vid,user_id:user.id,content:txt}])
+  document.getElementById("c"+vid).value=""
+  loadComment(vid)
+}
+
+async function loadComment(vid){
+  let {data}=await sb.from("comments").select("*,users(username)").eq("video_id",vid)
+  let box=document.getElementById("clist"+vid)
+  box.innerHTML=""
+  data.forEach(c=>{
+    let d=document.createElement("div")
+    d.className="comment"
+    d.innerText=`@${c.users.username}：${c.content}`
+    box.appendChild(d)
+  })
+}
+
+// 我的视频
+async function loadMy(){
+  if(!user)return
+  document.getElementById("myName").innerText="用户："+user.username
+  let {data}=await sb.from("videos").select().eq("user_id",user.id)
+  let my=document.getElementById("myVideos")
+  my.innerHTML=""
+  data.forEach(v=>{
+    let div=document.createElement("div")
+    div.className="item"
+    div.innerHTML=`<div class="video-box"><video src="${v.url}" controls></video></div><p>${v.title}</p>`
+    my.appendChild(div)
+  })
+}
+
+// 私信
+async function sendMsg(){
+  if(!user)return alert("请登录")
+  let to=document.getElementById("toUser").value
+  let txt=document.getElementById("msgText").value
+  if(!to||!txt)return
+  await sb.from("messages").insert([{from_uid:user.id,to_user:to,content:txt}])
+  alert("发送成功")
+  document.getElementById("msgText").value=""
+}
+
+async function loadMsgs(){
+  if(!user)return
+  let {data}=await sb.from("messages").select().eq("to_user",user.username)
+  let list=document.getElementById("msgList")
+  list.innerHTML=""
+  data.forEach(m=>{
+    let d=document.createElement("div")
+    d.className="comment"
+    d.innerText=`来自${m.from_uid}：${m.content}`
+    list.appendChild(d)
+  })
+}
+
+// 申诉
+async function sendAppeal(){
+  if(!user)return alert("请登录")
+  let txt=document.getElementById("appealText").value
+  if(!txt)return alert("请写理由")
+  await sb.from("appeals").insert([{uid:user.id,reason:txt}])
+  alert("申诉提交成功")
+}
+
+// 管理员
+function adminLogin(){
+  let p=document.getElementById("adminPwd").value
+  if(p===ADMIN_PWD)alert("管理员登录成功")
+  else alert("密码错误")
+}
+
+async function banUser(){
+  let uid=document.getElementById("banUser").value
+  await sb.from("users").update({status:"封禁"}).eq("id",uid)
+  alert("已封禁")
+}
+
+async function unbanUser(){
+  let uid=document.getElementById("unbanUser").value
+  await sb.from("users").update({status:"正常"}).eq("id",uid)
+  alert("已解封")
+}
+
+async function showReports(){
+  let {data}=await sb.from("reports").select()
+  document.getElementById("reportList").innerText=JSON.stringify(data)
+}
+
+async function showAppeals(){
+  let {data}=await sb.from("appeals").select()
+  document.getElementById("appealList").innerText=JSON.stringify(data)
 }
 </script>
 </body>
