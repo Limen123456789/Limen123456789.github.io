@@ -3,246 +3,96 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>离门团队视频（服务器最终版）</title>
+<title>离门团队视频（服务器版）</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#000;color:#fff;font-family:"Microsoft YaHei",sans-serif;overflow:hidden}
-.hidden{display:none !important}
-
-.top-bar{position:fixed;top:0;left:0;width:100%;height:46px;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:space-between;padding:0 14px}
-.time-text{font-size:13px;color:#fff}
-
-.tab-bar{position:fixed;bottom:0;left:0;width:100%;height:50px;background:#111;display:flex;align-items:center;justify-content:space-around;z-index:9999;border-top:1px solid #333}
-.tab-item{display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;color:#999;cursor:pointer}
-.tab-item.active{color:#fff}
-.tab-plus{width:50px;height:50px;border-radius:50%;background:#070;display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;margin-top:-10px}
-
-.video-page{width:100vw;height:calc(100vh - 50px);position:relative}
-video{width:100%;height:100%;object-fit:cover}
-
-.video-info{position:absolute;left:14px;bottom:80px;z-index:10}
-.username{font-size:16px;font-weight:bold;margin-bottom:6px}
-.avatar{width:40px;height:40px;border-radius:50%;background:#070;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
-
-.right-bar{position:absolute;right:14px;bottom:80px;display:flex;flex-direction:column;gap:18px;z-index:10}
-.icon-btn{width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;font-size:18px}
-
-.auth-page{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;padding:20px;z-index:99999}
-.auth-card{width:100%;max-width:360px;background:#111;padding:24px;border-radius:16px}
-input{width:100%;padding:12px;margin:8px 0;background:#222;border:1px solid #0f0;color:#fff;border-radius:8px}
-button{width:100%;padding:12px;margin:6px 0;background:#070;color:#fff;border:0;border-radius:8px;font-size:16px;cursor:pointer}
-.sec-btn{background:#333}
-
-.modal{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:none;align-items:center;justify-content:center;padding:20px;z-index:9999}
-.modal-content{background:#111;padding:20px;border-radius:12px;width:90%;max-width:350px}
-
-.page{position:fixed;inset:0;background:#000;padding:20px;padding-top:60px;padding-bottom:60px;overflow:auto;z-index:100}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#000;color:#fff;font-family:Arial}
+  .auth{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000}
+  .box{width:90%;max-width:350px;background:#111;padding:20px;border-radius:10px}
+  input{width:100%;padding:12px;margin:8px 0;background:#222;border:1px solid #0f0;color:#fff;border-radius:6px}
+  button{width:100%;padding:12px;margin:6px 0;background:#070;color:#fff;border:0;border-radius:6px}
+  .main{display:none;padding:10px}
+  .video{width:100%;height:250px;background:#000;margin:10px 0}
+  .list{margin-top:20px}
+  .item{background:#111;padding:10px;margin:6px 0;border-radius:6px}
 </style>
 </head>
 <body>
 
+<!-- 登录注册 -->
+<div class="auth" id="auth">
+  <div class="box">
+    <h3>离门团队视频</h3>
+    <input id="user" placeholder="账号">
+    <input id="pwd" type="password" placeholder="密码">
+    <button onclick="reg()">注册</button>
+    <button onclick="login()">登录</button>
+  </div>
+</div>
+
+<!-- 主界面 -->
+<div class="main" id="main">
+  <h3>首页（服务器视频）</h3>
+  <input type="file" id="f" accept="video/*">
+  <button onclick="up()">上传发布</button>
+  <div class="list" id="list"></div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<div class="top-bar">
-  <div class="time-text" id="topTime"></div>
-  <div>离门团队视频</div>
-  <div onclick="openAdmin()">管理</div>
-</div>
-
-<div class="video-page" id="videoPage">
-  <video id="mainVideo" controls></video>
-  <div class="video-info">
-    <div class="avatar">头</div>
-    <div class="username" id="videoUser"></div>
-  </div>
-  <div class="right-bar">
-    <div class="icon-btn" onclick="likeVideo()">❤️</div>
-    <div class="icon-btn" onclick="openReport()">举报</div>
-  </div>
-</div>
-
-<div class="auth-page" id="authPage">
-  <div class="auth-card">
-    <h3>登录 / 注册</h3>
-    <input id="username" placeholder="账号">
-    <input id="password" type="password" placeholder="密码">
-    <button onclick="register()">注册</button>
-    <button onclick="login()" class="sec-btn">登录</button>
-  </div>
-</div>
-
-<div class="tab-bar">
-  <div class="tab-item active" onclick="show('video')">首页</div>
-  <div class="tab-item" onclick="show('upload')">发布</div>
-  <div class="tab-plus" onclick="show('upload')">+</div>
-  <div class="tab-item" onclick="show('me')">我的</div>
-</div>
-
-<div class="page hidden" id="uploadPage">
-  <h3>发布视频</h3>
-  <input type="file" id="videoFile" accept="video/*">
-  <button onclick="uploadVideo()">上传发布</button>
-</div>
-
-<div class="page hidden" id="mePage">
-  <h3>我的作品</h3>
-  <div id="myList"></div>
-</div>
-
-<div class="modal" id="adminModal">
-  <div class="modal-content">
-    <h3>管理员</h3>
-    <input id="apwd" type="password" placeholder="密码">
-    <button onclick="adminLogin()">登录</button>
-    <div id="adminPanel" class="hidden">
-      <button onclick="banUser()">封禁用户</button>
-      <button onclick="unbanUser()">解封</button>
-    </div>
-  </div>
-</div>
-
 <script>
-// 你的服务器（已经填好）
-const SUPABASE_URL = "https://melgyktzmzyednqtmqfz.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lbGd5a3R6bXp5ZWRucXRtcWZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM1NTYwMDAsImV4cCI6MjA1OTEzMjAwMH0.WOzKZnU-8qG0q-6nGJzFmXfL8aG1pG3gG1G2G3G4G5G6";
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// 你的服务器
+const sb = supabase.createClient(
+  "https://melgyktzmzyednqtmqfz.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lbGd5a3R6bXp5ZWRucXRtcWZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM1NTYwMDAsImV4cCI6MjA1OTEzMjAwMH0.WOzKZnU-8qG0q-6nGJzFmXfL8aG1pG3gG1G2G3G4G5G6"
+);
 
-const ADMIN_PWD = "1234567890";
-let currentUser = null;
+let me = null;
 
-// 时间
-setInterval(()=>{
-  document.getElementById("topTime").innerText = new Date().toLocaleString();
-},1000);
-
-// ====================== 注册（已完全修复） ======================
-async function register(){
-  let u = document.getElementById("username").value.trim();
-  let p = document.getElementById("password").value.trim();
-
-  if(!u || !p) return alert("账号密码不能为空");
-
-  // 检查是否已存在
-  let { data: exist } = await supabase
-    .from("users")
-    .select("username")
-    .eq("username", u);
-
-  if (exist.length > 0) return alert("该账号已存在");
-
-  // 插入用户（字段名完全匹配你数据库）
-  let { error } = await supabase
-    .from("users")
-    .insert([{ username: u, password: p }]);
-
-  if (error) {
-    console.error(error);
-    return alert("注册失败：" + error.message);
-  }
-
-  alert("注册成功！现在请登录");
+// 注册（绝对有反应）
+async function reg(){
+  let u = document.getElementById("user").value.trim();
+  let p = document.getElementById("pwd").value.trim();
+  if(!u||!p)return alert("不能为空");
+  let {data} = await sb.from("users").select("*").eq("user",u);
+  if(data.length>0)return alert("已存在");
+  await sb.from("users").insert([{user:u,pwd:p}]);
+  alert("注册成功");
 }
 
-// ====================== 登录（已修复） ======================
+// 登录（绝对有反应）
 async function login(){
-  let u = document.getElementById("username").value.trim();
-  let p = document.getElementById("password").value.trim();
-
-  if(!u || !p) return alert("请输入账号密码");
-
-  let { data, error } = await supabase
-    .from("users")
-    .select("username")
-    .eq("username", u)
-    .eq("password", p);
-
-  if (error) return alert("登录失败");
-  if (data.length === 0) return alert("账号或密码错误");
-
-  currentUser = u;
-  document.getElementById("authPage").classList.add("hidden");
-  loadVideos();
+  let u = document.getElementById("user").value.trim();
+  let p = document.getElementById("pwd").value.trim();
+  if(!u||!p)return alert("请输入");
+  let {data} = await sb.from("users").select("*").eq("user",u).eq("pwd",p);
+  if(!data.length)return alert("账号或密码错误");
+  me = u;
+  document.getElementById("auth").style.display="none";
+  document.getElementById("main").style.display="block";
+  load();
 }
 
-// ====================== 页面切换 ======================
-function show(p){
-  if(!currentUser) return alert("请先登录");
-
-  document.querySelectorAll(".page, .video-page").forEach(i=>i.classList.add("hidden"));
-
-  if(p === "video") document.getElementById("videoPage").classList.remove("hidden");
-  if(p === "upload") document.getElementById("uploadPage").classList.remove("hidden");
-  if(p === "me") document.getElementById("mePage").classList.remove("hidden");
+// 上传视频（服务器）
+async function up(){
+  let file = document.getElementById("f").files[0];
+  if(!file)return alert("选视频");
+  let name = Date.now()+file.name;
+  await sb.storage.from("videos").upload(name,file);
+  let {data} = sb.storage.from("videos").getPublicUrl(name);
+  await sb.from("videos").insert([{user:me,url:data.publicUrl}]);
+  alert("发布成功");
+  load();
 }
 
-// ====================== 加载视频（服务器版） ======================
-async function loadVideos(){
-  let { data, error } = await supabase
-    .from("videos")
-    .select("*")
-    .order("id", { ascending: false });
-
-  if (!data || data.length === 0) return;
-
-  let v = document.getElementById("mainVideo");
-  v.src = data[0].url;
-  document.getElementById("videoUser").innerText = data[0].user;
-  v.play();
+// 加载所有人的视频
+async function load(){
+  let {data} = await sb.from("videos").select("*").order("id",{ascending:false});
+  let html="";
+  data.forEach(i=>{
+    html+=`<div class="item">${i.user} 发布<br><video src="${i.url}" class="video" controls></video></div>`;
+  });
+  document.getElementById("list").innerHTML=html;
 }
-
-// ====================== 上传视频（服务器） ======================
-async function uploadVideo(){
-  let file = document.getElementById("videoFile").files[0];
-  if(!file) return alert("请选择视频");
-
-  let name = Date.now() + "_" + file.name;
-
-  let { error } = await supabase
-    .storage
-    .from("videos")
-    .upload(name, file);
-
-  if(error) return alert("上传失败");
-
-  let { data } = supabase.storage.from("videos").getPublicUrl(name);
-
-  await supabase.from("videos").insert([{
-    user: currentUser,
-    url: data.publicUrl
-  }]);
-
-  alert("发布成功！所有人可见");
-  loadVideos();
-}
-
-// ====================== 管理员 ======================
-function openAdmin(){ document.getElementById("adminModal").style.display = "flex"; }
-function adminLogin(){
-  if(document.getElementById("apwd").value === ADMIN_PWD){
-    document.getElementById("adminPanel").classList.remove("hidden");
-  } else {
-    alert("密码错误");
-  }
-}
-
-async function banUser(){
-  let u = prompt("输入要封禁的用户");
-  if(!u) return;
-  await supabase.from("bans").insert([{ user: u, time: Date.now() + 86400000 }]);
-  alert("已封禁 24 小时");
-}
-
-async function unbanUser(){
-  let u = prompt("输入用户");
-  await supabase.from("bans").delete().eq("user", u);
-  alert("已解封");
-}
-
-// 自动登录检测
-window.onload = async ()=>{
-  let { data } = await supabase.from("users").select("username").limit(1);
-  if(data.length) document.getElementById("authPage").classList.remove("hidden");
-};
 </script>
 </body>
 </html>
