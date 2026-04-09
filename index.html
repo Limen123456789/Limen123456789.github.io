@@ -1,569 +1,77 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>离门团队视频</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Microsoft Yahei", Arial, sans-serif; }
-        body { background: #f5f5f7; color: #1d1d1f; overflow: hidden; }
-        /* 页面容器 */
-        .page { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; }
-        .active { display: block; }
-        /* 登录/注册页 */
-        .auth-page { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 20px; background: #fff; }
-        .auth-page h1 { font-size: 32px; color: #007aff; margin-bottom: 20px; font-weight: 600; }
-        .auth-input { width: 90%; max-width: 400px; height: 50px; background: #f2f2f7; border: 1px solid #d1d1d6; border-radius: 12px; color: #1d1d1f; padding: 0 15px; font-size: 16px; transition: border 0.2s; }
-        .auth-input:focus { outline: none; border-color: #007aff; }
-        .auth-btn { width: 90%; max-width: 400px; height: 50px; background: #007aff; border: none; border-radius: 12px; color: #fff; font-size: 18px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
-        .auth-btn:hover { background: #0066cc; }
-        .auth-switch { color: #007aff; font-size: 14px; cursor: pointer; margin-top: 8px; }
-        .auth-switch:hover { text-decoration: underline; }
-        /* 首页视频流 */
-        .home-page { background: #fff; }
-        .video-container { width: 100%; height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; }
-        .video-item { width: 100%; height: 100%; scroll-snap-align: start; position: relative; background: #000; }
-        .video-player { width: 100%; height: 100%; object-fit: cover; }
-        .video-info { position: absolute; bottom: 80px; left: 15px; z-index: 10; }
-        .video-username { font-size: 16px; font-weight: 600; color: #fff; margin-bottom: 8px; text-shadow: 0 0 4px rgba(0,0,0,0.8); }
-        .video-desc { font-size: 14px; color: #fff; max-width: 70%; text-shadow: 0 0 4px rgba(0,0,0,0.8); line-height: 1.4; }
-        .video-actions { position: absolute; bottom: 80px; right: 15px; z-index: 10; display: flex; flex-direction: column; gap: 20px; align-items: center; }
-        .action-btn { background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .action-icon { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 20px; }
-        .action-text { font-size: 12px; color: #fff; text-shadow: 0 0 4px rgba(0,0,0,0.8); }
-        .action-btn.liked .action-icon { color: #ff3b30; }
-        .action-btn.followed .action-icon { color: #007aff; }
-        /* 底部导航 */
-        .nav-bar { position: absolute; bottom: 0; left: 0; width: 100%; height: 60px; background: #fff; border-top: 1px solid #d1d1d6; display: flex; justify-content: space-around; align-items: center; z-index: 100; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; color: #8e8e93; font-size: 10px; transition: color 0.2s; }
-        .nav-item.active { color: #007aff; }
-        .nav-icon { font-size: 24px; }
-        /* 上传页 */
-        .upload-page { background: #fff; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
-        .upload-title { font-size: 20px; font-weight: 600; color: #1d1d1f; margin-bottom: 8px; }
-        .upload-input { width: 100%; height: 50px; background: #f2f2f7; border: 1px solid #d1d1d6; border-radius: 12px; color: #1d1d1f; padding: 0 15px; font-size: 16px; }
-        .upload-file { width: 100%; height: 120px; background: #f2f2f7; border: 2px dashed #007aff; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #007aff; font-size: 16px; cursor: pointer; }
-        .upload-file input { display: none; }
-        .upload-btn { width: 100%; height: 50px; background: #007aff; border: none; border-radius: 12px; color: #fff; font-size: 18px; font-weight: 600; cursor: pointer; margin-top: 20px; }
-        /* 个人主页 */
-        .profile-page { background: #fff; padding: 20px; }
-        .profile-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #d1d1d6; }
-        .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: #007aff; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 32px; font-weight: 600; }
-        .profile-info { flex: 1; }
-        .profile-username { font-size: 20px; font-weight: 600; color: #1d1d1f; margin-bottom: 4px; }
-        .profile-stats { display: flex; gap: 20px; font-size: 14px; color: #8e8e93; }
-        .profile-stat { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-        .profile-stat-num { font-size: 16px; font-weight: 600; color: #1d1d1f; }
-        .logout-btn { width: 100%; height: 50px; background: #ff3b30; border: none; border-radius: 12px; color: #fff; font-size: 18px; font-weight: 600; cursor: pointer; margin-top: 20px; }
-        /* 评论弹窗 */
-        .comment-modal { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; border-radius: 16px 16px 0 0; z-index: 200; transform: translateY(100%); transition: transform 0.3s; max-height: 70%; overflow-y: auto; }
-        .comment-modal.active { transform: translateY(0); }
-        .comment-header { padding: 16px; border-bottom: 1px solid #d1d1d6; display: flex; justify-content: space-between; align-items: center; }
-        .comment-title { font-size: 16px; font-weight: 600; color: #1d1d1f; }
-        .comment-close { background: none; border: none; font-size: 24px; color: #8e8e93; cursor: pointer; }
-        .comment-list { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
-        .comment-item { display: flex; gap: 12px; }
-        .comment-avatar { width: 36px; height: 36px; border-radius: 50%; background: #007aff; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; font-weight: 600; flex-shrink: 0; }
-        .comment-content { flex: 1; }
-        .comment-username { font-size: 14px; font-weight: 600; color: #1d1d1f; margin-bottom: 4px; }
-        .comment-text { font-size: 14px; color: #1d1d1f; line-height: 1.4; }
-        .comment-input-box { padding: 16px; border-top: 1px solid #d1d1d6; display: flex; gap: 12px; align-items: center; }
-        .comment-input { flex: 1; height: 40px; background: #f2f2f7; border: 1px solid #d1d1d6; border-radius: 20px; padding: 0 15px; font-size: 14px; }
-        .comment-send { background: #007aff; border: none; border-radius: 20px; padding: 0 16px; height: 40px; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; }
-        /* 举报弹窗 */
-        .report-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 300; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .report-modal.active { display: flex; }
-        .report-box { width: 90%; max-width: 400px; background: #fff; border-radius: 16px; padding: 20px; }
-        .report-title { font-size: 18px; font-weight: 600; color: #1d1d1f; margin-bottom: 16px; text-align: center; }
-        .report-option { width: 100%; height: 50px; background: #f2f2f7; border: none; border-radius: 12px; color: #1d1d1f; font-size: 16px; text-align: left; padding: 0 15px; margin-bottom: 12px; cursor: pointer; }
-        .report-option:hover { background: #e5e5ea; }
-        .report-cancel { width: 100%; height: 50px; background: #ff3b30; border: none; border-radius: 12px; color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 8px; }
-        /* 加载动画 - 修复版 */
-        .loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 999; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #007aff; }
-        .loading.hidden { display: none; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>离门团队视频</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+  body{background:#fff;color:#000}
+  .box{padding:30px;text-align:center}
+  input{width:80%;padding:12px;margin:8px;border:1px solid #000;border-radius:6px}
+  button{padding:12px 25px;margin:6px;background:#007aff;color:#fff;border:0;border-radius:6px;width:80%}
+  .page{display:none}
+  .show{display:block}
+</style>
 </head>
 <body>
-    <!-- 加载页 -->
-    <div class="loading" id="loading">加载中...</div>
 
-    <!-- 登录/注册页 -->
-    <div class="page auth-page" id="authPage">
-        <h1>离门团队视频</h1>
-        <input type="text" class="auth-input" id="authUsername" placeholder="请输入账号">
-        <input type="password" class="auth-input" id="authPassword" placeholder="请输入密码">
-        <button class="auth-btn" id="loginBtn">登录</button>
-        <button class="auth-btn" id="registerBtn">注册</button>
-        <span class="auth-switch" id="switchAuth">没有账号？去注册</span>
-    </div>
+<!-- 登录注册页（默认直接显示，无加载） -->
+<div class="page show" id="loginPage">
+  <div class="box">
+    <h2>离门团队视频</h2>
+    <input id="user" placeholder="账号">
+    <input id="pwd" type="password" placeholder="密码">
+    <button onclick="login()">登录</button>
+    <button onclick="register()">注册</button>
+  </div>
+</div>
 
-    <!-- 首页 -->
-    <div class="page home-page" id="homePage">
-        <div class="video-container" id="videoContainer"></div>
-        <div class="nav-bar">
-            <div class="nav-item active" data-page="home">
-                <div class="nav-icon">🏠</div>
-                <span>首页</span>
-            </div>
-            <div class="nav-item" data-page="upload">
-                <div class="nav-icon">➕</div>
-                <span>发布</span>
-            </div>
-            <div class="nav-item" data-page="profile">
-                <div class="nav-icon">👤</div>
-                <span>我的</span>
-            </div>
-        </div>
-    </div>
+<!-- 首页 -->
+<div class="page" id="homePage">
+  <div class="box">
+    <h3>首页</h3>
+    <button onclick="goPage('loginPage')">退出登录</button>
+  </div>
+</div>
 
-    <!-- 上传页 -->
-    <div class="page upload-page" id="uploadPage">
-        <div class="nav-bar" style="position: relative;">
-            <div class="nav-item" data-page="home">
-                <div class="nav-icon">🏠</div>
-                <span>首页</span>
-            </div>
-            <div class="nav-item active" data-page="upload">
-                <div class="nav-icon">➕</div>
-                <span>发布</span>
-            </div>
-            <div class="nav-item" data-page="profile">
-                <div class="nav-icon">👤</div>
-                <span>我的</span>
-            </div>
-        </div>
-        <h2 class="upload-title">发布新视频</h2>
-        <label class="upload-file" id="fileLabel">
-            <input type="file" id="videoFile" accept="video/*">
-            点击选择视频文件
-        </label>
-        <input type="text" class="upload-input" id="videoDesc" placeholder="输入视频描述">
-        <button class="upload-btn" id="uploadBtn">发布视频</button>
-    </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const sb = supabase.createClient(
+  "https://melgyktzmzyednqtmqfz.supabase.co",
+  "sb_publishable_iS4ChZxw5ixbg7S-y-Vddw_YQZ6SHMV"
+);
 
-    <!-- 个人主页 -->
-    <div class="page profile-page" id="profilePage">
-        <div class="nav-bar" style="position: relative;">
-            <div class="nav-item" data-page="home">
-                <div class="nav-icon">🏠</div>
-                <span>首页</span>
-            </div>
-            <div class="nav-item" data-page="upload">
-                <div class="nav-icon">➕</div>
-                <span>发布</span>
-            </div>
-            <div class="nav-item active" data-page="profile">
-                <div class="nav-icon">👤</div>
-                <span>我的</span>
-            </div>
-        </div>
-        <div class="profile-header">
-            <div class="profile-avatar" id="profileAvatar">U</div>
-            <div class="profile-info">
-                <div class="profile-username" id="profileUsername">用户名</div>
-                <div class="profile-stats">
-                    <div class="profile-stat">
-                        <span class="profile-stat-num" id="statVideos">0</span>
-                        <span>作品</span>
-                    </div>
-                    <div class="profile-stat">
-                        <span class="profile-stat-num" id="statFollow">0</span>
-                        <span>关注</span>
-                    </div>
-                    <div class="profile-stat">
-                        <span class="profile-stat-num" id="statFans">0</span>
-                        <span>粉丝</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <button class="logout-btn" id="logoutBtn">退出登录</button>
-    </div>
+function goPage(id) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('show'));
+  document.getElementById(id).classList.add('show');
+}
 
-    <!-- 评论弹窗 -->
-    <div class="comment-modal" id="commentModal">
-        <div class="comment-header">
-            <div class="comment-title">评论</div>
-            <button class="comment-close" id="closeComment">×</button>
-        </div>
-        <div class="comment-list" id="commentList"></div>
-        <div class="comment-input-box">
-            <input type="text" class="comment-input" id="commentInput" placeholder="发表评论...">
-            <button class="comment-send" id="sendComment">发送</button>
-        </div>
-    </div>
+async function login() {
+  let u = document.getElementById('user').value
+  let p = document.getElementById('pwd').value
+  if(!u||!p)return alert('请输入账号密码')
+  
+  let {data} = await sb.from('users').select().eq('username',u).eq('password',p)
+  if(data.length>0){
+    alert('登录成功')
+    goPage('homePage')
+  }else{
+    alert('账号或密码错误')
+  }
+}
 
-    <!-- 举报弹窗 -->
-    <div class="report-modal" id="reportModal">
-        <div class="report-box">
-            <div class="report-title">举报该视频</div>
-            <button class="report-option" data-reason="辱骂">辱骂</button>
-            <button class="report-option" data-reason="违法违规">违法违规</button>
-            <button class="report-option" data-reason="抄袭搬运">抄袭搬运</button>
-            <button class="report-option" data-reason="其他">其他</button>
-            <button class="report-cancel" id="cancelReport">取消</button>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        // Supabase 配置（你的真实信息）
-        const supabaseUrl = "https://melgyktzmzyednqtmqfz.supabase.co";
-        const supabaseKey = "sb_publishable_iS4ChZxw5ixbg7S-y-Vddw_YQZ6SHMV";
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-        // 全局变量
-        let currentUser = null;
-        let currentVideoId = null;
-        let isRegisterMode = false;
-
-        // DOM 元素
-        const loading = document.getElementById("loading");
-        const authPage = document.getElementById("authPage");
-        const homePage = document.getElementById("homePage");
-        const uploadPage = document.getElementById("uploadPage");
-        const profilePage = document.getElementById("profilePage");
-        const commentModal = document.getElementById("commentModal");
-        const reportModal = document.getElementById("reportModal");
-        const navItems = document.querySelectorAll(".nav-item");
-
-        // 🔧 核心修复：加载页3秒自动隐藏，首次打开直接显示登录页
-        setTimeout(() => {
-            loading.classList.add("hidden");
-            authPage.classList.add("active");
-        }, 3000);
-
-        // 页面切换
-        function switchPage(pageId) {
-            document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-            document.getElementById(pageId).classList.add("active");
-            navItems.forEach(item => {
-                item.classList.toggle("active", item.dataset.page === pageId);
-            });
-            if (pageId === "homePage") loadVideos();
-            if (pageId === "profilePage") loadProfile();
-            // 切换页面时强制隐藏加载页
-            loading.classList.add("hidden");
-        }
-
-        // 导航绑定
-        navItems.forEach(item => {
-            item.addEventListener("click", () => {
-                const pageMap = { home: "homePage", upload: "uploadPage", profile: "profilePage" };
-                switchPage(pageMap[item.dataset.page]);
-            });
-        });
-
-        // 登录/注册
-        document.getElementById("loginBtn").addEventListener("click", async () => {
-            loading.classList.remove("hidden"); // 登录时显示加载
-            const username = document.getElementById("authUsername").value.trim();
-            const password = document.getElementById("authPassword").value.trim();
-            if (!username || !password) {
-                loading.classList.add("hidden");
-                return alert("请输入账号密码");
-            }
-
-            try {
-                const { data, error } = await supabase
-                    .from("users")
-                    .select("*")
-                    .eq("username", username)
-                    .eq("password", password);
-
-                if (error || data.length === 0) {
-                    loading.classList.add("hidden");
-                    return alert("账号或密码错误");
-                }
-                currentUser = data[0];
-                switchPage("homePage");
-                loading.classList.add("hidden");
-            } catch (err) {
-                loading.classList.add("hidden");
-                alert("网络错误，请重试");
-            }
-        });
-
-        document.getElementById("registerBtn").addEventListener("click", async () => {
-            loading.classList.remove("hidden");
-            const username = document.getElementById("authUsername").value.trim();
-            const password = document.getElementById("authPassword").value.trim();
-            if (!username || !password) {
-                loading.classList.add("hidden");
-                return alert("请输入账号密码");
-            }
-
-            try {
-                const { data: exist } = await supabase
-                    .from("users")
-                    .select("username")
-                    .eq("username", username);
-
-                if (exist.length > 0) {
-                    loading.classList.add("hidden");
-                    return alert("账号已存在");
-                }
-
-                const { error } = await supabase
-                    .from("users")
-                    .insert([{ username, password }]);
-
-                if (error) {
-                    loading.classList.add("hidden");
-                    return alert("注册失败：" + error.message);
-                }
-                alert("注册成功！请登录");
-                isRegisterMode = false;
-                document.getElementById("switchAuth").textContent = "没有账号？去注册";
-                loading.classList.add("hidden");
-            } catch (err) {
-                loading.classList.add("hidden");
-                alert("网络错误，请重试");
-            }
-        });
-
-        document.getElementById("switchAuth").addEventListener("click", () => {
-            isRegisterMode = !isRegisterMode;
-            document.getElementById("loginBtn").style.display = isRegisterMode ? "none" : "block";
-            document.getElementById("registerBtn").style.display = isRegisterMode ? "block" : "block";
-            document.getElementById("switchAuth").textContent = isRegisterMode ? "已有账号？去登录" : "没有账号？去注册";
-        });
-
-        // 加载视频
-        async function loadVideos() {
-            loading.classList.remove("hidden");
-            const container = document.getElementById("videoContainer");
-            container.innerHTML = "";
-
-            try {
-                const { data, error } = await supabase
-                    .from("videos")
-                    .select("*, users(username)")
-                    .order("created_at", { ascending: false });
-
-                if (error) throw error;
-
-                data.forEach(video => {
-                    const item = document.createElement("div");
-                    item.className = "video-item";
-                    item.innerHTML = `
-                        <video class="video-player" src="${video.video_url}" loop></video>
-                        <div class="video-info">
-                            <div class="video-username">@${video.users.username}</div>
-                            <div class="video-desc">${video.description}</div>
-                        </div>
-                        <div class="video-actions">
-                            <button class="action-btn like-btn" data-id="${video.id}">
-                                <div class="action-icon">❤️</div>
-                                <div class="action-text">${video.likes || 0}</div>
-                            </button>
-                            <button class="action-btn comment-btn" data-id="${video.id}">
-                                <div class="action-icon">💬</div>
-                                <div class="action-text">评论</div>
-                            </button>
-                            <button class="action-btn follow-btn" data-id="${video.id}" data-user="${video.user_id}">
-                                <div class="action-icon">➕</div>
-                                <div class="action-text">关注</div>
-                            </button>
-                            <button class="action-btn report-btn" data-id="${video.id}">
-                                <div class="action-icon">⚠️</div>
-                                <div class="action-text">举报</div>
-                            </button>
-                        </div>
-                    `;
-                    container.appendChild(item);
-
-                    // 视频自动播放
-                    const player = item.querySelector(".video-player");
-                    const observer = new IntersectionObserver((entries) => {
-                        entries.forEach(entry => {
-                            if (entry.isIntersecting) {
-                                player.play().catch(e => console.log(e));
-                            } else {
-                                player.pause();
-                            }
-                        });
-                    });
-                    observer.observe(player);
-                });
-
-                // 绑定事件
-                bindVideoEvents();
-                loading.classList.add("hidden");
-            } catch (err) {
-                loading.classList.add("hidden");
-                alert("加载视频失败，请重试");
-            }
-        }
-
-        // 绑定视频事件
-        function bindVideoEvents() {
-            // 点赞
-            document.querySelectorAll(".like-btn").forEach(btn => {
-                btn.addEventListener("click", async () => {
-                    const id = btn.dataset.id;
-                    const { data } = await supabase.from("videos").select("likes").eq("id", id).single();
-                    await supabase.from("videos").update({ likes: (data.likes || 0) + 1 }).eq("id", id);
-                    btn.querySelector(".action-text").textContent = (data.likes || 0) + 1;
-                    btn.classList.add("liked");
-                });
-            });
-
-            // 评论
-            document.querySelectorAll(".comment-btn").forEach(btn => {
-                btn.addEventListener("click", () => {
-                    currentVideoId = btn.dataset.id;
-                    loadComments();
-                    commentModal.classList.add("active");
-                });
-            });
-
-            // 关注
-            document.querySelectorAll(".follow-btn").forEach(btn => {
-                btn.addEventListener("click", () => {
-                    btn.classList.add("followed");
-                    btn.querySelector(".action-icon").textContent = "✅";
-                });
-            });
-
-            // 举报
-            document.querySelectorAll(".report-btn").forEach(btn => {
-                btn.addEventListener("click", () => {
-                    currentVideoId = btn.dataset.id;
-                    reportModal.classList.add("active");
-                });
-            });
-        }
-
-        // 加载评论
-        async function loadComments() {
-            const list = document.getElementById("commentList");
-            list.innerHTML = "";
-
-            const { data, error } = await supabase
-                .from("comments")
-                .select("*, users(username)")
-                .eq("video_id", currentVideoId)
-                .order("created_at", { ascending: false });
-
-            if (error) return console.error(error);
-
-            data.forEach(comment => {
-                const item = document.createElement("div");
-                item.className = "comment-item";
-                item.innerHTML = `
-                    <div class="comment-avatar">${comment.users.username.charAt(0).toUpperCase()}</div>
-                    <div class="comment-content">
-                        <div class="comment-username">${comment.users.username}</div>
-                        <div class="comment-text">${comment.content}</div>
-                    </div>
-                `;
-                list.appendChild(item);
-            });
-        }
-
-        // 发送评论
-        document.getElementById("sendComment").addEventListener("click", async () => {
-            const content = document.getElementById("commentInput").value.trim();
-            if (!content || !currentVideoId || !currentUser) return;
-
-            await supabase.from("comments").insert([{
-                video_id: currentVideoId,
-                user_id: currentUser.id,
-                content
-            }]);
-
-            document.getElementById("commentInput").value = "";
-            loadComments();
-        });
-
-        // 关闭评论
-        document.getElementById("closeComment").addEventListener("click", () => {
-            commentModal.classList.remove("active");
-        });
-
-        // 举报提交
-        document.querySelectorAll(".report-option").forEach(option => {
-            option.addEventListener("click", async () => {
-                await supabase.from("reports").insert([{
-                    video_id: currentVideoId,
-                    reason: option.dataset.reason,
-                    user_id: currentUser.id
-                }]);
-                alert("举报成功，我们会尽快处理");
-                reportModal.classList.remove("active");
-            });
-        });
-
-        document.getElementById("cancelReport").addEventListener("click", () => {
-            reportModal.classList.remove("active");
-        });
-
-        // 上传视频
-        document.getElementById("uploadBtn").addEventListener("click", async () => {
-            loading.classList.remove("hidden");
-            const file = document.getElementById("videoFile").files[0];
-            const desc = document.getElementById("videoDesc").value.trim();
-            if (!file || !currentUser) {
-                loading.classList.add("hidden");
-                return alert("请选择视频并登录");
-            }
-
-            try {
-                // 模拟上传（实际项目可替换为真实存储）
-                const url = URL.createObjectURL(file);
-
-                const { error } = await supabase.from("videos").insert([{
-                    user_id: currentUser.id,
-                    video_url: url,
-                    description: desc,
-                    likes: 0
-                }]);
-
-                if (error) throw error;
-                alert("上传成功！");
-                switchPage("homePage");
-                document.getElementById("videoFile").value = "";
-                document.getElementById("videoDesc").value = "";
-                loading.classList.add("hidden");
-            } catch (err) {
-                loading.classList.add("hidden");
-                alert("上传失败：" + err.message);
-            }
-        });
-
-        // 加载个人主页
-        async function loadProfile() {
-            if (!currentUser) return;
-            document.getElementById("profileUsername").textContent = currentUser.username;
-            document.getElementById("profileAvatar").textContent = currentUser.username.charAt(0).toUpperCase();
-
-            const { data: videos } = await supabase.from("videos").select("id").eq("user_id", currentUser.id);
-            document.getElementById("statVideos").textContent = videos.length;
-        }
-
-        // 退出登录
-        document.getElementById("logoutBtn").addEventListener("click", () => {
-            currentUser = null;
-            switchPage("authPage");
-            document.getElementById("authUsername").value = "";
-            document.getElementById("authPassword").value = "";
-        });
-
-        // 监听文件选择
-        document.getElementById("videoFile").addEventListener("change", (e) => {
-            if (e.target.files[0]) {
-                document.getElementById("fileLabel").textContent = "已选择：" + e.target.files[0].name;
-            }
-        });
-
-        // 🔧 兜底：页面加载完成后，强制隐藏加载页
-        window.addEventListener("load", () => {
-            setTimeout(() => {
-                loading.classList.add("hidden");
-                authPage.classList.add("active");
-            }, 1000);
-        });
-    </script>
+async function register() {
+  let u = document.getElementById('user').value
+  let p = document.getElementById('pwd').value
+  if(!u||!p)return alert('请输入账号密码')
+  
+  let {data} = await sb.from('users').select().eq('username',u)
+  if(data.length>0)return alert('账号已存在')
+  
+  await sb.from('users').insert([{username:u,password:p}])
+  alert('注册成功！请登录')
+}
+</script>
 </body>
 </html>
