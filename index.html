@@ -9,11 +9,13 @@
 body{background:#000;color:#fff;overflow:hidden}
 .page{position:fixed;top:0;left:0;width:100%;height:100%;display:none}
 .page.show{display:block}
+/* 封禁提示栏样式 */
+.ban-tip{position:fixed;top:0;left:0;width:100%;background:#ff0000;color:#fff;padding:10px;text-align:center;font-weight:bold;z-index:9999;display:none}
 .nav{position:fixed;bottom:0;left:0;width:100%;height:55px;background:#000;display:flex;align-items:center;justify-content:space-around;border-top:1px solid #222;z-index:999}
 .nav .item{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;color:#888}
 .nav .item.active{color:#fff}
 .nav .add{width:50px;height:50px;border-radius:50%;background:#ff4500;display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;margin-top:-15px}
-.profile-page{height:100%;overflow:auto;padding-bottom:70px;background:#000}
+.profile-page{height:100%;overflow:auto;padding:50px 0 70px 0;background:#000}
 .profile-header{padding:20px;display:flex;align-items:center;gap:15px;border-bottom:1px solid #222}
 .profile-avatar{width:80px;height:80px;border-radius:50%;background:#333;display:flex;align-items:center;justify-content:center;color:#fff;font-size:32px;font-weight:bold;overflow:hidden;position:relative}
 .profile-avatar img{width:100%;height:100%;object-fit:cover;display:block}
@@ -28,7 +30,7 @@ body{background:#000;color:#fff;overflow:hidden}
 .profile-btn{padding:15px 20px;border-radius:8px;font-size:18px;border:none;width:100%}
 .profile-btn.primary{background:#ff4500;color:#fff}
 .profile-btn.secondary{background:#1a1a1a;color:#fff;border:1px solid #333}
-#appealBtn{display:none}
+#appealBtn{display:block;margin-top:10px}
 .profile-videos{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;min-height:200px}
 .profile-video-item{aspect-ratio:9/16;background:#1a1a1a;position:relative;overflow:hidden;cursor:pointer}
 .profile-video-item video{width:100%;height:100%;object-fit:cover}
@@ -36,7 +38,7 @@ body{background:#000;color:#fff;overflow:hidden}
 .login-box{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:30px;height:100%}
 .login-box input{width:85%;padding:12px;border-radius:8px;background:#111;border:1px solid #333;color:#fff}
 .login-box button{width:85%;padding:12px;border-radius:8px;background:#ff4500;color:#fff;border:0}
-.video-box{width:100%;height:100%;background:#000;overflow:auto;padding-bottom:70px}
+.video-box{width:100%;height:100%;background:#000;overflow:auto;padding:50px 0 70px 0}
 video{width:100%;height:auto;display:block}
 .item{border:1px solid #222;padding:10px;margin:10px 0;border-radius:8px}
 .comment{background:#111;padding:8px;margin:4px 0;border-radius:6px}
@@ -47,6 +49,8 @@ input[type="file"]{color:#fff;display:block;background:#1a1a1a;border:1px solid 
 </style>
 </head>
 <body>
+<!-- 封禁提示栏 -->
+<div class="ban-tip" id="banTip">⚠️ 您的账号已被封禁，部分功能受限，请提交申诉</div>
 
 <div class="page show" id="loginPage">
   <div class="login-box">
@@ -160,6 +164,9 @@ input[type="file"]{color:#fff;display:block;background:#1a1a1a;border:1px solid 
     <div id="reportList"></div>
     <div id="appealList"></div>
   </div>
+  <div class="nav">
+    <div class="item" onclick="go('loginPage')">🏠<div>首页</div></div>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -168,12 +175,35 @@ const sb = supabase.createClient("https://melgyktzmzyednqtmqfz.supabase.co","sb_
 let user=null;
 const ADMIN_PWD="1234567890";
 let videosCache=[];
+const banTip=document.getElementById('banTip');
+
+// 检查账号封禁状态
+function checkBanStatus(){
+  if(!user)return;
+  if(user.status==='封禁'){
+    banTip.style.display='block';
+    // 禁用所有需要权限的按钮
+    document.querySelectorAll('.profile-btn.primary:not(#appealBtn), .add, #uploadPage button, #msgPage button, #homePage button').forEach(btn=>{
+      btn.disabled=true;
+      btn.style.opacity='0.5';
+      btn.style.cursor='not-allowed';
+    });
+  }else{
+    banTip.style.display='none';
+    // 恢复所有按钮
+    document.querySelectorAll('button').forEach(btn=>{
+      btn.disabled=false;
+      btn.style.opacity='1';
+      btn.style.cursor='pointer';
+    });
+  }
+}
 
 function go(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('show'));
   document.getElementById(id).classList.add('show');
   if(id==='homePage')loadVideos();
-  if(id==='mePage')loadMe();
+  if(id==='mePage'){loadMe();checkBanStatus();}
   if(id==='msgPage')loadMsgs();
 }
 
@@ -191,8 +221,16 @@ async function login(){
   if(!u||!p)return alert('请输入账号密码');
   const {data,error}=await sb.from('users').select('*').eq('username',u).eq('password',p);
   if(error||!data.length)return alert('账号或密码错误');
-  user=data[0];toggleAppeal(user.status==='封禁');updateAvatar(user.avatar,user.username);
-  alert('登录成功');go('homePage');
+  user=data[0];
+  // 登录时检查封禁状态
+  if(user.status==='封禁'){
+    alert('⚠️ 您的账号已被封禁，部分功能受限，请提交申诉');
+  }
+  toggleAppeal(user.status==='封禁');
+  updateAvatar(user.avatar,user.username);
+  checkBanStatus();
+  alert('登录成功');
+  go('homePage');
 }
 
 async function reg(){
@@ -204,7 +242,7 @@ async function reg(){
   alert('注册成功！请登录');
 }
 
-function logout(){user=null;go('loginPage');}
+function logout(){user=null;banTip.style.display='none';go('loginPage');}
 
 document.getElementById('avatarFile').onchange=async e=>{
   if(!user)return;const f=e.target.files[0];if(!f)return;
@@ -216,6 +254,8 @@ document.getElementById('avatarFile').onchange=async e=>{
 
 async function upload(){
   if(!user)return alert('请先登录');
+  // 封禁拦截
+  if(user.status==='封禁')return alert('⚠️ 您的账号已被封禁，无法发布作品');
   const f=document.getElementById('vfile').files[0],t=document.getElementById('vtitle').value;
   if(!f||!t)return alert('请选择视频并填写描述');
   const url=URL.createObjectURL(f);
@@ -233,34 +273,121 @@ async function loadVideos(){
   });
 }
 
-async function like(id){const {data}=await sb.from('videos').select('likes').eq('id',id).single();await sb.from('videos').update({likes:(data.likes||0)+1}).eq('id',id);loadVideos();}
-async function report(id){if(!user)return;await sb.from('reports').insert([{video_id:id,user_id:user.id,content:'举报'}]);alert('举报成功');}
-async function cmt(id){const t=document.getElementById(`c${id}`).value;if(!t||!user)return;await sb.from('comments').insert([{video_id:id,user_id:user.id,content:t}]);document.getElementById(`c${id}`).value='';loadCmt(id);}
-async function loadCmt(id){const {data}=await sb.from('comments').select('*,users(username)').eq('video_id',id);document.getElementById(`cc${id}`).innerHTML=data?data.map(c=>`<div class="comment">@${c.users?.username||'未知'}：${c.content}</div>`).join(''):'';}
+async function like(id){
+  if(!user)return alert('请先登录');
+  if(user.status==='封禁')return alert('⚠️ 您的账号已被封禁，无法点赞');
+  const {data}=await sb.from('videos').select('likes').eq('id',id).single();
+  await sb.from('videos').update({likes:(data.likes||0)+1}).eq('id',id);
+  loadVideos();
+}
+
+async function report(id){
+  if(!user)return alert('请先登录');
+  if(user.status==='封禁')return alert('⚠️ 您的账号已被封禁，无法举报');
+  await sb.from('reports').insert([{video_id:id,user_id:user.id,content:'举报'}]);
+  alert('举报成功');
+}
+
+async function cmt(id){
+  if(!user)return alert('请先登录');
+  if(user.status==='封禁')return alert('⚠️ 您的账号已被封禁，无法评论');
+  const t=document.getElementById(`c${id}`).value;
+  if(!t)return alert('请输入评论内容');
+  await sb.from('comments').insert([{video_id:id,user_id:user.id,content:t}]);
+  document.getElementById(`c${id}`).value='';
+  loadCmt(id);
+}
+
+async function loadCmt(id){
+  const {data}=await sb.from('comments').select('*,users(username)').eq('video_id',id);
+  document.getElementById(`cc${id}`).innerHTML=data?data.map(c=>`<div class="comment">@${c.users?.username||'未知'}：${c.content}</div>`).join(''):'';
+}
 
 async function loadMe(){
   if(!user)return;
   document.getElementById('profileUsername').innerText=user.username;
-  toggleAppeal(user.status==='封禁');updateAvatar(user.avatar,user.username);
+  toggleAppeal(user.status==='封禁');
+  updateAvatar(user.avatar,user.username);
   const {data:my}=await sb.from('videos').select('*').eq('user_id',user.id);
   document.getElementById('statVideos').innerText=my.length;
   const box=document.getElementById('myVideos');box.innerHTML='';
   my.forEach(v=>{
     const d=document.createElement('div');d.className='profile-video-item';
     d.innerHTML=`<video src="${v.url}" muted></video>`;
-    d.onclick=()=>{const vid=document.createElement('video');vid.src=v.url;vid.controls=true;vid.style.width='100vw';vid.style.height='100vh';vid.style.position='fixed';vid.style.top=0;vid.style.left=0;vid.style.zIndex=9999;document.body.appendChild(vid);vid.onended=()=>document.body.removeChild(vid);vid.requestFullscreen().catch(()=>{});};
+    d.onclick=()=>{
+      if(user.status==='封禁')return alert('⚠️ 您的账号已被封禁，无法播放');
+      const vid=document.createElement('video');
+      vid.src=v.url;vid.controls=true;vid.style.width='100vw';vid.style.height='100vh';vid.style.position='fixed';vid.style.top=0;vid.style.left=0;vid.style.zIndex=9999;
+      document.body.appendChild(vid);
+      vid.onended=()=>document.body.removeChild(vid);
+      vid.requestFullscreen().catch(()=>{});
+    };
     box.appendChild(d);
   });
 }
 
-async function sendMsg(){if(!user)return;const t=document.getElementById('toUser').value,c=document.getElementById('msgText').value;if(!t||!c)return;await sb.from('messages').insert([{from_uid:user.id,to_user:t,content:c}]);alert('发送成功');loadMsgs();}
-async function loadMsgs(){if(!user)return;const {data}=await sb.from('messages').select('*,users(username)').eq('to_user',user.username);document.getElementById('msgList').innerHTML=data?data.map(m=>`<div class="comment">@${m.users?.username||'未知'}：${m.content}</div>`).join(''):'';}
-async function sendAppeal(){if(!user)return;const t=document.getElementById('appealText').value;if(!t)return;await sb.from('appeals').insert([{uid:user.id,reason:t,status:'待处理'}]);alert('申诉成功');go('mePage');}
-function adminLogin(){if(document.getElementById('adminPwd').value===ADMIN_PWD)alert('管理员登录成功');else alert('密码错误');}
-async function banUser(){const u=document.getElementById('banUid').value;if(!u)return;await sb.from('users').update({status:'封禁'}).eq('id',u);alert('封禁成功');}
-async function unbanUser(){const u=document.getElementById('unbanUid').value;if(!u)return;await sb.from('users').update({status:'正常'}).eq('id',u);alert('解封成功');}
-async function showReports(){const {data}=await sb.from('reports').select();document.getElementById('reportList').innerHTML=data?data.map(r=>`<div class="item">举报视频：${r.video_id}</div>`).join(''):'暂无举报';}
-async function showAppeals(){const {data}=await sb.from('appeals').select();document.getElementById('appealList').innerHTML=data?data.map(a=>`<div class="item">申诉：${a.reason}（${a.status}）</div>`).join(''):'暂无申诉';}
+async function sendMsg(){
+  if(!user)return alert('请先登录');
+  if(user.status==='封禁')return alert('⚠️ 您的账号已被封禁，无法发送私信');
+  const t=document.getElementById('toUser').value,c=document.getElementById('msgText').value;
+  if(!t||!c)return alert('请输入完整内容');
+  await sb.from('messages').insert([{from_uid:user.id,to_user:t,content:c}]);
+  alert('发送成功');loadMsgs();
+}
+
+async function loadMsgs(){
+  if(!user)return;
+  const {data}=await sb.from('messages').select('*,users(username)').eq('to_user',user.username);
+  document.getElementById('msgList').innerHTML=data?data.map(m=>`<div class="comment">@${m.users?.username||'未知'}：${m.content}</div>`).join(''):'';
+}
+
+async function sendAppeal(){
+  if(!user)return alert('请先登录');
+  const t=document.getElementById('appealText').value;
+  if(!t)return alert('请输入申诉理由');
+  await sb.from('appeals').insert([{uid:user.id,reason:t,status:'待处理'}]);
+  alert('申诉提交成功，管理员会尽快处理');
+  go('mePage');
+}
+
+function adminLogin(){
+  if(document.getElementById('adminPwd').value===ADMIN_PWD)alert('管理员登录成功');
+  else alert('密码错误');
+}
+
+async function banUser(){
+  const u=document.getElementById('banUid').value;
+  if(!u)return alert('请输入用户ID');
+  await sb.from('users').update({status:'封禁'}).eq('id',u);
+  alert('封禁成功');
+  // 如果封禁的是当前登录用户，同步更新状态
+  if(user && user.id==u){
+    user.status='封禁';
+    checkBanStatus();
+  }
+}
+
+async function unbanUser(){
+  const u=document.getElementById('unbanUid').value;
+  if(!u)return alert('请输入用户ID');
+  await sb.from('users').update({status:'正常'}).eq('id',u);
+  alert('解封成功');
+  // 如果解封的是当前登录用户，同步更新状态
+  if(user && user.id==u){
+    user.status='正常';
+    checkBanStatus();
+  }
+}
+
+async function showReports(){
+  const {data}=await sb.from('reports').select();
+  document.getElementById('reportList').innerHTML=data?data.map(r=>`<div class="item">举报视频：${r.video_id}，用户ID：${r.user_id}</div>`).join(''):'暂无举报';
+}
+
+async function showAppeals(){
+  const {data}=await sb.from('appeals').select();
+  document.getElementById('appealList').innerHTML=data?data.map(a=>`<div class="item">申诉用户ID：${a.uid}，理由：${a.reason}，状态：${a.status}</div>`).join(''):'暂无申诉';
+}
 </script>
 </body>
 </html>
