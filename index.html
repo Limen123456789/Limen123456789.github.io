@@ -309,12 +309,13 @@ input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3p
 
 <script>
 // ======================
-// 全局存储
+// 全局存储（稳定版，修复数据丢失）
 // ======================
 const DB_KEY = "LIMEN_GLOBAL_DB";
 const USER_KEY = "LIMEN_LOGIN_USER";
 const ADMIN_PWD = "1234567890";
 
+// 初始化默认数据，防止空数据
 function initDB() {
   const defaultDB = { 
     users: [
@@ -476,7 +477,7 @@ function toggleLike() {
 }
 
 // ======================
-// 注册/登录
+// 注册/登录（修复版，加默认账号）
 // ======================
 function doRegister() {
   let user = document.getElementById("regUser").value.trim();
@@ -535,7 +536,7 @@ function goHome() {
 }
 
 // ======================
-// 举报功能
+// 举报功能（彻底修复版，解决异常报错）
 // ======================
 function openReport(user) {
   if (!currentUser) { 
@@ -577,7 +578,7 @@ function submitReport() {
 }
 
 // ======================
-// 管理员后台
+// 管理员后台（修复版+封禁功能）
 // ======================
 function openAdmin() {
   if (!currentUser) { alert("请先登录"); return; }
@@ -593,7 +594,7 @@ function checkAdminPwd() {
 }
 function closeAdmin() { document.getElementById("adminModal").style.display = "none"; }
 
-// 查看所有举报
+// 查看所有举报（修复，显示完整数据+操作按钮）
 function showReports() {
   let reports = getReports();
   let html = "<h5>所有举报（全设备同步）</h5>";
@@ -686,10 +687,12 @@ function showChatLog() {
 }
 
 // ======================
-// 封禁/解封功能（已修复显示）
+// 封禁/解封功能（彻底修复显示问题）
 // ======================
 function openBanManage() {
-  closeAdmin();
+  // 先关闭管理后台弹窗，确保层级正确
+  document.getElementById("adminModal").style.display = "none";
+  // 强制刷新数据
   refreshAllData();
   let users = getUsers();
   let html = "<h5>账号列表</h5>";
@@ -716,11 +719,14 @@ function openBanManage() {
   }
   
   document.getElementById("banUserList").innerHTML = html;
+  // 确保封禁弹窗在最上层显示
+  document.getElementById("banModal").style.zIndex = "99999999";
   document.getElementById("banModal").style.display = "flex";
 }
 
 function closeBanModal() {
   document.getElementById("banModal").style.display = "none";
+  // 返回管理后台弹窗
   document.getElementById("adminModal").style.display = "flex";
 }
 
@@ -938,7 +944,7 @@ function openShare() { alert("分享功能开发中"); }
 function openWorkPage() { alert("我的作品功能开发中"); }
 
 // ======================
-// 初始化
+// 初始化（绑定按钮）
 // ======================
 document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("btnRegister").onclick = doRegister;
