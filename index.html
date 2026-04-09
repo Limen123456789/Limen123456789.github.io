@@ -143,7 +143,6 @@ input[type="file"]{color:#fff;display:block;background:#1a1a1a;border:1px solid 
 <div class="page" id="uploadPage">
   <div class="video-box">
     <h3>发布视频</h3>
-    <!-- 补上视频选择输入框 -->
     <input type="file" id="vfile" accept="video/*" placeholder="选择视频文件">
     <input id="vtitle" placeholder="输入视频描述">
     <button onclick="upload()">发布作品</button>
@@ -378,7 +377,7 @@ document.getElementById('avatarFile').addEventListener('change',async function(e
   }
 });
 
-// 发布作品（修复：完整逻辑）
+// 发布作品
 async function upload(){
   if(!user) return alert('请先登录账号');
   const fileInput = document.getElementById('vfile');
