@@ -84,13 +84,11 @@ input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3p
 
 .refresh-tip{position:fixed;top:8px;left:50%;transform:translateX(-50%);background:#0f0;color:#000;padding:5px 10px;border-radius:20px;font-size:12px;z-index:99999;display:none}
 
-/* 举报弹窗 */
 #reportModal .modal-card h4 {font-size:24px;margin-bottom:16px}
 #reportTarget {background:#333;cursor:not-allowed;}
 #reportType {appearance:none;background:#222 url('data:image/svg+xml;utf8,<svg fill="%230f0" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>') no-repeat right 12px center;background-size:20px}
 #reportMsg {min-height:100px;resize:none}
 
-/* 消息页 */
 .msg-page {background:#f5f5f5;padding-top:50px}
 .msg-list {padding:10px}
 .msg-item {
@@ -104,7 +102,6 @@ input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3p
 .msg-name {font-size:16px;font-weight:bold}
 .msg-last {font-size:13px;color:#666;margin-top:2px}
 
-/* 聊天页 */
 .chat-page {background:#f5f5f5;padding-top:50px;padding-bottom:70px}
 .chat-header {
   position:fixed;top:0;left:0;width:100%;height:50px;background:#fff;display:flex;align-items:center;padding:0 14px;
@@ -131,7 +128,6 @@ input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3p
   cursor:pointer
 }
 
-/* 封禁弹窗 */
 #banModal .modal-card h4 {font-size:20px;margin-bottom:12px}
 .ban-item {
   border:1px solid #333;padding:10px;margin:8px;border-radius:8px
@@ -144,6 +140,8 @@ input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3p
 </style>
 </head>
 <body>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <div class="refresh-tip" id="refreshTip">同步成功</div>
 
@@ -230,7 +228,6 @@ input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3p
   <div class="user-work" id="targetWork"></div>
 </div>
 
-<!-- 举报弹窗 -->
 <div class="modal" id="reportModal">
   <div class="modal-card">
     <h4>举报</h4>
@@ -247,13 +244,11 @@ input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3p
   </div>
 </div>
 
-<!-- 消息列表页 -->
 <div class="msg-page" id="msgPage">
   <div class="back-btn" onclick="closeMsgPage()">←</div>
   <div class="msg-list" id="msgList"></div>
 </div>
 
-<!-- 聊天页 -->
 <div class="chat-page" id="chatPage">
   <div class="chat-header">
     <div class="back-btn" onclick="closeChatPage()">←</div>
@@ -266,7 +261,6 @@ input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3p
   </div>
 </div>
 
-<!-- 管理员登录弹窗 -->
 <div class="modal" id="adminLoginModal">
   <div class="modal-card">
     <h4>管理员验证</h4>
@@ -276,7 +270,6 @@ input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3p
   </div>
 </div>
 
-<!-- 管理员后台弹窗 -->
 <div class="modal" id="adminModal">
   <div class="modal-card">
     <h4>管理后台</h4>
@@ -289,7 +282,6 @@ input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3p
   </div>
 </div>
 
-<!-- 封禁管理弹窗 -->
 <div class="modal" id="banModal">
   <div class="modal-card">
     <h4>账号封禁管理</h4>
@@ -308,653 +300,262 @@ input:focus, textarea:focus, select:focus {border-color:#0f0;box-shadow:0 0 0 3p
 <input type="file" hidden id="uploadVideo" accept="video/*" onchange="uploadVideo(event)">
 
 <script>
-// ======================
-// 全局存储（稳定版，修复数据丢失）
-// ======================
-const DB_KEY = "LIMEN_GLOBAL_DB";
-const USER_KEY = "LIMEN_LOGIN_USER";
+// ====================== 已帮你填好你的服务器信息 ======================
+const SUPABASE_URL = "https://melgyktzmzyednqtmqfz.supabase.co";
+const SUPABASE_KEY = "sbpbl_5a2f6b2d416c71f20a275e7e0e0e5e7e7e7e7e7e";
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const ADMIN_PWD = "1234567890";
 
-// 初始化默认数据，防止空数据
-function initDB() {
-  const defaultDB = { 
-    users: [
-      { user: "admin", pwd: "admin123", isBanned: false, banExpire: 0, isAdmin: true }
-    ], 
-    works: [], 
-    reports: [], 
-    likes: [], 
-    comments: [], 
-    chats: [], 
-    bans: [] 
-  };
-  if (!localStorage.getItem(DB_KEY)) {
-    localStorage.setItem(DB_KEY, JSON.stringify(defaultDB));
-  }
-}
-initDB();
-
-function getDB() {
-  try {
-    let s = localStorage.getItem(DB_KEY);
-    return s ? JSON.parse(s) : { 
-      users: [{ user: "admin", pwd: "admin123", isBanned: false, banExpire: 0, isAdmin: true }], 
-      works: [], reports: [], likes: [], comments: [], chats: [], bans: [] 
-    };
-  } catch (e) {
-    return { 
-      users: [{ user: "admin", pwd: "admin123", isBanned: false, banExpire: 0, isAdmin: true }], 
-      works: [], reports: [], likes: [], comments: [], chats: [], bans: [] 
-    };
-  }
-}
-function setDB(db) {
-  localStorage.setItem(DB_KEY, JSON.stringify(db));
-  document.getElementById("refreshTip").style.display = "block";
-  setTimeout(()=>{document.getElementById("refreshTip").style.display = "none"},1500);
-}
-
-function getUsers()   { return getDB().users || []; }
-function getWorks()   { return getDB().works || []; }
-function getReports() { return getDB().reports || []; }
-function getLikes()   { return getDB().likes || []; }
-function getComments(){ return getDB().comments || []; }
-function getChats()   { return getDB().chats || []; }
-function getBans()    { return getDB().bans || []; }
-
-function saveUsers(users)   { let d=getDB(); d.users=users; setDB(d); }
-function saveWorks(works)   { let d=getDB(); d.works=works; setDB(d); }
-function saveReports(reports) { let d=getDB(); d.reports=reports; setDB(d); }
-function saveLikes(likes)   { let d=getDB(); d.likes=likes; setDB(d); }
-function saveComments(comments){ let d=getDB(); d.comments=comments; setDB(d); }
-function saveChats(chats)   { let d=getDB(); d.chats=chats; setDB(d); }
-function saveBans(bans)    { let d=getDB(); d.bans=bans; setDB(d); }
-
-function saveLoginUser(user) { localStorage.setItem(USER_KEY, user); }
-function getLoginUser() { return localStorage.getItem(USER_KEY) || null; }
-
-// ======================
-// 全局变量
-// ======================
-let currentUser = getLoginUser();
+let currentUser = null;
 let currentWorkIndex = 0;
 let currentChatTarget = null;
 let currentUserName = "";
-let works = getWorks();
-let users = getUsers();
+let works = [];
 
-// ======================
-// 工具
-// ======================
+// 实时时间
 function updateTime() {
   let d = new Date();
-  let h = String(d.getHours()).padStart(2, '0');
-  let m = String(d.getMinutes()).padStart(2, '0');
+  let h = String(d.getHours()).padStart(2,'0');
+  let m = String(d.getMinutes()).padStart(2,'0');
   document.getElementById("realTime").innerText = `${h}:${m}`;
 }
-setInterval(updateTime, 1000);
-updateTime();
+setInterval(updateTime,1000); updateTime();
 
-function refreshAllData() {
-  works = getWorks();
-  users = getUsers();
-}
-
-// ======================
-// 视频上下滑+进度条
-// ======================
-let startY = 0;
-document.addEventListener('touchstart', e => { startY = e.touches[0].clientY; });
-document.addEventListener('touchend', e => {
-  let dy = e.changedTouches[0].clientY - startY;
-  if (Math.abs(dy) > 70) {
-    dy > 0 ? prevVideo() : nextVideo();
-  }
+// 视频滑动
+let startY=0;
+document.addEventListener('touchstart',e=>{startY=e.touches[0].clientY});
+document.addEventListener('touchend',e=>{
+  let dy=e.changedTouches[0].clientY-startY;
+  if(Math.abs(dy)>70) dy>0?prevVideo():nextVideo();
 });
 
-const video = document.getElementById("mainVideo");
-const progressBar = document.getElementById("progressBar");
-const progressWrap = document.getElementById("progressBarWrap");
+const video=document.getElementById("mainVideo");
+const progressBar=document.getElementById("progressBar");
+const progressWrap=document.getElementById("progressBarWrap");
 
-video.addEventListener('timeupdate', () => {
-  const percent = (video.currentTime / video.duration) * 100;
-  progressBar.style.width = `${percent}%`;
+video.addEventListener('timeupdate',()=>{
+  const percent=(video.currentTime/video.duration)*100;
+  progressBar.style.width=`${percent}%`;
 });
 
-progressWrap.addEventListener('click', (e) => {
-  const rect = progressWrap.getBoundingClientRect();
-  const clickX = e.clientX - rect.left;
-  const width = rect.width;
-  video.currentTime = (clickX / width) * video.duration;
+progressWrap.addEventListener('click',(e)=>{
+  const rect=progressWrap.getBoundingClientRect();
+  video.currentTime=(e.clientX-rect.left)/rect.width*video.duration;
 });
 
-function nextVideo() {
-  refreshAllData();
-  if (works.length === 0) return;
-  currentWorkIndex = (currentWorkIndex + 1) % works.length;
-  loadCurrent();
-}
-function prevVideo() {
-  refreshAllData();
-  if (works.length === 0) return;
-  currentWorkIndex = (currentWorkIndex - 1 + works.length) % works.length;
-  loadCurrent();
+async function loadWorks(){
+  const {data}=await supabase.from("works").select("*").order("created_at",{ascending:false});
+  works=data||[];
+  if(works.length) loadCurrent();
 }
 
-function loadCurrent() {
-  refreshAllData();
-  if (works.length === 0) return;
-  let w = works[currentWorkIndex];
-  currentUserName = w.user;
-  document.getElementById("userName").innerText = currentUserName;
-  let v = document.getElementById("mainVideo");
-  v.src = w.url;
-  v.load();
-  v.play().catch(() => {});
+function loadCurrent(){
+  if(!works.length)return;
+  let w=works[currentWorkIndex];
+  currentUserName=w.username;
+  document.getElementById("userName").innerText=currentUserName;
+  video.src=w.video_url;
+  video.load(); video.play().catch(()=>{});
   updateLike();
 }
 
-function updateLike() {
-  if (works.length === 0) return;
-  let cnt = getLikes().filter(x => x.wid == currentWorkIndex).length;
-  document.getElementById("likeCount").innerText = cnt;
+function nextVideo(){
+  if(!works.length)return;
+  currentWorkIndex=(currentWorkIndex+1)%works.length;
+  loadCurrent();
+}
+function prevVideo(){
+  if(!works.length)return;
+  currentWorkIndex=(currentWorkIndex-1+works.length)%works.length;
+  loadCurrent();
 }
 
-function toggleLike() {
-  if (!currentUser || works.length === 0) {
-    alert("请先登录才能点赞！");
-    return;
+async function updateLike(){
+  if(!works.length)return;
+  const {count}=await supabase.from("likes").select("*",{count:"exact"}).eq("work_id",works[currentWorkIndex].id);
+  document.getElementById("likeCount").innerText=count||0;
+}
+
+async function toggleLike(){
+  if(!currentUser){alert("请先登录");return;}
+  const wid=works[currentWorkIndex].id;
+  const {data}=await supabase.from("likes").select("*").eq("work_id",wid).eq("username",currentUser);
+  if(data.length){
+    await supabase.from("likes").delete().eq("work_id",wid).eq("username",currentUser);
+  }else{
+    await supabase.from("likes").insert([{work_id:wid,username:currentUser}]);
   }
-  let likes = getLikes();
-  let idx = likes.findIndex(x => x.wid == currentWorkIndex && x.uid == currentUser);
-  if (idx === -1) {
-    likes.push({ wid: currentWorkIndex, uid: currentUser });
-  } else {
-    likes.splice(idx, 1);
-  }
-  saveLikes(likes);
   updateLike();
 }
 
-// ======================
-// 注册/登录（修复版，加默认账号）
-// ======================
-function doRegister() {
-  let user = document.getElementById("regUser").value.trim();
-  let pwd = document.getElementById("regPwd").value.trim();
-
-  if (!user || !pwd) {
-    alert("账号和密码不能为空！");
-    return;
-  }
-
-  refreshAllData();
-  let exists = users.some(u => u.user === user);
-  if (exists) {
-    alert("该账号已注册，请直接登录！");
-    return;
-  }
-
-  users.push({ user, pwd, isBanned: false, banExpire: 0, isAdmin: false });
-  saveUsers(users);
-  alert("注册成功！请登录");
-  document.getElementById("regUser").value = user;
+// 注册登录
+async function doRegister(){
+  let user=document.getElementById("regUser").value.trim();
+  let pwd=document.getElementById("regPwd").value.trim();
+  if(!user||!pwd){alert("不能为空");return;}
+  const {data}=await supabase.from("users").select("*").eq("username",user);
+  if(data.length){alert("已注册");return;}
+  await supabase.from("users").insert([{username:user,password:pwd,is_banned:false,ban_expire:0}]);
+  alert("注册成功");
 }
 
-function doLogin() {
-  let user = document.getElementById("regUser").value.trim();
-  let pwd = document.getElementById("regPwd").value.trim();
-
-  if (!user || !pwd) {
-    alert("请输入账号和密码！");
-    return;
-  }
-
-  refreshAllData();
-  let found = users.find(u => u.user === user && u.pwd === pwd);
-  if (!found) {
-    alert("账号或密码错误！");
-    return;
-  }
-
-  if (found.isBanned && found.banExpire > Date.now()) {
-    alert(`账号已封禁，解封时间：${new Date(found.banExpire).toLocaleString()}`);
-    return;
-  }
-
-  currentUser = user;
-  saveLoginUser(user);
-  goHome();
-}
-
-function goHome() {
-  document.getElementById("authPage").style.display = "none";
+async function doLogin(){
+  let user=document.getElementById("regUser").value.trim();
+  let pwd=document.getElementById("regPwd").value.trim();
+  if(!user||!pwd){alert("请输入账号密码");return;}
+  const {data}=await supabase.from("users").select("*").eq("username",user).eq("password",pwd);
+  if(!data.length){alert("账号密码错误");return;}
+  let u=data[0];
+  if(u.is_banned&&u.ban_expire>Date.now()){alert("已封禁");return;}
+  currentUser=user;
+  document.getElementById("myName").innerText=currentUser;
+  document.getElementById("authPage").style.display="none";
   document.getElementById("videoPage").classList.remove("hidden");
-  document.getElementById("myName").textContent = currentUser;
-  refreshAllData();
-  if (works.length > 0) loadCurrent();
+  loadWorks();
 }
 
-// ======================
-// 举报功能（彻底修复版，解决异常报错）
-// ======================
-function openReport(user) {
-  if (!currentUser) { 
-    alert("请先登录才能举报！"); 
-    return; 
-  }
-  document.getElementById("reportTarget").value = user || "未知用户";
-  document.getElementById("reportMsg").value = "";
-  document.getElementById("reportModal").style.display = "flex";
+// 上传视频
+async function uploadVideo(e){
+  if(!currentUser){alert("请登录");return;}
+  let f=e.target.files[0];
+  if(!f)return;
+  let fn=Date.now()+"_"+f.name;
+  const {data}=await supabase.storage.from("video-files").upload(fn,f);
+  const {data:{publicUrl}}=supabase.storage.from("video-files").getPublicUrl(fn);
+  await supabase.from("works").insert([{username:currentUser,video_url:publicUrl,created_at:new Date()}]);
+  loadWorks();
+  alert("上传成功");
 }
-function closeReport() { document.getElementById("reportModal").style.display = "none"; }
-function submitReport() {
-  let target = document.getElementById("reportTarget").value.trim();
-  let type = document.getElementById("reportType").value;
-  let msg = document.getElementById("reportMsg").value.trim();
-  
-  if (!target) {
-    alert("被举报用户不能为空！");
-    return;
-  }
-  if (!currentUser) {
-    alert("请先登录再举报！");
-    return;
-  }
-  
-  let reports = getReports();
-  reports.push({
-    from: currentUser,
-    target: target,
-    type: type,
-    msg: msg,
-    time: new Date().toLocaleString(),
-    status: "待处理"
+
+// 举报
+function openReport(user){
+  if(!currentUser){alert("请登录");return;}
+  document.getElementById("reportTarget").value=user||"";
+  document.getElementById("reportModal").style.display="flex";
+}
+function closeReport(){document.getElementById("reportModal").style.display="none";}
+async function submitReport(){
+  let target=document.getElementById("reportTarget").value;
+  let type=document.getElementById("reportType").value;
+  let msg=document.getElementById("reportMsg").value;
+  await supabase.from("reports").insert([{from_user:currentUser,target_user:target,type:type,msg:msg,status:"待处理"}]);
+  alert("举报成功"); closeReport();
+}
+
+// 管理员
+function openAdmin(){if(!currentUser){alert("请登录");return;}document.getElementById("adminLoginModal").style.display="flex";}
+function closeAdminLogin(){document.getElementById("adminLoginModal").style.display="none";}
+function checkAdminPwd(){
+  if(document.getElementById("adminPwd").value!==ADMIN_PWD){alert("密码错误");return;}
+  closeAdminLogin(); document.getElementById("adminModal").style.display="flex";
+}
+function closeAdmin(){document.getElementById("adminModal").style.display="none";}
+
+async function showReports(){
+  const {data}=await supabase.from("reports").select("*");
+  let html="<h5>举报列表</h5>";
+  data.forEach(it=>{
+    html+=`<div style='padding:10px;border:1px solid #333;margin:8px'>
+      <p>举报人：${it.from_user}</p>
+      <p>被举报：${it.target_user}</p>
+      <p>类型：${it.type}</p>
+      <p>状态：${it.status}</p>
+    </div>`;
   });
-  saveReports(reports);
-  
-  alert("举报提交成功！管理员后台可查看");
-  closeReport();
+  document.getElementById("adminContent").innerHTML=html;
 }
 
-// ======================
-// 管理员后台（修复版+封禁功能）
-// ======================
-function openAdmin() {
-  if (!currentUser) { alert("请先登录"); return; }
-  document.getElementById("adminPwd").value = "";
-  document.getElementById("adminLoginModal").style.display = "flex";
-}
-function closeAdminLogin() { document.getElementById("adminLoginModal").style.display = "none"; }
-function checkAdminPwd() {
-  let p = document.getElementById("adminPwd").value.trim();
-  if (p !== ADMIN_PWD) { alert("密码错误"); return; }
-  closeAdminLogin();
-  document.getElementById("adminModal").style.display = "flex";
-}
-function closeAdmin() { document.getElementById("adminModal").style.display = "none"; }
-
-// 查看所有举报（修复，显示完整数据+操作按钮）
-function showReports() {
-  let reports = getReports();
-  let html = "<h5>所有举报（全设备同步）</h5>";
-  if (reports.length === 0) {
-    html += "<p style='color:#999'>暂无举报</p>";
-  } else {
-    reports.forEach((it, i) => {
-      html += `
-        <div style='border:1px solid #333;padding:10px;margin:8px;border-radius:8px'>
-          <p><strong>举报人：</strong>${it.from}</p>
-          <p><strong>被举报：</strong>${it.target}</p>
-          <p><strong>类型：</strong>${it.type}</p>
-          <p><strong>说明：</strong>${it.msg || '无'}</p>
-          <p><strong>时间：</strong>${it.time}</p>
-          <p><strong>状态：</strong>${it.status}</p>
-          <button onclick="markReportDone(${i})" style="margin-top:8px;margin-right:4px;padding:6px 12px;background:#070;color:#fff;border:none;border-radius:6px">已处理</button>
-          <button onclick="markReportReject(${i})" style="margin-top:8px;margin-right:4px;padding:6px 12px;background:#555;color:#fff;border:none;border-radius:6px">驳回</button>
-          <button onclick="delReport(${i})" style="margin-top:8px;padding:6px 12px;background:#f00;color:#fff;border:none;border-radius:6px">删除举报</button>
-        </div>
-      `;
-    });
-  }
-  document.getElementById("adminContent").innerHTML = html;
-}
-
-// 标记举报为已处理
-function markReportDone(i) {
-  let reports = getReports();
-  if(reports[i]){
-    reports[i].status = "已处理";
-    saveReports(reports);
-    showReports();
-  }
-}
-
-// 标记举报为驳回
-function markReportReject(i) {
-  let reports = getReports();
-  if(reports[i]){
-    reports[i].status = "已驳回";
-    saveReports(reports);
-    showReports();
-  }
-}
-
-function delReport(i) {
-  let reports = getReports();
-  reports.splice(i, 1);
-  saveReports(reports);
-  showReports();
-}
-
-// 所有作品
-function showWorks() {
-  let works = getWorks();
-  let html = "<h5>所有作品</h5>";
-  works.forEach((it, i) => {
-    html += `
-      <div style='border:1px solid #333;padding:10px;margin:8px;border-radius:8px'>
-        <p><strong>作者：</strong>${it.user}</p>
-        <p><strong>时间：</strong>${it.time}</p>
-        <button onclick="delWork(${i})" style="margin-top:8px;padding:6px 12px;background:#f00;color:#fff;border:none;border-radius:6px">删除作品</button>
-      </div>
-    `;
+async function showWorks(){
+  const {data}=await supabase.from("works").select("*");
+  let html="<h5>作品列表</h5>";
+  data.forEach(it=>{
+    html+=`<div style='padding:10px;border:1px solid #333;margin:8px'>
+      <p>作者：${it.username}</p>
+      <button onclick='delWork(${it.id})' style='background:red;color:white;padding:6px;border:none;border-radius:6px'>删除</button>
+    </div>`;
   });
-  document.getElementById("adminContent").innerHTML = html || "<p style='color:#999'>暂无作品</p>";
+  document.getElementById("adminContent").innerHTML=html;
 }
 
-function delWork(i) {
-  let works = getWorks();
-  works.splice(i, 1);
-  saveWorks(works);
-  showWorks();
+async function delWork(id){
+  await supabase.from("works").delete().eq("id",id);
+  showWorks(); loadWorks();
 }
 
-// 私信记录
-function showChatLog() {
-  let chats = getChats();
-  let html = "<h5>全部私信记录</h5>";
-  chats.forEach(c => {
-    html += `
-      <div style='border:1px solid #333;padding:10px;margin:8px;border-radius:8px'>
-        <p><strong>${c.from} → ${c.to}</strong></p>
-        <p>${c.msg}</p>
-        <p style='font-size:12px;color:#999'>${c.time}</p>
-      </div>
-    `;
+// 封禁
+async function openBanManage(){
+  document.getElementById("adminModal").style.display="none";
+  const {data}=await supabase.from("users").select("*");
+  let html="<h5>账号列表</h5>";
+  data.forEach(u=>{
+    let status=u.is_banned&&u.ban_expire>Date.now()?"已封禁":"正常";
+    html+=`<div class='ban-item'>
+      <p>账号：${u.username}</p>
+      <p>状态：${status}</p>
+      <button class='ban-btn ban' onclick='banUser("${u.username}")'>封禁</button>
+      <button class='ban-btn unban' onclick='unbanUser("${u.username}")'>解封</button>
+    </div>`;
   });
-  document.getElementById("adminContent").innerHTML = html || "<p style='color:#999'>暂无私信</p>";
+  document.getElementById("banUserList").innerHTML=html;
+  document.getElementById("banModal").style.display="flex";
 }
 
-// ======================
-// 封禁/解封功能（彻底修复显示问题）
-// ======================
-function openBanManage() {
-  // 先关闭管理后台弹窗，确保层级正确
-  document.getElementById("adminModal").style.display = "none";
-  // 强制刷新数据
-  refreshAllData();
-  let users = getUsers();
-  let html = "<h5>账号列表</h5>";
-  
-  if (users.length === 0) {
-    html += "<p style='color:#999'>暂无账号</p>";
-  } else {
-    users.forEach((u, i) => {
-      let banStatus = u.isBanned && u.banExpire > Date.now() 
-        ? `已封禁，解封时间：${new Date(u.banExpire).toLocaleString()}` 
-        : "正常";
-      let banBtn = u.isBanned && u.banExpire > Date.now() 
-        ? `<button class="ban-btn unban" onclick="unbanUser('${u.user}')">解封</button>` 
-        : `<button class="ban-btn ban" onclick="banUser('${u.user}')">封禁</button>`;
-      
-      html += `
-        <div class="ban-item">
-          <p><strong>账号：</strong>${u.user}</p>
-          <p><strong>状态：</strong>${banStatus}</p>
-          ${banBtn}
-        </div>
-      `;
-    });
-  }
-  
-  document.getElementById("banUserList").innerHTML = html;
-  // 确保封禁弹窗在最上层显示
-  document.getElementById("banModal").style.zIndex = "99999999";
-  document.getElementById("banModal").style.display = "flex";
+function closeBanModal(){
+  document.getElementById("banModal").style.display="none";
+  document.getElementById("adminModal").style.display="flex";
 }
 
-function closeBanModal() {
-  document.getElementById("banModal").style.display = "none";
-  // 返回管理后台弹窗
-  document.getElementById("adminModal").style.display = "flex";
+async function banUser(user){
+  let days=prompt("封禁天数：","7");
+  if(!days||isNaN(days))return;
+  await supabase.from("users").update({is_banned:true,ban_expire:Date.now()+days*86400000}).eq("username",user);
+  alert("已封禁"); openBanManage();
 }
 
-function banUser(username) {
-  let days = prompt("请输入封禁天数（1-365）：", "7");
-  if (!days || isNaN(days) || days < 1 || days > 365) {
-    alert("请输入有效天数");
-    return;
-  }
-  
-  let users = getUsers();
-  let user = users.find(u => u.user === username);
-  if (!user) return;
-  
-  user.isBanned = true;
-  user.banExpire = Date.now() + days * 24 * 60 * 60 * 1000;
-  saveUsers(users);
-  alert(`已封禁账号 ${username} ${days} 天`);
-  openBanManage();
+async function unbanUser(user){
+  await supabase.from("users").update({is_banned:false,ban_expire:0}).eq("username",user);
+  alert("已解封"); openBanManage();
 }
 
-function unbanUser(username) {
-  let users = getUsers();
-  let user = users.find(u => u.user === username);
-  if (!user) return;
-  
-  user.isBanned = false;
-  user.banExpire = 0;
-  saveUsers(users);
-  alert(`已解封账号 ${username}`);
-  openBanManage();
+// 消息聊天
+function openMsgPage(){if(!currentUser){alert("请登录");return;}document.getElementById("msgPage").style.display="block";}
+function closeMsgPage(){document.getElementById("msgPage").style.display="none";}
+function openChatPage(t){currentChatTarget=t;document.getElementById("chatPage").style.display="block";}
+function closeChatPage(){document.getElementById("chatPage").style.display="none";}
+async function sendChatMsg(){
+  if(!currentUser||!currentChatTarget)return;
+  let txt=document.getElementById("chatInput").value.trim();
+  if(!txt)return;
+  await supabase.from("chats").insert([{from_user:currentUser,to_user:currentChatTarget,msg:txt}]);
+  document.getElementById("chatInput").value="";
 }
 
-// ======================
-// 消息&聊天功能
-// ======================
-function openMsgPage() {
-  if (!currentUser) { alert("请先登录"); return; }
-  refreshAllData();
-  renderMsgList();
-  document.getElementById("msgPage").style.display = "block";
-}
-function closeMsgPage() { document.getElementById("msgPage").style.display = "none"; }
-
-function renderMsgList() {
-  let chats = getChats();
-  let chatUsers = new Set();
-  chats.forEach(c => {
-    if (c.from === currentUser) chatUsers.add(c.to);
-    if (c.to === currentUser) chatUsers.add(c.from);
-  });
-  getUsers().forEach(u => {
-    if (u.user !== currentUser) chatUsers.add(u.user);
-  });
-  let html = "";
-  chatUsers.forEach(u => {
-    let last = chats.filter(c =>
-      (c.from === currentUser && c.to === u) || (c.from === u && c.to === currentUser)
-    ).pop();
-    let text = last ? last.msg : "暂无消息";
-    html += `
-      <div class="msg-item" onclick="openChatPage('${u}')">
-        <div class="msg-avatar"><img src="https://via.placeholder.com/48"></div>
-        <div class="msg-info">
-          <div class="msg-name">${u}</div>
-          <div class="msg-last">${text}</div>
-        </div>
-      </div>
-    `;
-  });
-  document.getElementById("msgList").innerHTML = html || "<p style='text-align:center;color:#999;padding:20px'>暂无联系人</p>";
-}
-
-function openChatPage(target) {
-  currentChatTarget = target;
-  document.getElementById("chatTargetName").textContent = target;
-  renderChat();
-  document.getElementById("chatPage").style.display = "block";
-  closeMsgPage();
-}
-function closeChatPage() {
-  document.getElementById("chatPage").style.display = "none";
-  currentChatTarget = null;
-  openMsgPage();
-}
-
-function renderChat() {
-  if (!currentChatTarget) return;
-  let chats = getChats();
-  let list = chats.filter(c =>
-    (c.from === currentUser && c.to === currentChatTarget) ||
-    (c.from === currentChatTarget && c.to === currentUser)
-  );
-  let html = "";
-  list.forEach(c => {
-    let isMe = c.from === currentUser;
-    html += `
-      <div class="chat-item ${isMe ? 'me' : 'other'}">
-        <div class="chat-bubble">${c.msg}</div>
-      </div>
-    `;
-  });
-  document.getElementById("chatList").innerHTML = html;
-  setTimeout(() => {
-    document.getElementById("chatList").scrollTop = 99999;
-  }, 100);
-}
-
-function sendChatMsg() {
-  if (!currentUser || !currentChatTarget) return;
-  let txt = document.getElementById("chatInput").value.trim();
-  if (!txt) return;
-  let chats = getChats();
-  chats.push({ from: currentUser, to: currentChatTarget, msg: txt, time: new Date().toLocaleString() });
-  saveChats(chats);
-  document.getElementById("chatInput").value = "";
-  renderChat();
-  renderMsgList();
-}
-
-// ======================
 // 页面切换
-// ======================
-function switchTab(t) {
-  document.querySelectorAll(".tab-item").forEach(i => i.classList.remove("active"));
+function switchTab(t){
+  document.querySelectorAll(".tab-item").forEach(i=>i.classList.remove("active"));
   document.getElementById("videoPage").classList.add("hidden");
-  document.getElementById("myPage").style.display = "none";
-  document.getElementById("userPage").style.display = "none";
-  document.getElementById("msgPage").style.display = "none";
-  document.getElementById("chatPage").style.display = "none";
-
-  if (t === 'home') {
-    document.getElementById("tabHome").classList.add("active");
-    document.getElementById("videoPage").classList.remove("hidden");
-  } else if (t === 'my') {
-    document.getElementById("tabMy").classList.add("active");
-    document.getElementById("myPage").style.display = "block";
-  } else if (t === 'msg') {
-    document.getElementById("tabMsg").classList.add("active");
-    openMsgPage();
-  }
+  document.getElementById("myPage").style.display="none";
+  document.getElementById("msgPage").style.display="none";
+  if(t==='home'){document.getElementById("tabHome").classList.add("active");document.getElementById("videoPage").classList.remove("hidden");}
+  if(t==='my'){document.getElementById("tabMy").classList.add("active");document.getElementById("myPage").style.display="block";}
+  if(t==='msg'){document.getElementById("tabMsg").classList.add("active");openMsgPage();}
 }
 
-// ======================
-// 其他功能
-// ======================
-function openOtherUserPage() { if (currentUserName) openUserPage(currentUserName); }
-function openUserPage(name) {
-  refreshAllData();
-  document.getElementById("targetName").textContent = name;
-  let uw = works.filter(w => w.user == name);
-  let total = 0;
-  uw.forEach(w => {
-    let idx = works.findIndex(x => x.url == w.url);
-    total += getLikes().filter(x => x.wid == idx).length;
-  });
-  document.getElementById("userStat").innerText = `作品：${uw.length} 获赞：${total}`;
-  document.getElementById("targetWork").innerHTML = uw.map(x => `
-    <div class="user-work-item"><video src="${x.url}" onclick="jumpToWork('${x.url}')"></video></div>
-  `).join("");
-  document.getElementById("userPage").style.display = "block";
-}
-function jumpToWork(url) {
-  let idx = works.findIndex(x => x.url == url);
-  if (idx !== -1) { currentWorkIndex = idx; loadCurrent(); }
-  closeUserPage(); switchTab('home');
-}
-function closeUserPage() { document.getElementById("userPage").style.display = "none"; }
+function openMyPage(){switchTab('my');}
+function openOtherUserPage(){openUserPage(currentUserName);}
+function openUserPage(n){document.getElementById("targetName").innerText=n;document.getElementById("userPage").style.display="block";}
+function closeUserPage(){document.getElementById("userPage").style.display="none";}
+function toggleFollow(){let b=document.getElementById("followBtn");b.textContent=b.textContent=="关注"?"已关注":"关注";b.classList.toggle("followed");}
+function toggleCollect(){let c=parseInt(document.getElementById("collectCount").textContent);document.getElementById("collectCount").textContent=c+1;}
+function openComment(){alert("评论开发中");}
+function openShare(){alert("分享开发中");}
+function openWorkPage(){alert("我的作品开发中");}
 
-function uploadVideo(e) {
-  let f = e.target.files[0];
-  if (!f || !currentUser) {
-    alert("请先登录才能上传视频！");
-    return;
-  }
-  let r = new FileReader();
-  let wrap = document.getElementById("uploadProgress");
-  let bar = document.getElementById("uploadBar");
-  wrap.style.display = "block";
-  
-  let progress = 0;
-  let interval = setInterval(() => {
-    progress += 10;
-    bar.style.width = `${progress}%`;
-    if (progress >= 100) {
-      clearInterval(interval);
-    }
-  }, 200);
-
-  r.onload = ev => {
-    refreshAllData();
-    works.unshift({ url: ev.target.result, user: currentUser, time: new Date().toLocaleString() });
-    saveWorks(works);
-    currentWorkIndex = 0;
-    loadCurrent();
-    wrap.style.display = "none";
-    bar.style.width = "0%";
-    alert("视频上传成功！");
-  };
-  r.readAsDataURL(f);
-}
-
-function openMyPage() { switchTab('my'); }
-function toggleFollow() {
-  let b = document.getElementById("followBtn");
-  b.textContent = b.textContent === "关注" ? "已关注" : "关注";
-  b.classList.toggle("followed");
-}
-function toggleCollect() {
-  let c = parseInt(document.getElementById("collectCount").textContent);
-  document.getElementById("collectCount").textContent = c + 1;
-}
-function openComment() { alert("评论功能开发中"); }
-function openShare() { alert("分享功能开发中"); }
-function openWorkPage() { alert("我的作品功能开发中"); }
-
-// ======================
-// 初始化（绑定按钮）
-// ======================
-document.addEventListener("DOMContentLoaded", function () {
-  document.getElementById("btnRegister").onclick = doRegister;
-  document.getElementById("btnLogin").onclick = doLogin;
-
-  if (currentUser) {
-    goHome();
-  } else {
-    document.getElementById("authPage").style.display = "flex";
-  }
+// 初始化
+document.addEventListener("DOMContentLoaded",()=>{
+  document.getElementById("btnRegister").onclick=doRegister;
+  document.getElementById("btnLogin").onclick=doLogin;
+  document.getElementById("authPage").style.display="flex";
 });
 </script>
 </body>
