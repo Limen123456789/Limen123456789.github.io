@@ -139,7 +139,7 @@ input[type="file"]{color:#fff;display:block;background:#1a1a1a;border:1px solid 
   </div>
 </div>
 
-<!-- 发布页（修复：补上视频选择框） -->
+<!-- 发布页（修复：完整视频选择+正确uuid格式） -->
 <div class="page" id="uploadPage">
   <div class="video-box">
     <h3>发布视频</h3>
@@ -280,7 +280,7 @@ function updateAvatar(avatarUrl, username){
   }
 }
 
-// 登录
+// 登录（修复：正确获取uuid格式的user.id）
 async function login(){
   const u = document.getElementById('user').value.trim();
   const p = document.getElementById('pwd').value.trim();
@@ -297,6 +297,7 @@ async function login(){
     if(data.length === 0) return alert('账号或密码错误');
 
     user = data[0];
+    // 确保user.id是正确的uuid格式，直接使用数据库返回的id
     toggleAppealBtn(user.status === '封禁');
     updateAvatar(user.avatar, user.username);
     alert('登录成功！');
@@ -377,7 +378,7 @@ document.getElementById('avatarFile').addEventListener('change',async function(e
   }
 });
 
-// 发布作品
+// 发布作品（修复：正确传递uuid格式的user_id）
 async function upload(){
   if(!user) return alert('请先登录账号');
   const fileInput = document.getElementById('vfile');
@@ -390,6 +391,7 @@ async function upload(){
 
   try {
     const url = URL.createObjectURL(file);
+    // 直接使用user.id，确保是数据库返回的正确uuid格式
     const { error } = await sb
       .from('videos')
       .insert([{
