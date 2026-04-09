@@ -11,30 +11,44 @@ body{background:#000;color:#fff;overflow:hidden}
 .page.show{display:block}
 
 /* 快手底部导航 */
-.nav{position:fixed;bottom:0;left:0;width:100%;height:55px;background:#000;display:flex;align-items:center;justify-content:space-around;border-top:1px solid #222}
+.nav{position:fixed;bottom:0;left:0;width:100%;height:55px;background:#000;display:flex;align-items:center;justify-content:space-around;border-top:1px solid #222;z-index:999}
 .nav .item{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;color:#888}
 .nav .item.active{color:#fff}
-.nav .add{width:45px;height:45px;border-radius:50%;background:#ff4500;display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px}
+.nav .add{width:50px;height:50px;border-radius:50%;background:#ff4500;display:flex;align-items:center;justify-content:center;color:#fff;font-size:28px;margin-top:-15px}
 
-/* 视频页 */
-.video-box{width:100%;height:100%;background:#000}
-video{width:100%;height:100%;object-fit:cover}
-.video-info{position:fixed;bottom:70px;left:15px;z-index:10}
-.video-act{position:fixed;bottom:70px;right:15px;display:flex;flex-direction:column;gap:18px;align-items:center}
-.act-btn{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px}
+/* 我的主页（快手风格） */
+.profile-page{height:100%;overflow:auto;padding-bottom:70px;background:#000}
+.profile-header{padding:20px;display:flex;align-items:center;gap:15px;border-bottom:1px solid #222}
+.profile-avatar{width:80px;height:80px;border-radius:50%;background:#333;display:flex;align-items:center;justify-content:center;color:#fff;font-size:32px;font-weight:bold}
+.profile-info{flex:1}
+.profile-username{font-size:20px;font-weight:bold;margin-bottom:8px}
+.profile-stats{display:flex;gap:20px}
+.profile-stat{display:flex;flex-direction:column;align-items:center}
+.profile-stat-num{font-size:18px;font-weight:bold}
+.profile-stat-text{font-size:12px;color:#888}
+.profile-btns{display:flex;gap:10px;margin-top:15px}
+.profile-btn{padding:8px 20px;background:#1a1a1a;border:1px solid #333;border-radius:6px;color:#fff;font-size:14px}
+.profile-btn.primary{background:#ff4500;border:none}
+
+/* 作品列表（快手瀑布流） */
+.profile-videos{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+.profile-video-item{aspect-ratio:9/16;background:#1a1a1a;position:relative;overflow:hidden}
+.profile-video-item video{width:100%;height:100%;object-fit:cover}
+.profile-video-count{position:absolute;top:5px;right:5px;background:rgba(0,0,0,0.7);padding:2px 6px;border-radius:4px;font-size:12px}
 
 /* 登录页 */
-.login-box{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:30px}
+.login-box{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:30px;height:100%}
 .login-box input{width:85%;padding:12px;border-radius:8px;background:#111;border:1px solid #333;color:#fff}
 .login-box button{width:85%;padding:12px;border-radius:8px;background:#ff4500;color:#fff;border:0}
 
-/* 页面样式 */
-.me-box,.msg-box,.upload-box{padding:20px;height:100%;overflow:auto}
+/* 通用样式 */
+.video-box{width:100%;height:100%;background:#000;overflow:auto;padding-bottom:70px}
+video{width:100%;height:auto;display:block}
+.item{border:1px solid #222;padding:10px;margin:10px 0;border-radius:8px}
+.comment{background:#111;padding:8px;margin:4px 0;border-radius:6px}
 input,button{width:100%;margin:6px 0;padding:10px;border-radius:8px}
 input{background:#111;border:1px solid #333;color:#fff}
 button{background:#ff4500;color:#fff;border:0}
-.item{border:1px solid #222;padding:10px;margin:10px 0;border-radius:8px}
-.comment{background:#111;padding:8px;margin:4px 0;border-radius:6px}
 </style>
 </head>
 <body>
@@ -73,7 +87,7 @@ button{background:#ff4500;color:#fff;border:0}
 
 <!-- 消息页 -->
 <div class="page" id="msgPage">
-  <div class="msg-box">
+  <div class="video-box">
     <h3>私信</h3>
     <input id="toUser" placeholder="发给谁">
     <input id="msgText" placeholder="消息内容">
@@ -90,11 +104,12 @@ button{background:#ff4500;color:#fff;border:0}
 
 <!-- 发布页 -->
 <div class="page" id="uploadPage">
-  <div class="upload-box">
+  <div class="video-box">
     <h3>发布视频</h3>
     <input type="file" id="vfile" accept="video/*">
     <input id="vtitle" placeholder="视频说明">
     <button onclick="upload()">发布</button>
+    <button onclick="go('homePage')">返回首页</button>
   </div>
   <div class="nav">
     <div class="item" onclick="go('homePage')">🏠<div>首页</div></div>
@@ -104,26 +119,55 @@ button{background:#ff4500;color:#fff;border:0}
   </div>
 </div>
 
-<!-- 我的页 -->
+<!-- 我的页（快手风格优化版） -->
 <div class="page" id="mePage">
-  <div class="me-box">
-    <h3>我的主页</h3>
-    <p id="myname"></p>
-    <button onclick="go('appealPage')">申诉</button>
-    <button onclick="logout()">退出登录</button>
-    <div id="myVideos"></div>
+  <div class="profile-page">
+    <div class="profile-header">
+      <div class="profile-avatar" id="profileAvatar">U</div>
+      <div class="profile-info">
+        <div class="profile-username" id="profileUsername">用户名</div>
+        <div class="profile-stats">
+          <div class="profile-stat">
+            <span class="profile-stat-num" id="statVideos">0</span>
+            <span class="profile-stat-text">作品</span>
+          </div>
+          <div class="profile-stat">
+            <span class="profile-stat-num" id="statFollow">0</span>
+            <span class="profile-stat-text">关注</span>
+          </div>
+          <div class="profile-stat">
+            <span class="profile-stat-num" id="statFans">0</span>
+            <span class="profile-stat-text">粉丝</span>
+          </div>
+        </div>
+        <div class="profile-btns">
+          <button class="profile-btn primary" onclick="go('appealPage')">账号申诉</button>
+          <button class="profile-btn" onclick="logout()">退出登录</button>
+        </div>
+      </div>
+    </div>
+    <div class="profile-videos" id="myVideos"></div>
   </div>
   <div class="nav">
-    <div class="item" onclick="go('homePage')">🏠<div>首页</div></div>
-    <div class="item" onclick="go('msgPage')">💬<div>消息</div></div>
+    <div class="nav-item" onclick="go('homePage')">
+      <div>🏠</div>
+      <div>首页</div>
+    </div>
+    <div class="nav-item" onclick="go('msgPage')">
+      <div>💬</div>
+      <div>消息</div>
+    </div>
     <div class="add" onclick="go('uploadPage')">+</div>
-    <div class="item active" onclick="go('mePage')">👤<div>我</div></div>
+    <div class="nav-item active" onclick="go('mePage')">
+      <div>👤</div>
+      <div>我</div>
+    </div>
   </div>
 </div>
 
 <!-- 申诉页 -->
 <div class="page" id="appealPage">
-  <div style="padding:20px">
+  <div class="video-box">
     <h3>申诉</h3>
     <input id="appealText" placeholder="申诉理由">
     <button onclick="sendAppeal()">提交申诉</button>
@@ -133,7 +177,7 @@ button{background:#ff4500;color:#fff;border:0}
 
 <!-- 管理员页 -->
 <div class="page" id="adminPage">
-  <div style="padding:20px">
+  <div class="video-box">
     <h3>管理员后台</h3>
     <input id="adminPwd" type="password" placeholder="密码">
     <button onclick="adminLogin()">登录后台</button>
@@ -203,7 +247,7 @@ async function loadVideos(){
     let d=document.createElement('div');
     d.className='item';
     d.innerHTML=`
-      <video src="${v.url}" controls style="width:100%;height:auto"></video>
+      <video src="${v.url}" controls></video>
       <p>@${v.users.username}</p>
       <p>${v.title}</p>
       <p>点赞：${v.likes}</p>
@@ -253,18 +297,33 @@ async function loadComment(vid){
   });
 }
 
-// 我的视频
+// 我的视频（快手瀑布流）
 async function loadMe(){
   if(!user)return;
-  document.getElementById('myname').innerText='用户：'+user.username;
-  let {data}=await sb.from('videos').select().eq('user_id',user.id);
-  let m=document.getElementById('myVideos');m.innerHTML='';
-  data.forEach(v=>{
+  // 填充头像和昵称
+  document.getElementById('profileUsername').innerText=user.username;
+  document.getElementById('profileAvatar').innerText=user.username.charAt(0).toUpperCase();
+  
+  // 加载作品数
+  let {data:videos}=await sb.from('videos').select('id').eq('user_id',user.id);
+  document.getElementById('statVideos').innerText=videos.length;
+  
+  // 瀑布流展示作品
+  let box=document.getElementById('myVideos');box.innerHTML='';
+  videos.forEach(async (v,idx)=>{
+    let {data:videoDetail}=await sb.from('videos').select('url').eq('id',v.id).single();
     let d=document.createElement('div');
-    d.className='item';
-    d.innerHTML=`<video src="${v.url}" controls style="width:100%"></video><p>${v.title}</p>`;
-    m.appendChild(d);
+    d.className='profile-video-item';
+    d.innerHTML=`
+      <video src="${videoDetail.url}" muted></video>
+      <div class="profile-video-count">${idx+1}</div>
+    `;
+    box.appendChild(d);
   });
+  
+  // 关注/粉丝数（模拟，可后续对接真实数据）
+  document.getElementById('statFollow').innerText='0';
+  document.getElementById('statFans').innerText='0';
 }
 
 // 私信
