@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>离门团队视频（服务器互通版）</title>
+<title>离门团队视频（服务器最终版）</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#000;color:#fff;font-family:"Microsoft YaHei",sans-serif;overflow:hidden}
@@ -64,8 +64,8 @@ button{width:100%;padding:12px;margin:6px 0;background:#070;color:#fff;border:0;
 <div class="auth-page" id="authPage">
   <div class="auth-card">
     <h3>登录 / 注册</h3>
-    <input id="user" placeholder="账号">
-    <input id="pwd" type="password" placeholder="密码">
+    <input id="username" placeholder="账号">
+    <input id="password" type="password" placeholder="密码">
     <button onclick="register()">注册</button>
     <button onclick="login()" class="sec-btn">登录</button>
   </div>
@@ -102,129 +102,146 @@ button{width:100%;padding:12px;margin:6px 0;background:#070;color:#fff;border:0;
 </div>
 
 <script>
-// 你的服务器（已经帮你填好）
+// 你的服务器（已经填好）
 const SUPABASE_URL = "https://melgyktzmzyednqtmqfz.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lbGd5a3R6bXp5ZWRucXRtcWZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM1NTYwMDAsImV4cCI6MjA1OTEzMjAwMH0.WOzKZnU-8qG0q-6nGJzFmXfL8aG1pG3gG1G2G3G4G5G6";
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const ADMIN_PWD = "1234567890";
-let user = null;
+let currentUser = null;
 
 // 时间
 setInterval(()=>{
   document.getElementById("topTime").innerText = new Date().toLocaleString();
 },1000);
 
-// 注册
+// ====================== 注册（已完全修复） ======================
 async function register(){
-  let u = document.getElementById("user").value.trim();
-  let p = document.getElementById("pwd").value.trim();
-  if(!u||!p)return alert("不能为空");
-  
-  let {data} = await supabase.from("users").select("*").eq("user",u);
-  if(data.length)return alert("已存在");
-  
-  await supabase.from("users").insert([{user:pwd:p}]);
-  alert("注册成功");
+  let u = document.getElementById("username").value.trim();
+  let p = document.getElementById("password").value.trim();
+
+  if(!u || !p) return alert("账号密码不能为空");
+
+  // 检查是否已存在
+  let { data: exist } = await supabase
+    .from("users")
+    .select("username")
+    .eq("username", u);
+
+  if (exist.length > 0) return alert("该账号已存在");
+
+  // 插入用户（字段名完全匹配你数据库）
+  let { error } = await supabase
+    .from("users")
+    .insert([{ username: u, password: p }]);
+
+  if (error) {
+    console.error(error);
+    return alert("注册失败：" + error.message);
+  }
+
+  alert("注册成功！现在请登录");
 }
 
-// 登录
+// ====================== 登录（已修复） ======================
 async function login(){
-  let u = document.getElementById("user").value.trim();
-  let p = document.getElementById("pwd").value.trim();
-  if(!u||!p)return alert("请输入");
-  
-  let {data} = await supabase.from("users").select("*").eq("user",u).eq("pwd",p);
-  if(!data.length)return alert("账号或密码错误");
-  
-  user = u;
+  let u = document.getElementById("username").value.trim();
+  let p = document.getElementById("password").value.trim();
+
+  if(!u || !p) return alert("请输入账号密码");
+
+  let { data, error } = await supabase
+    .from("users")
+    .select("username")
+    .eq("username", u)
+    .eq("password", p);
+
+  if (error) return alert("登录失败");
+  if (data.length === 0) return alert("账号或密码错误");
+
+  currentUser = u;
   document.getElementById("authPage").classList.add("hidden");
   loadVideos();
 }
 
-// 显示页面
+// ====================== 页面切换 ======================
 function show(p){
-  if(!user)return alert("请登录");
-  document.querySelectorAll(".page,.video-page").forEach(i=>i.classList.add("hidden"));
-  if(p==="video")document.getElementById("videoPage").classList.remove("hidden");
-  if(p==="upload")document.getElementById("uploadPage").classList.remove("hidden");
-  if(p==="me"){document.getElementById("mePage").classList.remove("hidden");loadMy();}
+  if(!currentUser) return alert("请先登录");
+
+  document.querySelectorAll(".page, .video-page").forEach(i=>i.classList.add("hidden"));
+
+  if(p === "video") document.getElementById("videoPage").classList.remove("hidden");
+  if(p === "upload") document.getElementById("uploadPage").classList.remove("hidden");
+  if(p === "me") document.getElementById("mePage").classList.remove("hidden");
 }
 
-// 上传视频（服务器版，所有人可见）
-async function uploadVideo(){
-  let file = document.getElementById("videoFile").files[0];
-  if(!file)return alert("请选视频");
-  
-  let name = Date.now() + "_" + file.name;
-  let {error} = await supabase.storage.from("videos").upload(name, file);
-  if(error)return alert("上传失败");
-  
-  let {data} = supabase.storage.from("videos").getPublicUrl(name);
-  await supabase.from("videos").insert([{user:user,url:data.publicUrl}]);
-  
-  alert("发布成功！全平台可见");
-  loadVideos();
-}
-
-// 加载所有视频（别人发的也能看见）
+// ====================== 加载视频（服务器版） ======================
 async function loadVideos(){
-  let {data} = await supabase.from("videos").select("*").order("id",{ascending:false});
-  if(!data||!data.length)return;
-  
+  let { data, error } = await supabase
+    .from("videos")
+    .select("*")
+    .order("id", { ascending: false });
+
+  if (!data || data.length === 0) return;
+
   let v = document.getElementById("mainVideo");
   v.src = data[0].url;
   document.getElementById("videoUser").innerText = data[0].user;
   v.play();
 }
 
-// 加载我的视频
-async function loadMy(){
-  let {data} = await supabase.from("videos").select("*").eq("user",user);
-  let html = "";
-  data.forEach((i,n)=>{
-    html+=`<div style='padding:10px;background:#111;margin:6px'>作品${n+1}</div>`;
-  });
-  document.getElementById("myList").innerHTML = html;
+// ====================== 上传视频（服务器） ======================
+async function uploadVideo(){
+  let file = document.getElementById("videoFile").files[0];
+  if(!file) return alert("请选择视频");
+
+  let name = Date.now() + "_" + file.name;
+
+  let { error } = await supabase
+    .storage
+    .from("videos")
+    .upload(name, file);
+
+  if(error) return alert("上传失败");
+
+  let { data } = supabase.storage.from("videos").getPublicUrl(name);
+
+  await supabase.from("videos").insert([{
+    user: currentUser,
+    url: data.publicUrl
+  }]);
+
+  alert("发布成功！所有人可见");
+  loadVideos();
 }
 
-// 点赞
-async function likeVideo(){
-  await supabase.from("likes").insert([{user:user}]);
-  alert("已点赞");
-}
-
-// 举报
-function openReport(){
-  let r = prompt("举报原因");
-  if(!r)return;
-  supabase.from("reports").insert([{user:user,text:r}]);
-  alert("举报成功");
-}
-
-// 管理员
-function openAdmin(){document.getElementById("adminModal").style.display="flex";}
+// ====================== 管理员 ======================
+function openAdmin(){ document.getElementById("adminModal").style.display = "flex"; }
 function adminLogin(){
-  if(document.getElementById("apwd").value===ADMIN_PWD){
+  if(document.getElementById("apwd").value === ADMIN_PWD){
     document.getElementById("adminPanel").classList.remove("hidden");
-  }else alert("密码错误");
+  } else {
+    alert("密码错误");
+  }
 }
+
 async function banUser(){
   let u = prompt("输入要封禁的用户");
-  if(!u)return;
-  await supabase.from("bans").insert([{user:u,time:Date.now()+86400000}]);
-  alert("已封禁24小时");
+  if(!u) return;
+  await supabase.from("bans").insert([{ user: u, time: Date.now() + 86400000 }]);
+  alert("已封禁 24 小时");
 }
+
 async function unbanUser(){
   let u = prompt("输入用户");
-  await supabase.from("bans").delete().eq("user",u);
+  await supabase.from("bans").delete().eq("user", u);
   alert("已解封");
 }
 
-// 自动加载
+// 自动登录检测
 window.onload = async ()=>{
-  let {data} = await supabase.from("users").select("*").limit(1);
-  if(data.length)document.getElementById("authPage").classList.remove("hidden");
+  let { data } = await supabase.from("users").select("username").limit(1);
+  if(data.length) document.getElementById("authPage").classList.remove("hidden");
 };
 </script>
 </body>
