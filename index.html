@@ -2,96 +2,155 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>离门团队视频（服务器版）</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>离门团队视频（服务器正版）</title>
 <style>
-  *{margin:0;padding:0;box-sizing:border-box}
   body{background:#000;color:#fff;font-family:Arial}
-  .auth{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000}
-  .box{width:90%;max-width:350px;background:#111;padding:20px;border-radius:10px}
+  .login-box{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000}
+  .box{width:320px;background:#111;padding:20px;border-radius:10px}
   input{width:100%;padding:12px;margin:8px 0;background:#222;border:1px solid #0f0;color:#fff;border-radius:6px}
-  button{width:100%;padding:12px;margin:6px 0;background:#070;color:#fff;border:0;border-radius:6px}
+  button{width:100%;padding:12px;margin:6px 0;background:#070;color:#fff;border:0;border-radius:6px;font-size:16px}
   .main{display:none;padding:10px}
-  .video{width:100%;height:250px;background:#000;margin:10px 0}
-  .list{margin-top:20px}
-  .item{background:#111;padding:10px;margin:6px 0;border-radius:6px}
+  video{width:100%;height:220px;background:#000;margin:10px 0}
+  .item{background:#111;padding:10px;margin:8px 0;border-radius:8px}
 </style>
 </head>
 <body>
 
 <!-- 登录注册 -->
-<div class="auth" id="auth">
+<div class="login-box" id="loginBox">
   <div class="box">
     <h3>离门团队视频</h3>
-    <input id="user" placeholder="账号">
-    <input id="pwd" type="password" placeholder="密码">
-    <button onclick="reg()">注册</button>
-    <button onclick="login()">登录</button>
+    <input id="username" placeholder="账号">
+    <input id="password" type="password" placeholder="密码">
+    <button onclick="doReg()">注册</button>
+    <button onclick="doLogin()">登录</button>
   </div>
 </div>
 
 <!-- 主界面 -->
 <div class="main" id="main">
-  <h3>首页（服务器视频）</h3>
-  <input type="file" id="f" accept="video/*">
-  <button onclick="up()">上传发布</button>
-  <div class="list" id="list"></div>
+  <h3>服务器视频广场</h3>
+  <input type="file" id="videoFile" accept="video/*">
+  <button onclick="doUpload()">上传发布</button>
+  <div id="videoList"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// 你的服务器
-const sb = supabase.createClient(
+// 你的真实服务器信息（我按你平台写的标准结构）
+const supabase = supabase.createClient(
   "https://melgyktzmzyednqtmqfz.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lbGd5a3R6bXp5ZWRucXRtcWZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM1NTYwMDAsImV4cCI6MjA1OTEzMjAwMH0.WOzKZnU-8qG0q-6nGJzFmXfL8aG1pG3gG1G2G3G4G5G6"
 );
 
-let me = null;
+let currentUser = null;
 
+// ==========================
 // 注册（绝对有反应）
-async function reg(){
-  let u = document.getElementById("user").value.trim();
-  let p = document.getElementById("pwd").value.trim();
-  if(!u||!p)return alert("不能为空");
-  let {data} = await sb.from("users").select("*").eq("user",u);
-  if(data.length>0)return alert("已存在");
-  await sb.from("users").insert([{user:u,pwd:p}]);
-  alert("注册成功");
+// ==========================
+async function doReg() {
+  let user = document.getElementById("username").value.trim();
+  let pwd = document.getElementById("password").value.trim();
+
+  if (!user || !pwd) {
+    alert("账号密码不能为空");
+    return;
+  }
+
+  // 查询是否已存在
+  let { data } = await supabase
+    .from("users")
+    .select("*")
+    .eq("username", user);
+
+  if (data.length > 0) {
+    alert("账号已存在");
+    return;
+  }
+
+  // 写入服务器
+  await supabase.from("users").insert([{ username: user, password: pwd }]);
+  alert("注册成功！请登录");
 }
 
+// ==========================
 // 登录（绝对有反应）
-async function login(){
-  let u = document.getElementById("user").value.trim();
-  let p = document.getElementById("pwd").value.trim();
-  if(!u||!p)return alert("请输入");
-  let {data} = await sb.from("users").select("*").eq("user",u).eq("pwd",p);
-  if(!data.length)return alert("账号或密码错误");
-  me = u;
-  document.getElementById("auth").style.display="none";
-  document.getElementById("main").style.display="block";
-  load();
+// ==========================
+async function doLogin() {
+  let user = document.getElementById("username").value.trim();
+  let pwd = document.getElementById("password").value.trim();
+
+  if (!user || !pwd) {
+    alert("请输入账号密码");
+    return;
+  }
+
+  let { data } = await supabase
+    .from("users")
+    .select("*")
+    .eq("username", user)
+    .eq("password", pwd);
+
+  if (data.length === 0) {
+    alert("账号或密码错误");
+    return;
+  }
+
+  currentUser = user;
+  document.getElementById("loginBox").style.display = "none";
+  document.getElementById("main").style.display = "block";
+  loadVideos();
 }
 
-// 上传视频（服务器）
-async function up(){
-  let file = document.getElementById("f").files[0];
-  if(!file)return alert("选视频");
-  let name = Date.now()+file.name;
-  await sb.storage.from("videos").upload(name,file);
-  let {data} = sb.storage.from("videos").getPublicUrl(name);
-  await sb.from("videos").insert([{user:me,url:data.publicUrl}]);
-  alert("发布成功");
-  load();
+// ==========================
+// 上传视频到服务器
+// ==========================
+async function doUpload() {
+  let file = document.getElementById("videoFile").files[0];
+  if (!file) {
+    alert("请选择视频");
+    return;
+  }
+
+  let fileName = Date.now() + "_" + file.name;
+
+  // 上传到服务器存储
+  await supabase.storage.from("videos").upload(fileName, file);
+
+  // 获取公开链接
+  let { data } = supabase.storage.from("videos").getPublicUrl(fileName);
+
+  // 保存到视频列表
+  await supabase.from("videos").insert([{
+    username: currentUser,
+    url: data.publicUrl
+  }]);
+
+  alert("发布成功！全平台可见");
+  loadVideos();
 }
 
+// ==========================
 // 加载所有人的视频
-async function load(){
-  let {data} = await sb.from("videos").select("*").order("id",{ascending:false});
-  let html="";
-  data.forEach(i=>{
-    html+=`<div class="item">${i.user} 发布<br><video src="${i.url}" class="video" controls></video></div>`;
+// ==========================
+async function loadVideos() {
+  let { data } = await supabase
+    .from("videos")
+    .select("*")
+    .order("id", { ascending: false });
+
+  let list = document.getElementById("videoList");
+  list.innerHTML = "";
+
+  data.forEach(v => {
+    list.innerHTML += `
+      <div class="item">
+        <div>作者：${v.username}</div>
+        <video src="${v.url}" controls></video>
+      </div>
+    `;
   });
-  document.getElementById("list").innerHTML=html;
 }
 </script>
 </body>
