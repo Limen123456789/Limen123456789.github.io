@@ -19,18 +19,18 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// 这是你真实的服务器
+// 你的真实服务器 + 真实密钥（把下面换成你复制的）
 const sb = supabase.createClient(
   "https://melgyktzmzyednqtmqfz.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lbGd5a3R6bXp5ZWRucXRtcWZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM1NTYwMDAsImV4cCI6MjA1OTEzMjAwMH0.WOzKZnU-8qG0q-6nGJzFmXfL8aG1pG3gG1G2G3G4G5G6"
+  "YOUR_REAL_KEY"
 );
 
-// 注册（一定有反应）
+// 注册
 async function zhuCe() {
   let username = document.getElementById("u").value.trim()
   let password = document.getElementById("p").value.trim()
 
-  alert("开始注册...") // 点了一定会弹这个
+  alert("开始注册...")
 
   if (!username || !password) {
     alert("账号密码不能为空")
