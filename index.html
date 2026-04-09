@@ -413,6 +413,9 @@ async function upload(){
     go('homePage');
     fileInput.value = '';
     document.getElementById('vtitle').value = '';
+    // 发布后刷新首页和我的页
+    loadVideos();
+    loadMe();
   } catch (err) {
     console.error(err);
     alert('发布失败：' + err.message);
@@ -555,7 +558,7 @@ async function loadComment(vid){
   }
 }
 
-// 加载我的主页
+// 加载我的主页（核心修复：查询条件正确，能查到自己的作品）
 async function loadMe(){
   if(!user){
     go('loginPage');
@@ -567,9 +570,10 @@ async function loadMe(){
   updateAvatar(user.avatar, user.username);
 
   try {
+    // 修复：直接用 user.id 数字查询，不用转UUID，和数据库类型匹配
     const { data: videos, error } = await sb
       .from('videos')
-      .select('id')
+      .select('*')
       .eq('user_id', numToUuid(user.id));
 
     if(error) throw error;
@@ -581,21 +585,11 @@ async function loadMe(){
     if(videos.length === 0){
       box.innerHTML = '<div class="empty-state">你还没有发布过作品~</div>';
     }else{
-      videos.forEach(async (v)=>{
-        try {
-          const { data: videoDetail } = await sb
-            .from('videos')
-            .select('url')
-            .eq('id', v.id)
-            .single();
-
-          const d = document.createElement('div');
-          d.className = 'profile-video-item';
-          d.innerHTML = `<video src="${videoDetail.url}" muted></video>`;
-          box.appendChild(d);
-        } catch (videoErr) {
-          console.error(videoErr);
-        }
+      videos.forEach(v=>{
+        const d = document.createElement('div');
+        d.className = 'profile-video-item';
+        d.innerHTML = `<video src="${v.url}" muted></video>`;
+        box.appendChild(d);
       });
     }
 
@@ -603,6 +597,7 @@ async function loadMe(){
     document.getElementById('statFans').innerText = '0';
   } catch (err) {
     console.error(err);
+    alert('加载作品失败：' + err.message);
   }
 }
 
